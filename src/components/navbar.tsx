@@ -2,9 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import TextLink from "@/components/text-link";
 import { whenIntroDone } from "@/lib/intro";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -18,12 +22,17 @@ const LINKS = [
 // top of the page. On pages with an intro it waits off-screen and drops in
 // once the intro finishes.
 //
+// Over the hero's dark photo the links are plain light text. Once the hero
+// has scrolled up past them, they blend with the page like the logo, so they
+// turn dark over light sections. Pages without a hero blend throughout.
+//
 // The logo is pinned on its own, outside the <header>: it blends with the
 // page behind it, and an element inside the fixed header could only blend
 // with the header itself.
 export default function Navbar() {
   const navbarRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLAnchorElement>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const navbar = navbarRef.current;
@@ -45,6 +54,30 @@ export default function Navbar() {
 
     return () => mm.revert();
   }, []);
+
+  useEffect(() => {
+    const navbar = navbarRef.current;
+    if (!navbar) return;
+
+    const hero = document.querySelector(".hero");
+    if (!hero) {
+      navbar.classList.add("navbar-blend");
+      return () => navbar.classList.remove("navbar-blend");
+    }
+
+    // Switches when the hero's bottom edge reaches the middle of the bar.
+    const trigger = ScrollTrigger.create({
+      trigger: hero,
+      start: () => `bottom ${navbar.offsetHeight / 2}px`,
+      end: "max",
+      onToggle: (self) => navbar.classList.toggle("navbar-blend", self.isActive),
+    });
+
+    return () => {
+      trigger.kill();
+      navbar.classList.remove("navbar-blend");
+    };
+  }, [pathname]);
 
   return (
     <>
