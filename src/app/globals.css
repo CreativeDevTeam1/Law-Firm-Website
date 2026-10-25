@@ -1,0 +1,861 @@
+@layer primitives, typography, layout, base, semantic-typography, components;
+
+/* ==========================================================================
+   Primitives — copied from the Figma "Primitives" variable collection.
+
+   Numbers are named by their pixel value (--number-28 = 28px) and stored in
+   rem (1rem = 16px), with the px value noted next to each one.
+   ========================================================================== */
+
+@layer primitives {
+  :root {
+    /* Numbers */
+    --number-0: 0rem; /* 0px */
+    --number-2: 0.125rem; /* 2px */
+    --number-4: 0.25rem; /* 4px */
+    --number-6: 0.375rem; /* 6px */
+    --number-8: 0.5rem; /* 8px */
+    --number-10: 0.625rem; /* 10px */
+    --number-12: 0.75rem; /* 12px */
+    --number-14: 0.875rem; /* 14px */
+    --number-16: 1rem; /* 16px */
+    --number-17: 1.0625rem; /* 17px */
+    --number-18: 1.125rem; /* 18px */
+    --number-20: 1.25rem; /* 20px */
+    --number-22: 1.375rem; /* 22px */
+    --number-24: 1.5rem; /* 24px */
+    --number-25: 1.5625rem; /* 25px */
+    --number-28: 1.75rem; /* 28px */
+    --number-32: 2rem; /* 32px */
+    --number-40: 2.5rem; /* 40px */
+    --number-48: 3rem; /* 48px */
+    --number-56: 3.5rem; /* 56px */
+    --number-64: 4rem; /* 64px */
+    --number-72: 4.5rem; /* 72px */
+    --number-80: 5rem; /* 80px */
+    --number-88: 5.5rem; /* 88px */
+    --number-96: 6rem; /* 96px */
+    --number-104: 6.5rem; /* 104px */
+    --number-112: 7rem; /* 112px */
+    --number-120: 7.5rem; /* 120px */
+    --number-128: 8rem; /* 128px */
+    --number-136: 8.5rem; /* 136px */
+    --number-144: 9rem; /* 144px */
+    --number-152: 9.5rem; /* 152px */
+    --number-160: 10rem; /* 160px */
+    --number-168: 10.5rem; /* 168px */
+    --number-176: 11rem; /* 176px */
+    --number-184: 11.5rem; /* 184px */
+
+    /* Colors */
+    --color-neutral-100: #f0f0f0;
+    --color-neutral-250: #bfbfbf;
+    --color-neutral-500: #858585;
+    --color-neutral-700: #595959;
+    --color-neutral-950: #1b1b1c;
+
+    /* Typography */
+    --font-family-primary: var(--font-suisse-intl), Arial, Helvetica, sans-serif; /* loaded in layout.tsx */
+    --font-weight-book: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+
+    /* Line height and letter spacing aren't Figma variables; these values
+       come from the Figma text styles. */
+    --line-height-100: 1; /* 100% */
+    --line-height-133: 1.3333; /* 133% */
+    --line-height-150: 1.5; /* 150% */
+    --letter-spacing-0: 0em; /* 0% */
+    --letter-spacing-minus-4: -0.04em; /* -4% */
+    --letter-spacing-minus-8: -0.08em; /* -8% */
+  }
+}
+
+/* ==========================================================================
+   Typography — copied from the Figma "Typography" variable collection.
+
+   Every value points to a primitive. Font sizes scale fluidly from the Mobile
+   primitive (at a 390px viewport) to the Web primitive (at a 1440px
+   viewport); the middle value of clamp() is the rate between them:
+
+     rate   = (web − mobile) / (1440 − 390)        → rate × 100 vw
+     offset = mobile − rate × 390                  → ÷ 16 rem
+   ========================================================================== */
+
+@layer typography {
+  :root {
+    /* Display Header */
+    --display-header-font-family: var(--font-family-primary);
+    --display-header-font-weight: var(--font-weight-semibold);
+    --display-header-font-size: clamp(var(--number-80), 2.5857rem + 9.9048vw, var(--number-184)); /* 80px → 184px */
+    --display-header-line-height: var(--line-height-100);
+    --display-header-letter-spacing: var(--letter-spacing-minus-8);
+
+    /* Display Header 2 */
+    --display-header-2-font-family: var(--font-family-primary);
+    --display-header-2-font-weight: var(--font-weight-semibold);
+    --display-header-2-font-size: clamp(var(--number-72), 3.2rem + 5.3333vw, var(--number-128)); /* 72px → 128px */
+    --display-header-2-line-height: var(--line-height-100);
+    --display-header-2-letter-spacing: var(--letter-spacing-minus-8);
+
+    /* Header 1 */
+    --header-1-font-family: var(--font-family-primary);
+    --header-1-font-weight: var(--font-weight-semibold);
+    --header-1-font-size: clamp(var(--number-28), 0.9143rem + 3.4286vw, var(--number-64)); /* 28px → 64px */
+    --header-1-line-height: var(--line-height-100);
+    --header-1-letter-spacing: var(--letter-spacing-minus-4);
+
+    /* Header 2 Semibold */
+    --header-2-semibold-font-family: var(--font-family-primary);
+    --header-2-semibold-font-weight: var(--font-weight-semibold);
+    --header-2-semibold-font-size: clamp(var(--number-20), 0.7857rem + 1.9048vw, var(--number-40)); /* 20px → 40px */
+    --header-2-semibold-line-height: var(--line-height-100);
+    --header-2-semibold-letter-spacing: var(--letter-spacing-minus-4);
+
+    /* Header 2 Medium */
+    --header-2-medium-font-family: var(--font-family-primary);
+    --header-2-medium-font-weight: var(--font-weight-medium);
+    --header-2-medium-font-size: clamp(var(--number-20), 0.7857rem + 1.9048vw, var(--number-40)); /* 20px → 40px */
+    --header-2-medium-line-height: var(--line-height-100);
+    --header-2-medium-letter-spacing: var(--letter-spacing-minus-4);
+
+    /* Header 3 Semibold */
+    --header-3-semibold-font-family: var(--font-family-primary);
+    --header-3-semibold-font-weight: var(--font-weight-semibold);
+    --header-3-semibold-font-size: clamp(var(--number-18), 0.9857rem + 0.5714vw, var(--number-24)); /* 18px → 24px */
+    --header-3-semibold-line-height: var(--line-height-100);
+    --header-3-semibold-letter-spacing: var(--letter-spacing-minus-4);
+
+    /* Header 3 Medium */
+    --header-3-medium-font-family: var(--font-family-primary);
+    --header-3-medium-font-weight: var(--font-weight-medium);
+    --header-3-medium-font-size: clamp(var(--number-18), 0.9857rem + 0.5714vw, var(--number-24)); /* 18px → 24px */
+    --header-3-medium-line-height: var(--line-height-100);
+    --header-3-medium-letter-spacing: var(--letter-spacing-minus-4);
+
+    /* Header 4 — same size on Web and Mobile */
+    --header-4-font-family: var(--font-family-primary);
+    --header-4-font-weight: var(--font-weight-semibold);
+    --header-4-font-size: var(--number-16); /* 16px */
+    --header-4-line-height: var(--line-height-150);
+    --header-4-letter-spacing: var(--letter-spacing-minus-4);
+
+    /* Body Big */
+    --body-big-font-family: var(--font-family-primary);
+    --body-big-font-weight: var(--font-weight-book);
+    --body-big-font-size: clamp(var(--number-18), 0.9857rem + 0.5714vw, var(--number-24)); /* 18px → 24px */
+    --body-big-line-height: var(--line-height-133);
+    --body-big-letter-spacing: var(--letter-spacing-0);
+
+    /* Body — Figma Mobile line height is 22px (157%); 150% gives 21px */
+    --body-font-family: var(--font-family-primary);
+    --body-font-weight: var(--font-weight-book);
+    --body-font-size: clamp(var(--number-14), 0.8286rem + 0.1905vw, var(--number-16)); /* 14px → 16px */
+    --body-line-height: var(--line-height-150);
+    --body-letter-spacing: var(--letter-spacing-0);
+
+    /* CTA Big */
+    --cta-big-font-family: var(--font-family-primary);
+    --cta-big-font-weight: var(--font-weight-semibold);
+    --cta-big-font-size: clamp(var(--number-32), 1.8143rem + 0.7619vw, var(--number-40)); /* 32px → 40px */
+    --cta-big-line-height: var(--line-height-100);
+    --cta-big-letter-spacing: var(--letter-spacing-minus-4);
+
+    /* CTA Medium */
+    --cta-medium-font-family: var(--font-family-primary);
+    --cta-medium-font-weight: var(--font-weight-medium);
+    --cta-medium-font-size: clamp(var(--number-18), 0.9857rem + 0.5714vw, var(--number-24)); /* 18px → 24px */
+    --cta-medium-line-height: var(--line-height-100);
+    --cta-medium-letter-spacing: var(--letter-spacing-minus-4);
+
+    /* CTA Small */
+    --cta-small-font-family: var(--font-family-primary);
+    --cta-small-font-weight: var(--font-weight-semibold);
+    --cta-small-font-size: clamp(var(--number-14), 0.8286rem + 0.1905vw, var(--number-16)); /* 14px → 16px */
+    --cta-small-line-height: var(--line-height-100);
+    --cta-small-letter-spacing: var(--letter-spacing-minus-4);
+  }
+}
+
+/* ==========================================================================
+   Layout — spacing variables from the Figma file (Web and Mobile modes).
+
+   Values scale fluidly from Mobile (390px viewport) to Web (1440px viewport)
+   with the same clamp() formula as the Typography layer.
+   ========================================================================== */
+
+@layer layout {
+  :root {
+    /* Page */
+    --layout-padding-x: clamp(var(--number-16), 0.2571rem + 3.0476vw, var(--number-48)); /* 16px → 48px */
+    --layout-padding-y: clamp(var(--number-40), 1.5714rem + 3.8095vw, var(--number-80)); /* 40px → 80px */
+    --layout-col-gap: clamp(var(--number-12), 0.4714rem + 1.1429vw, var(--number-24)); /* 12px → 24px */
+
+    /* Navbar */
+    --navbar-padding-x: var(--layout-padding-x); /* 16px → 48px */
+    --navbar-padding-y: clamp(var(--number-24), 0.9429rem + 2.2857vw, var(--number-48)); /* 24px → 48px */
+    --navbar-menu-gap: var(--number-12); /* 12px */
+    --navbar-item-gap: var(--number-4); /* 4px */
+
+    /* Hero */
+    --hero-padding-bottom: clamp(var(--number-104), 5.0143rem + 6.0952vw, var(--number-168)); /* 104px → 168px */
+    --hero-content-row-gap: clamp(var(--number-64), 2.7rem + 5.3333vw, var(--number-120)); /* 64px → 120px */
+    --hero-intro-row-gap: clamp(var(--number-24), 0.9429rem + 2.2857vw, var(--number-48)); /* 24px → 48px */
+  }
+}
+
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+@layer semantic-typography {
+  .display-header {
+    font-family: var(--display-header-font-family), sans-serif;
+    font-weight: var(--display-header-font-weight);
+    font-size: var(--display-header-font-size);
+    line-height: var(--display-header-line-height);
+    letter-spacing: var(--display-header-letter-spacing);
+  }
+
+  .display-header-2 {
+    font-family: var(--display-header-2-font-family), sans-serif;
+    font-weight: var(--display-header-2-font-weight);
+    font-size: var(--display-header-2-font-size);
+    line-height: var(--display-header-2-line-height);
+    letter-spacing: var(--display-header-2-letter-spacing);
+  }
+
+  .header-1 {
+    font-family: var(--header-1-font-family), sans-serif;
+    font-weight: var(--header-1-font-weight);
+    font-size: var(--header-1-font-size);
+    line-height: var(--header-1-line-height);
+    letter-spacing: var(--header-1-letter-spacing);
+  }
+
+  .header-2-semibold {
+    font-family: var(--header-2-semibold-font-family), sans-serif;
+    font-weight: var(--header-2-semibold-font-weight);
+    font-size: var(--header-2-semibold-font-size);
+    line-height: var(--header-2-semibold-line-height);
+    letter-spacing: var(--header-2-semibold-letter-spacing);
+  }
+
+  .header-2-medium {
+    font-family: var(--header-2-medium-font-family), sans-serif;
+    font-weight: var(--header-2-medium-font-weight);
+    font-size: var(--header-2-medium-font-size);
+    line-height: var(--header-2-medium-line-height);
+    letter-spacing: var(--header-2-medium-letter-spacing);
+  }
+
+  .header-3-semibold {
+    font-family: var(--header-3-semibold-font-family), sans-serif;
+    font-weight: var(--header-3-semibold-font-weight);
+    font-size: var(--header-3-semibold-font-size);
+    line-height: var(--header-3-semibold-line-height);
+    letter-spacing: var(--header-3-semibold-letter-spacing);
+  }
+
+  .header-3-medium {
+    font-family: var(--header-3-medium-font-family), sans-serif;
+    font-weight: var(--header-3-medium-font-weight);
+    font-size: var(--header-3-medium-font-size);
+    line-height: var(--header-3-medium-line-height);
+    letter-spacing: var(--header-3-medium-letter-spacing);
+  }
+
+  .header-4 {
+    font-family: var(--header-4-font-family), sans-serif;
+    font-weight: var(--header-4-font-weight);
+    font-size: var(--header-4-font-size);
+    line-height: var(--header-4-line-height);
+    letter-spacing: var(--header-4-letter-spacing);
+  }
+
+  .body-big {
+    font-family: var(--body-big-font-family), sans-serif;
+    font-weight: var(--body-big-font-weight);
+    font-size: var(--body-big-font-size);
+    line-height: var(--body-big-line-height);
+    letter-spacing: var(--body-big-letter-spacing);
+  }
+
+  .body {
+    font-family: var(--body-font-family), sans-serif;
+    font-weight: var(--body-font-weight);
+    font-size: var(--body-font-size);
+    line-height: var(--body-line-height);
+    letter-spacing: var(--body-letter-spacing);
+  }
+
+  .cta-big {
+    font-family: var(--cta-big-font-family), sans-serif;
+    font-weight: var(--cta-big-font-weight);
+    font-size: var(--cta-big-font-size);
+    line-height: var(--cta-big-line-height);
+    letter-spacing: var(--cta-big-letter-spacing);
+  }
+
+  .cta-medium {
+    font-family: var(--cta-medium-font-family), sans-serif;
+    font-weight: var(--cta-medium-font-weight);
+    font-size: var(--cta-medium-font-size);
+    line-height: var(--cta-medium-line-height);
+    letter-spacing: var(--cta-medium-letter-spacing);
+  }
+
+  .cta-small {
+    font-family: var(--cta-small-font-family), sans-serif;
+    font-weight: var(--cta-small-font-weight);
+    font-size: var(--cta-small-font-size);
+    line-height: var(--cta-small-line-height);
+    letter-spacing: var(--cta-small-letter-spacing);
+  }
+}
+
+/* ==========================================================================
+   Line reveal — text split into lines that slide up (use-line-reveal.ts)
+
+   The text stays hidden until it has been split, so it never flashes in
+   unsplit. Visitors who prefer reduced motion see it straight away, with no
+   animation. The extra bottom padding on each line mask stops descenders
+   (g, p, y) being clipped in tight-leading headings.
+   ========================================================================== */
+
+@layer components {
+  @media (prefers-reduced-motion: no-preference) {
+    .line-reveal {
+      visibility: hidden;
+    }
+  }
+
+  .line-reveal-line-mask {
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+  }
+}
+
+/* ==========================================================================
+   Link underline — reusable hover underline for any link
+
+   .link-underline        No line at rest. On hover a line draws in from the
+                          left; on leaving it carries on out to the right.
+   .link-underline-swap   Underlined at rest. On hover the line exits to the
+                          right, then a fresh one draws in from the left.
+
+   The line is the link's text colour (currentColor), so it works on light
+   and dark backgrounds. Keyboard focus shows it too. Only devices that can
+   hover animate it; with reduced motion the line changes instantly.
+   ========================================================================== */
+
+@layer components {
+  :root {
+    --link-underline-duration: 0.75s;
+    --link-underline-ease: cubic-bezier(0.65, 0.05, 0, 1); /* slow start, fast middle, soft end */
+    --link-underline-swap-delay: 0.3s;
+  }
+
+  .link-underline,
+  .link-underline-swap {
+    position: relative;
+    display: inline-block; /* components may set their own display after this */
+    padding-block: 0.2em;
+  }
+
+  /* The line(s). rotate(0.001deg) keeps a 1px line crisp while it scales. */
+  .link-underline::before,
+  .link-underline-swap::before,
+  .link-underline-swap::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background-color: currentColor;
+    transition: transform var(--link-underline-duration) var(--link-underline-ease);
+  }
+
+  /* Resting states. */
+  .link-underline::before,
+  .link-underline-swap::after {
+    transform: scaleX(0) rotate(0.001deg);
+    transform-origin: right center;
+  }
+
+  .link-underline-swap::before {
+    transform: scaleX(1) rotate(0.001deg);
+    transform-origin: left center;
+    transition-delay: var(--link-underline-swap-delay);
+  }
+
+  /* Active states: hover on hover-capable devices, and keyboard focus. */
+  @media (hover: hover) {
+    .link-underline:hover::before,
+    .link-underline-swap:hover::after {
+      transform: scaleX(1) rotate(0.001deg);
+      transform-origin: left center;
+    }
+
+    .link-underline-swap:hover::before {
+      transform: scaleX(0) rotate(0.001deg);
+      transform-origin: right center;
+      transition-delay: 0s;
+    }
+
+    .link-underline-swap:hover::after {
+      transition-delay: var(--link-underline-swap-delay);
+    }
+  }
+
+  .link-underline:focus-visible::before,
+  .link-underline-swap:focus-visible::after {
+    transform: scaleX(1) rotate(0.001deg);
+    transform-origin: left center;
+  }
+
+  .link-underline-swap:focus-visible::before {
+    transform: scaleX(0) rotate(0.001deg);
+    transform-origin: right center;
+    transition-delay: 0s;
+  }
+
+  .link-underline-swap:focus-visible::after {
+    transition-delay: var(--link-underline-swap-delay);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .link-underline::before,
+    .link-underline-swap::before,
+    .link-underline-swap::after {
+      transition: none;
+    }
+  }
+}
+
+/* ==========================================================================
+   Link arrow — reusable hover animation for an arrow icon inside a link
+
+   Wrap the icon in .link-arrow. When the link is hovered (or focused from
+   the keyboard), the arrow flies out to the top-right and slides back in
+   from the bottom-left. The wrapper clips it, so it seems to pass through.
+   ========================================================================== */
+
+@layer components {
+  .link-arrow {
+    display: block;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .link-arrow > * {
+    display: block;
+  }
+
+  @keyframes link-arrow-through {
+    0% {
+      transform: translate(0, 0);
+      animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); /* speeds up out */
+    }
+
+    45% {
+      transform: translate(100%, -100%);
+    }
+
+    45.01% {
+      transform: translate(-100%, 100%);
+      animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); /* settles in */
+    }
+
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    a:hover .link-arrow > * {
+      animation: link-arrow-through 0.7s both;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    a:focus-visible .link-arrow > * {
+      animation: link-arrow-through 0.7s both;
+    }
+  }
+}
+
+/* ==========================================================================
+   Text link — the site's link component (text-link.tsx)
+
+   Combines the hover classes above. Sizes come from the CTA text styles;
+   the gap and the arrow are in em, so they scale with the text (4px gap and
+   a 16px arrow at the 16px small size, as in Figma).
+   ========================================================================== */
+
+@layer components {
+  .text-link {
+    white-space: nowrap;
+  }
+
+  .text-link-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+  }
+
+  .text-link-icon {
+    display: block;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    mask: url("/images/icons/arrow-up-right.svg") center / contain no-repeat;
+  }
+}
+
+/* ==========================================================================
+   Navbar — Figma "Navigation" (Web) and "Mobile" (navbar.tsx)
+
+   Pinned over the top of the page. Phones: short logo and a Menu button.
+   From 1024px: full logo, links from column 7 of a 12-column grid, and
+   "Let's Talk" on the right. The links are <TextLink>s (see Text link).
+   The logo is pinned on its own beside the bar so it alone can blend with
+   the page. The logos and the menu icon are drawn as CSS masks filled with
+   the text colour, so their colour follows the tokens.
+   ========================================================================== */
+
+@layer components {
+  :root {
+    --navbar-logo-height: var(--number-24); /* short logo; 32px full logo from 1024px */
+  }
+
+  /* The bar is as tall as the logo plus its padding, as in Figma, so the
+     links line up with the logo even though the logo sits outside it. */
+  .navbar {
+    position: fixed; /* stays pinned to the top while scrolling */
+    inset: 0 0 auto;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: calc(var(--navbar-logo-height) + 2 * var(--navbar-padding-y));
+    padding: var(--navbar-padding-y) var(--navbar-padding-x);
+    color: var(--color-neutral-100);
+  }
+
+  /* Pinned separately from .navbar (see navbar.tsx) so it can blend with the
+     page: it inverts against what's behind it, light over dark areas and
+     dark over light ones. */
+  .navbar-logo {
+    position: fixed;
+    top: var(--navbar-padding-y);
+    left: var(--navbar-padding-x);
+    z-index: 11;
+    display: block;
+    color: var(--color-neutral-100);
+    mix-blend-mode: difference;
+  }
+
+  /* Off-screen until the intro has finished (navbar.tsx drops them in). */
+  @media (prefers-reduced-motion: no-preference) {
+    body:has(.intro) .navbar,
+    body:has(.intro) .navbar-logo {
+      transform: translateY(calc(-1 * (var(--navbar-logo-height) + 2 * var(--navbar-padding-y))));
+    }
+  }
+
+  .navbar-logo-full,
+  .navbar-logo-short,
+  .navbar-icon {
+    display: block;
+    background-color: currentColor;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    mask-position: center;
+  }
+
+  .navbar-logo-full {
+    display: none;
+    width: 13.125rem; /* 210px */
+    height: var(--navbar-logo-height);
+    mask-image: url("/images/logo/full-logo.svg");
+  }
+
+  .navbar-logo-short {
+    width: 2.375rem; /* 38px */
+    height: var(--navbar-logo-height);
+    mask-image: url("/images/logo/res-logo.svg");
+  }
+
+  .navbar-icon {
+    flex-shrink: 0;
+    width: var(--number-16);
+    height: var(--number-16);
+  }
+
+  .navbar-icon-menu {
+    mask-image: url("/images/icons/menu.svg");
+  }
+
+  .navbar-menu-button {
+    display: flex;
+    align-items: center;
+    gap: var(--navbar-item-gap);
+    white-space: nowrap;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .navbar-menu,
+  .navbar-cta {
+    display: none;
+  }
+
+  .navbar-menu ul {
+    display: flex;
+    gap: var(--navbar-menu-gap);
+    list-style: none;
+  }
+
+  @media (min-width: 64rem) {
+    :root {
+      --navbar-logo-height: var(--number-32);
+    }
+
+    .navbar {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .navbar-logo-full {
+      display: block;
+    }
+
+    .navbar-logo-short,
+    .navbar-menu-button {
+      display: none;
+    }
+
+    .navbar-menu {
+      display: block;
+      grid-column: 7 / span 5;
+    }
+
+    .navbar-cta {
+      display: flex;
+      grid-column: 12;
+      justify-self: end;
+    }
+  }
+}
+
+/* ==========================================================================
+   Intro — opening loader on the home page (intro.tsx)
+
+   The firm's name sits in large type, split at the middle of the screen:
+   .intro-top above the middle, .intro-bottom below it. .intro-window is an
+   invisible marker for the small window the hero first opens into.
+
+   Layering while it plays: dark page background, then the name, then the
+   hero (z-index 1), which is clipped down to the window and grows over the
+   name. Until the script takes over, the hero is fully clipped and the name
+   hidden, so neither flashes in. Without motion, none of this applies.
+   ========================================================================== */
+
+@layer components {
+  @media (prefers-reduced-motion: no-preference) {
+    body:has(.intro) {
+      background: var(--color-neutral-950);
+    }
+
+    body:has(.intro) [data-intro-target] {
+      z-index: 1;
+      clip-path: inset(50% 50% 50% 50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro {
+      display: none;
+    }
+  }
+
+  .intro {
+    position: fixed;
+    inset: 0;
+    visibility: hidden;
+    overflow: hidden;
+    pointer-events: none;
+    color: var(--color-neutral-100);
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .intro-text {
+    font-family: var(--display-header-font-family), sans-serif;
+    font-weight: var(--display-header-font-weight);
+    font-size: min(var(--display-header-font-size), 14vw);
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+  }
+
+  .intro-top,
+  .intro-bottom {
+    position: absolute;
+    inset-inline: 0;
+  }
+
+  .intro-top {
+    bottom: 50%;
+  }
+
+  .intro-bottom {
+    top: 50%;
+  }
+
+  .intro-window {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: clamp(12.5rem, 7.8571rem + 19.0476vw, 25rem); /* 200px → 400px */
+    aspect-ratio: 16 / 10;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* ==========================================================================
+   Hero section — Figma "hero-section" (Web) and "hero-section-phone" (Mobile)
+
+   The photo covers the whole section. The first part (.hero-screen) is
+   exactly one screen tall, so the H1 always sits at the bottom of the first
+   screen whatever the window size; the quote and description follow below
+   it, still over the photo.
+
+   Text widths are set in em, from the Figma Web widths (H1 9, quote 6, body
+   5 of 12 columns at 1440px). Width follows font size, so each line keeps
+   the same number of characters at every screen width; on narrow screens
+   the text simply fills the available width.
+   ========================================================================== */
+
+@layer components {
+  .hero {
+    position: relative;
+    overflow: hidden;
+    color: var(--color-neutral-100);
+  }
+
+  .hero-image {
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hero-screen,
+  .hero-intro {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding-inline: var(--layout-padding-x);
+  }
+
+  .hero-screen {
+    justify-content: flex-end;
+    min-height: 100vh; /* fallback for browsers without svh */
+    min-height: 100svh; /* visible screen height, ignoring mobile browser bars */
+    padding-block: var(--layout-padding-y) var(--layout-padding-x);
+  }
+
+  /* Top padding keeps the Figma gap between the H1 and the quote, counting
+     the space already left under the H1. */
+  .hero-intro {
+    row-gap: var(--hero-intro-row-gap);
+    padding-block: calc(var(--hero-content-row-gap) - var(--layout-padding-x)) var(--hero-padding-bottom);
+  }
+
+  .hero-title {
+    max-width: 15.6563em; /* 1002px at 64px */
+  }
+
+  .hero-quote {
+    max-width: 16.5em; /* 660px at 40px */
+  }
+
+  .hero-description {
+    max-width: 34.125em; /* 546px at 16px */
+  }
+}
+
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+    font-family: var(--body-font-family), sans-serif;
+    font-weight: var(--body-font-weight);
+    font-size: var(--body-font-size);
+    line-height: var(--body-line-height);
+    letter-spacing: var(--body-letter-spacing);
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Lenis smooth scroll — copied from lenis/dist/lenis.css */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis:not(.lenis-autoToggle).lenis-stopped {
+    overflow: clip;
+  }
+
+  .lenis [data-lenis-prevent],
+  .lenis [data-lenis-prevent-wheel],
+  .lenis [data-lenis-prevent-touch],
+  .lenis [data-lenis-prevent-vertical],
+  .lenis [data-lenis-prevent-horizontal] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
+  }
+
+  .lenis.lenis-autoToggle {
+    transition-property: overflow;
+    transition-duration: 1ms;
+    transition-behavior: allow-discrete;
+  }
+}
