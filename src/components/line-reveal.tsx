@@ -6,6 +6,7 @@ import { useLineReveal, type LineRevealOptions } from "@/hooks/use-line-reveal";
 type LineRevealProps = LineRevealOptions & {
   /** Element to render, e.g. "h1", "h2", "p", "blockquote". Default "p". */
   as?: ElementType;
+  id?: string;
   className?: string;
   children: ReactNode;
 };
@@ -17,6 +18,7 @@ type LineRevealProps = LineRevealOptions & {
 //   <LineReveal stagger={0.12} start="top 70%">…</LineReveal>
 export default function LineReveal({
   as: Tag = "p",
+  id,
   className = "",
   children,
   ...options
@@ -26,7 +28,7 @@ export default function LineReveal({
   useLineReveal(ref, options);
 
   return (
-    <Tag ref={ref} className={`line-reveal ${className}`.trim()}>
+    <Tag ref={ref} id={id} className={`line-reveal ${className}`.trim()}>
       {children}
     </Tag>
   );

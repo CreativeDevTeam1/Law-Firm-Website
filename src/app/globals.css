@@ -201,6 +201,12 @@
     --hero-padding-bottom: clamp(var(--number-104), 5.0143rem + 6.0952vw, var(--number-168)); /* 104px → 168px */
     --hero-content-row-gap: clamp(var(--number-64), 2.7rem + 5.3333vw, var(--number-120)); /* 64px → 120px */
     --hero-intro-row-gap: clamp(var(--number-24), 0.9429rem + 2.2857vw, var(--number-48)); /* 24px → 48px */
+
+    /* About */
+    --about-padding-x: clamp(var(--number-24), 0.9429rem + 2.2857vw, var(--number-48)); /* 24px → 48px */
+    --about-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --about-row-gap: clamp(var(--number-64), 3.6286rem + 1.5238vw, var(--number-80)); /* 64px → 80px */
+    --about-content-gap: clamp(var(--number-24), 1.3143rem + 0.7619vw, var(--number-32)); /* 24px → 32px */
   }
 }
 
@@ -472,15 +478,44 @@
     }
   }
 
+  /* A right-pointing arrow flies straight out to the right instead. */
+  @keyframes link-arrow-through-right {
+    0% {
+      transform: translateX(0);
+      animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+    }
+
+    45% {
+      transform: translateX(100%);
+    }
+
+    45.01% {
+      transform: translateX(-100%);
+      animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1);
+    }
+
+    100% {
+      transform: translateX(0);
+    }
+  }
+
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     a:hover .link-arrow > * {
       animation: link-arrow-through 0.7s both;
+    }
+
+    a:hover .link-arrow-right > * {
+      animation-name: link-arrow-through-right;
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
     a:focus-visible .link-arrow > * {
       animation: link-arrow-through 0.7s both;
+    }
+
+    a:focus-visible .link-arrow-right > * {
+      animation-name: link-arrow-through-right;
     }
   }
 }
@@ -509,7 +544,15 @@
     width: 1em;
     height: 1em;
     background-color: currentColor;
-    mask: url("/images/icons/arrow-up-right.svg") center / contain no-repeat;
+    mask: center / contain no-repeat;
+  }
+
+  .text-link-icon-arrow-up-right {
+    mask-image: url("/images/icons/arrow-up-right.svg");
+  }
+
+  .text-link-icon-arrow-right {
+    mask-image: url("/images/icons/arrow-right.svg");
   }
 }
 
@@ -784,6 +827,101 @@
 
   .hero-description {
     max-width: 34.125em; /* 546px at 16px */
+  }
+}
+
+/* ==========================================================================
+   About section — Figma "about-section" (Web and Mobile) (about-section.tsx)
+
+   The "(About)" label sits on the first line of the big statement, which is
+   indented to make room for it: by the label's width plus a gap on phones,
+   and to column 3 of the 12-column grid from 1024px. The label is nudged
+   down so the two baselines line up (0.775 × the difference in font size,
+   measured from Figma at both sizes).
+
+   Phones stack everything. From 1024px "As laws evolve" takes columns 1–2
+   and the text columns 6–9.
+   ========================================================================== */
+
+@layer components {
+  .about {
+    display: grid;
+    row-gap: var(--about-row-gap);
+    padding: var(--about-padding-y) var(--about-padding-x);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  .about-heading {
+    display: grid;
+  }
+
+  .about-label,
+  .about-title {
+    grid-area: 1 / 1;
+  }
+
+  .about-label {
+    align-self: start;
+    margin-top: calc(0.775 * (var(--header-1-font-size) - var(--cta-medium-font-size)));
+    white-space: nowrap;
+  }
+
+  .about-title {
+    --about-title-indent: 2.6em; /* 73px at 28px */
+
+    text-indent: var(--about-title-indent);
+  }
+
+  /* The text is split into lines (use-line-reveal.ts): while measuring, each
+     word is an inline-block, and afterwards each line is a mask block around
+     a line block. Nothing inside inherits the indent except the first line. */
+  .about-title * {
+    text-indent: 0;
+  }
+
+  .about-title > :first-child > :first-child {
+    text-indent: var(--about-title-indent);
+  }
+
+  .about-subtitle,
+  .about-content {
+    align-self: start;
+  }
+
+  .about-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--about-content-gap);
+  }
+
+  .about-text {
+    color: var(--color-neutral-700);
+  }
+
+  @media (min-width: 64rem) {
+    .about {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .about-heading {
+      grid-column: 1 / -1;
+    }
+
+    /* Two columns and two gaps: the title's own width is 12 columns and 11 gaps. */
+    .about-title {
+      --about-title-indent: calc((100% - 11 * var(--layout-col-gap)) / 6 + 2 * var(--layout-col-gap));
+    }
+
+    .about-subtitle {
+      grid-column: 1 / span 2;
+    }
+
+    .about-content {
+      grid-column: 6 / span 4;
+    }
   }
 }
 
