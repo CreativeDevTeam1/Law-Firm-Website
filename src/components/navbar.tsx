@@ -22,13 +22,9 @@ const LINKS = [
 // top of the page. On pages with an intro it waits off-screen and drops in
 // once the intro finishes.
 //
-// Over the hero's dark photo the links are plain light text. Once the hero
-// has scrolled up past them, they blend with the page like the logo, so they
-// turn dark over light sections. Pages without a hero blend throughout.
-//
-// The logo is pinned on its own, outside the <header>: it blends with the
-// page behind it, and an element inside the fixed header could only blend
-// with the header itself.
+// Over the hero's photo the logo and links are light. Once the hero has
+// scrolled up past them they turn dark, for the light sections below. Pages
+// without a hero are dark throughout.
 export default function Navbar() {
   const navbarRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLAnchorElement>(null);
@@ -57,25 +53,36 @@ export default function Navbar() {
 
   useEffect(() => {
     const navbar = navbarRef.current;
-    if (!navbar) return;
+    const logo = logoRef.current;
+    if (!navbar || !logo) return;
+
+    const setDark = (dark: boolean) => {
+      navbar.classList.toggle("navbar-dark", dark);
+      logo.classList.toggle("navbar-dark", dark);
+    };
 
     const hero = document.querySelector(".hero");
     if (!hero) {
-      navbar.classList.add("navbar-blend");
-      return () => navbar.classList.remove("navbar-blend");
+      setDark(true);
+      return () => setDark(false);
     }
 
-    // Switches when the hero's bottom edge reaches the middle of the bar.
+    // Switches when the hero's bottom edge reaches the middle of the bar, and
+    // back only when scrolling up into the hero again. (A start-to-end range
+    // would count the very bottom of the page as leaving it.)
     const trigger = ScrollTrigger.create({
       trigger: hero,
       start: () => `bottom ${navbar.offsetHeight / 2}px`,
-      end: "max",
-      onToggle: (self) => navbar.classList.toggle("navbar-blend", self.isActive),
+      onEnter: () => setDark(true),
+      onLeaveBack: () => setDark(false),
     });
+
+    // Loading or refreshing partway down the page doesn't fire onEnter.
+    setDark(trigger.scroll() > trigger.start);
 
     return () => {
       trigger.kill();
-      navbar.classList.remove("navbar-blend");
+      setDark(false);
     };
   }, [pathname]);
 

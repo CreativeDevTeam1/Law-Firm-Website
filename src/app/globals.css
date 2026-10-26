@@ -562,9 +562,9 @@
    Pinned over the top of the page. Phones: short logo and a Menu button.
    From 1024px: full logo, links from column 7 of a 12-column grid, and
    "Let's Talk" on the right. The links are <TextLink>s (see Text link).
-   The logo is pinned on its own beside the bar and always blends with the
-   page; the bar's links blend only once the hero has scrolled past. The logos and the menu icon are drawn as CSS masks filled with
-   the text colour, so their colour follows the tokens.
+   The logo and links are light over the hero and turn dark once it has
+   scrolled past. The logos and the menu icon are drawn as CSS masks filled
+   with the text colour, so their colour follows the tokens.
    ========================================================================== */
 
 @layer components {
@@ -584,17 +584,9 @@
     min-height: calc(var(--navbar-logo-height) + 2 * var(--navbar-padding-y));
     padding: var(--navbar-padding-y) var(--navbar-padding-x);
     color: var(--color-neutral-100);
+    transition: color 0.3s ease;
   }
 
-  /* Added by navbar.tsx once the hero has scrolled past: the links invert
-     against the page like the logo, dark over the light sections. */
-  .navbar-blend {
-    mix-blend-mode: difference;
-  }
-
-  /* Pinned separately from .navbar (see navbar.tsx) so it can blend with the
-     page: it inverts against what's behind it, light over dark areas and
-     dark over light ones. */
   .navbar-logo {
     position: fixed;
     top: var(--navbar-padding-y);
@@ -602,7 +594,13 @@
     z-index: 11;
     display: block;
     color: var(--color-neutral-100);
-    mix-blend-mode: difference;
+    transition: color 0.3s ease;
+  }
+
+  /* Added to the bar and the logo by navbar.tsx once the hero has scrolled
+     past, for the light sections below it. */
+  .navbar-dark {
+    color: var(--color-neutral-950);
   }
 
   /* Off-screen until the intro has finished (navbar.tsx drops them in). */
