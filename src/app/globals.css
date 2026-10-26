@@ -1091,9 +1091,10 @@
    Founders section — Figma "founders-section" (Web and Mobile) (founders-section.tsx)
 
    "Partners / Behind / the Firm" in three display lines, staggered: on
-   phones right, left, right with "See the full team" below; from 1024px
-   indented as in Figma's columns 4, 2 and 4, with the link at the right
-   edge on the last line's baseline. Below, the founder cards: one column
+   phones right, left, right with "See the full team" below; from 640px
+   indented as in Figma's columns 4, 2 and 4 and centred, with the link
+   under "the Firm", then from 1024px at the right edge on the last line's
+   baseline. Below, the founder cards: one column
    on phones, two from 640px, four in a row from 1024px.
 
    From 1024px with motion, founders-section.tsx stacks the cards over the
@@ -1200,36 +1201,46 @@
     }
   }
 
-  /* The heading is one composition set in em, so the text, the lines'
-     offsets and the gaps always scale together: Figma's indents of 342px
-     and 114px at 184px, centred in the width (see below). Its size is the
-     Display Header size, capped on narrower screens so that, centred,
-     "the Firm" (ending 1.962em right of the middle) still leaves 14rem for
-     the link beside it. The link sits against the right edge with its
-     underline on the last baseline. */
-  @media (min-width: 64rem) {
-    .founders-title {
+  /* From 640px the heading is one composition set in em, so the text, the
+     lines' offsets and the gaps always scale together: Figma's indents of
+     342px and 114px at 184px, optically centred in the width. Two lengths
+     on .founders-head drive it, so the heading and the link share them:
+
+     --founders-title-size   the Display Header size, capped so the whole
+                             composition (4.816em wide, from "Behind" to the
+                             end of "Partners") fits the width.
+     --founders-title-shift  how far the composition moves in from the left.
+                             Its box runs from "Behind" (0.619em) to the end
+                             of "Partners" (5.435em), centre 3.027em; but two
+                             of the three lines start further in, so
+                             centring the box leaves the left looking
+                             emptier, and centring "Partners" alone (3.647em)
+                             the right. The balance point is halfway: 3.337em
+                             sits on the middle of the width, without letting
+                             "Behind" pass the left edge or "Partners" the
+                             right one. % here is the heading's width.
+
+     Up to 1024px the link sits under the heading, lined up with "the Firm";
+     from 1024px it moves beside it (below). */
+  @media (min-width: 40rem) {
+    .founders-head {
       --founders-title-size: min(
         var(--display-header-font-size),
-        calc(((100vw - 2 * var(--founders-padding-x)) / 2 - 14rem) / 1.962)
+        calc((100vw - 2 * var(--founders-padding-x)) / 4.816)
       );
-
-      grid-area: 1 / 1;
-      /* Centres the composition optically. Its box runs from "Behind"
-         (0.619em) to the end of "Partners" (5.435em), centre 3.027em; but
-         two of the three lines start further in, so centring the box leaves
-         the left looking emptier, and centring "Partners" alone (3.647em)
-         the right. The balance point is halfway: 3.337em sits on the
-         middle of the width. The size cap above keeps this clear of the
-         link; the min() is a safety net so "the Firm" (ending at 5.299em)
-         never runs into it. % here is the heading's width. */
-      padding-left: max(
-        0px,
+      --founders-title-shift: max(
+        -0.619 * var(--founders-title-size),
         min(
-          calc(100% / 2 - 3.337em),
-          calc(100% - 14rem - 5.299em)
+          calc(100% / 2 - 3.337 * var(--founders-title-size)),
+          calc(100% - 5.435 * var(--founders-title-size))
         )
       );
+    }
+
+    /* The shift can be negative on narrower screens (down to "Behind"
+       sitting on the left edge), so it moves the lines, not the padding. */
+    .founders-title {
+      margin-left: var(--founders-title-shift);
       font-size: var(--founders-title-size);
     }
 
@@ -1246,12 +1257,42 @@
       margin-left: calc(114 / 184 * 1em);
     }
 
+    .founders-link {
+      margin-left: calc(var(--founders-title-shift) + 342 / 184 * var(--founders-title-size));
+    }
+  }
+
+  /* From 1024px the link moves beside the heading, against the right edge
+     with its underline on the last baseline. The heading's size is capped
+     further so that, centred, "the Firm" (ending 1.962em right of the
+     middle) still leaves 14rem for it; the extra min() in the shift is a
+     safety net so "the Firm" (ending at 5.299em) never runs into it. */
+  @media (min-width: 64rem) {
+    .founders-head {
+      --founders-title-size: min(
+        var(--display-header-font-size),
+        calc(((100vw - 2 * var(--founders-padding-x)) / 2 - 14rem) / 1.962)
+      );
+      --founders-title-shift: max(
+        0px,
+        min(
+          calc(100% / 2 - 3.337 * var(--founders-title-size)),
+          calc(100% - 14rem - 5.299 * var(--founders-title-size))
+        )
+      );
+    }
+
+    .founders-title {
+      grid-area: 1 / 1;
+    }
+
     /* Shares the heading's cell (rather than getting a column of its own),
        so the heading keeps the full width. */
     .founders-link {
       grid-area: 1 / 1;
       align-self: end;
       justify-self: end;
+      margin-left: 0;
     }
 
     .founders-cards,
@@ -1280,10 +1321,12 @@
     /* The pinned heading also has to fit between the navbar and an equal
        space at the bottom of the screen. Trimmed, three lines and two gaps
        are 3em tall (3 × 0.734em + 2 × 0.396em), so on short screens the
-       whole composition shrinks to fit. */
-    .founders-title {
-      font-size: min(
-        var(--founders-title-size),
+       whole composition shrinks to fit. (The first two sizes repeat the
+       1024px rule above.) */
+    .founders-head {
+      --founders-title-size: min(
+        var(--display-header-font-size),
+        calc(((100vw - 2 * var(--founders-padding-x)) / 2 - 14rem) / 1.962),
         calc((100vh - 2 * (var(--navbar-logo-height) + 2 * var(--navbar-padding-y))) / 3)
       );
     }
