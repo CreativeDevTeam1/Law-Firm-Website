@@ -214,7 +214,17 @@
     --clients-row-gap: var(--about-row-gap); /* 64px → 80px */
     --clients-card-gap: clamp(var(--number-16), 0.8429rem + 0.7619vw, var(--number-24)); /* 16px → 24px */
     --clients-card-padding: var(--number-16); /* 16px */
-    --clients-logo-size: clamp(var(--number-96), 4.8857rem + 4.5714vw, var(--number-144)); /* 96px → 144px */  }
+    --clients-logo-size: clamp(var(--number-96), 4.8857rem + 4.5714vw, var(--number-144)); /* 96px → 144px */
+
+    /* Founders */
+    --founders-padding-x: var(--about-padding-x); /* 24px → 48px */
+    --founders-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --founders-row-gap: var(--about-row-gap); /* 64px → 80px */
+    --founders-card-gap: var(--clients-card-gap); /* 16px → 24px */
+    --founders-card-padding: var(--number-16); /* 16px */
+    --founders-card-content-gap: clamp(var(--number-16), 0.6286rem + 1.5238vw, var(--number-32)); /* 16px → 32px */
+    --founders-card-info-gap: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px */
+  }
 }
 
 
@@ -334,7 +344,8 @@
    The text stays hidden until it has been split, so it never flashes in
    unsplit. Visitors who prefer reduced motion see it straight away, with no
    animation. The extra bottom padding on each line mask stops descenders
-   (g, p, y) being clipped in tight-leading headings.
+   (g, p, y) being clipped in tight-leading headings, and the side padding
+   stops the first and last letters being clipped in tightly tracked ones.
    ========================================================================== */
 
 @layer components {
@@ -347,6 +358,8 @@
   .line-reveal-line-mask {
     padding-bottom: 0.12em;
     margin-bottom: -0.12em;
+    padding-inline: 0.1em;
+    margin-inline: -0.1em;
   }
 }
 
@@ -1070,6 +1083,240 @@
     .clients-grid {
       grid-column: 1 / -1;
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+}
+
+/* ==========================================================================
+   Founders section — Figma "founders-section" (Web and Mobile) (founders-section.tsx)
+
+   "Partners / Behind / the Firm" in three display lines, staggered: on
+   phones right, left, right with "See the full team" below; from 1024px
+   indented as in Figma's columns 4, 2 and 4, with the link at the right
+   edge on the last line's baseline. Below, the founder cards: one column
+   on phones, two from 640px, four in a row from 1024px.
+
+   From 1024px with motion, founders-section.tsx stacks the cards over the
+   pinned heading before they land in the row; the "Stacked cards" rules
+   below set up the pinning and the row they land in.
+   ========================================================================== */
+
+@layer components {
+  .founders {
+    display: grid;
+    row-gap: var(--founders-row-gap);
+    padding: var(--founders-padding-y) var(--founders-padding-x);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  .founders-stack {
+    display: grid;
+    row-gap: var(--founders-row-gap);
+  }
+
+  .founders-head {
+    display: grid;
+    row-gap: var(--number-24); /* the Firm's baseline to the link, as in Figma */
+  }
+
+  /* Each line is trimmed to its letters: from the top of the capitals to
+     the baseline (the Suisse Semibold cap height is 0.734em; with a 100%
+     line height that leaves 0.128em above and 0.1375em below). So the
+     heading's box ends exactly on the last baseline, which the link lines
+     up with, and the gaps are measured between the letters themselves:
+     Figma's 24px between 184px lines, plus the two trimmed bits. The
+     glyphs still draw outside the trimmed boxes, and the line-reveal mask
+     inside each line keeps its full height. */
+  .founders-title {
+    --founders-trim-top: 0.128em;
+    --founders-trim-bottom: 0.1375em;
+
+    display: grid;
+    row-gap: calc(24 / 184 * 1em + var(--founders-trim-top) + var(--founders-trim-bottom));
+  }
+
+  .founders-title-line {
+    display: block;
+    margin-block: calc(-1 * var(--founders-trim-top)) calc(-1 * var(--founders-trim-bottom));
+    white-space: nowrap;
+  }
+
+  .founders-title-1,
+  .founders-title-3 {
+    justify-self: end;
+  }
+
+  .founders-link {
+    justify-self: start;
+  }
+
+  .founders-cards,
+  .founders-targets {
+    display: grid;
+    gap: var(--founders-card-gap);
+  }
+
+  /* Only used by the stacked cards (see below). */
+  .founders-targets {
+    display: none;
+  }
+
+  .founders-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--founders-card-content-gap);
+    height: 100%;
+    padding: var(--founders-card-padding);
+    border: 1px solid var(--color-neutral-250);
+    background: var(--color-neutral-100); /* opaque, to cover the heading when stacked */
+  }
+
+  .founders-card-photo {
+    position: relative;
+    aspect-ratio: 286 / 320;
+    overflow: hidden;
+  }
+
+  /* 20% taller than the frame (10% spare above and below), so the photo
+     can drift up and down inside it on scroll (founders-section.tsx). */
+  .founders-card-photo-parallax {
+    position: absolute;
+    inset: -10% 0;
+  }
+
+  .founders-card-photo img {
+    object-fit: cover;
+  }
+
+  .founders-card-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--founders-card-info-gap);
+  }
+
+  .founders-card-title {
+    color: var(--color-neutral-700);
+  }
+
+  @media (min-width: 40rem) {
+    .founders-cards,
+    .founders-targets {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* The heading is one composition set in em, so the text, the lines'
+     offsets and the gaps always scale together: Figma's indents of 342px
+     and 114px at 184px, centred in the width (see below). Its size is the
+     Display Header size, capped on narrower screens so that, centred,
+     "the Firm" (ending 1.962em right of the middle) still leaves 14rem for
+     the link beside it. The link sits against the right edge with its
+     underline on the last baseline. */
+  @media (min-width: 64rem) {
+    .founders-title {
+      --founders-title-size: min(
+        var(--display-header-font-size),
+        calc(((100vw - 2 * var(--founders-padding-x)) / 2 - 14rem) / 1.962)
+      );
+
+      grid-area: 1 / 1;
+      /* Centres the composition optically. Its box runs from "Behind"
+         (0.619em) to the end of "Partners" (5.435em), centre 3.027em; but
+         two of the three lines start further in, so centring the box leaves
+         the left looking emptier, and centring "Partners" alone (3.647em)
+         the right. The balance point is halfway: 3.337em sits on the
+         middle of the width. The size cap above keeps this clear of the
+         link; the min() is a safety net so "the Firm" (ending at 5.299em)
+         never runs into it. % here is the heading's width. */
+      padding-left: max(
+        0px,
+        min(
+          calc(100% / 2 - 3.337em),
+          calc(100% - 14rem - 5.299em)
+        )
+      );
+      font-size: var(--founders-title-size);
+    }
+
+    .founders-title-line {
+      justify-self: start;
+    }
+
+    .founders-title-1,
+    .founders-title-3 {
+      margin-left: calc(342 / 184 * 1em);
+    }
+
+    .founders-title-2 {
+      margin-left: calc(114 / 184 * 1em);
+    }
+
+    /* Shares the heading's cell (rather than getting a column of its own),
+       so the heading keeps the full width. */
+    .founders-link {
+      grid-area: 1 / 1;
+      align-self: end;
+      justify-self: end;
+    }
+
+    .founders-cards,
+    .founders-targets {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* Stacked cards. The heading and each card get a screen-tall slot and
+     stick to the top of the screen, so the cards slide up over the heading
+     one by one. Each card keeps its row size (a quarter of the width, less
+     the gaps) and is zoomed up by the script. The hidden copies in
+     .founders-targets hold the row the cards land in. */
+  @media (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+    .founders-stack {
+      display: block;
+    }
+
+    .founders-head {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      align-content: center;
+    }
+
+    /* The pinned heading also has to fit between the navbar and an equal
+       space at the bottom of the screen. Trimmed, three lines and two gaps
+       are 3em tall (3 × 0.734em + 2 × 0.396em), so on short screens the
+       whole composition shrinks to fit. */
+    .founders-title {
+      font-size: min(
+        var(--founders-title-size),
+        calc((100vh - 2 * (var(--navbar-logo-height) + 2 * var(--navbar-padding-y))) / 3)
+      );
+    }
+
+    .founders-cards {
+      display: block;
+    }
+
+    .founders-slot {
+      position: sticky;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      pointer-events: none;
+    }
+
+    .founders-frame {
+      width: calc((100% - 3 * var(--founders-card-gap)) / 4);
+      pointer-events: auto;
+    }
+
+    .founders-targets {
+      display: grid;
+      visibility: hidden;
     }
   }
 }
