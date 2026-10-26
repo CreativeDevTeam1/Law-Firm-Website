@@ -220,10 +220,17 @@
     --founders-padding-x: var(--about-padding-x); /* 24px → 48px */
     --founders-padding-y: var(--layout-padding-y); /* 40px → 80px */
     --founders-row-gap: var(--about-row-gap); /* 64px → 80px */
-    --founders-card-gap: var(--clients-card-gap); /* 16px → 24px */
-    --founders-card-padding: var(--number-16); /* 16px */
-    --founders-card-content-gap: clamp(var(--number-16), 0.6286rem + 1.5238vw, var(--number-32)); /* 16px → 32px */
-    --founders-card-info-gap: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px */
+
+    /* Cards (teams-card.tsx, news-card.tsx) and the grids they sit in */
+    --card-gap: var(--clients-card-gap); /* 16px → 24px */
+    --card-padding: var(--number-16); /* 16px */
+    --card-content-gap: clamp(var(--number-16), 0.6286rem + 1.5238vw, var(--number-32)); /* 16px → 32px */
+    --card-info-gap: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px */
+
+    /* News & Articles */
+    --news-padding-x: var(--about-padding-x); /* 24px → 48px */
+    --news-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --news-row-gap: var(--about-row-gap); /* 64px → 80px */
   }
 }
 
@@ -1088,6 +1095,57 @@
 }
 
 /* ==========================================================================
+   Teams card — Figma "Team Member Card" (teams-card.tsx)
+
+   Photo, name, role and a "Know more" link inside a thin border. The name
+   is cut to three lines with an ellipsis; the full name stays in the page
+   for screen readers and search. The background is opaque so the cards
+   can cover the Founders heading when stacked.
+   ========================================================================== */
+
+@layer components {
+  .teams-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--card-content-gap);
+    height: 100%;
+    padding: var(--card-padding);
+    border: 1px solid var(--color-neutral-250);
+    background: var(--color-neutral-100);
+  }
+
+  .teams-card-photo {
+    position: relative;
+    aspect-ratio: 286 / 320;
+    overflow: hidden;
+  }
+
+  .teams-card-photo img {
+    object-fit: cover;
+  }
+
+  .teams-card-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--card-info-gap);
+  }
+
+  .teams-card-name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+    line-height: var(--line-height-133); /* 32px at 24px, as in Figma */
+  }
+
+  .teams-card-role {
+    color: var(--color-neutral-700);
+  }
+}
+
+/* ==========================================================================
    Founders section — Figma "founders-section" (Web and Mobile) (founders-section.tsx)
 
    "Partners / Behind / the Firm" in three display lines, staggered: on
@@ -1155,43 +1213,12 @@
   .founders-cards,
   .founders-targets {
     display: grid;
-    gap: var(--founders-card-gap);
+    gap: var(--card-gap);
   }
 
   /* Only used by the stacked cards (see below). */
   .founders-targets {
     display: none;
-  }
-
-  .founders-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--founders-card-content-gap);
-    height: 100%;
-    padding: var(--founders-card-padding);
-    border: 1px solid var(--color-neutral-250);
-    background: var(--color-neutral-100); /* opaque, to cover the heading when stacked */
-  }
-
-  .founders-card-photo {
-    position: relative;
-    aspect-ratio: 286 / 320;
-    overflow: hidden;
-  }
-
-  .founders-card-photo img {
-    object-fit: cover;
-  }
-
-  .founders-card-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--founders-card-info-gap);
-  }
-
-  .founders-card-title {
-    color: var(--color-neutral-700);
   }
 
   @media (min-width: 40rem) {
@@ -1346,13 +1373,153 @@
     }
 
     .founders-frame {
-      width: calc((100% - 3 * var(--founders-card-gap)) / 4);
+      width: calc((100% - 3 * var(--card-gap)) / 4);
       pointer-events: auto;
     }
 
     .founders-targets {
       display: grid;
       visibility: hidden;
+    }
+  }
+}
+
+
+/* ==========================================================================
+   News & Articles section — Figma "news-&-articles-section" (Web and
+   Mobile) (news-section.tsx)
+
+   The heading works like the Clients one: "(News & Articles)" sits on the
+   first line of the title, indented to make room for it, and from 1024px
+   "Browse all our news" sits beside it against the right edge. Below, the
+   article cards (news-card.tsx): one column on phones, two from 640px,
+   four from 1024px. The cards share the card tokens with the teams card.
+   ========================================================================== */
+
+@layer components {
+  .news {
+    display: grid;
+    row-gap: var(--news-row-gap);
+    padding: var(--news-padding-y) var(--news-padding-x);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  .news-heading {
+    display: grid;
+  }
+
+  .news-label,
+  .news-title {
+    grid-area: 1 / 1;
+  }
+
+  .news-label {
+    align-self: start;
+    margin-top: calc(0.775 * (var(--header-1-font-size) - var(--cta-medium-font-size)));
+    white-space: nowrap;
+  }
+
+  /* The label is longer than "(Our Clients)", so phones need a wider
+     indent than Figma's mobile frame gives it (there the two overlap):
+     the label's width (7.6 times its text size) plus a word space, so the
+     gap stays the same as the label and title grow at different rates. */
+  .news-title {
+    --news-title-indent: calc(7.6 * var(--cta-medium-font-size) + 0.25em);
+
+    text-indent: var(--news-title-indent);
+  }
+
+  /* Only the first split line keeps the indent (see .about-title). */
+  .news-title * {
+    text-indent: 0;
+  }
+
+  .news-title > :first-child > :first-child {
+    text-indent: var(--news-title-indent);
+  }
+
+  .news-grid {
+    display: grid;
+    gap: var(--card-gap);
+    list-style: none;
+  }
+
+  .news-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--card-content-gap);
+    padding: var(--card-padding);
+    border: 1px solid var(--color-neutral-250);
+  }
+
+  .news-card-photo {
+    position: relative;
+    aspect-ratio: 286 / 320;
+    overflow: hidden;
+  }
+
+  .news-card-photo img {
+    object-fit: cover;
+  }
+
+  .news-card-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--card-info-gap);
+  }
+
+  .news-card-date {
+    color: var(--color-neutral-700);
+  }
+
+  /* At most three lines; a longer title is cut off with an ellipsis. The
+     full title stays in the page for screen readers and search. */
+  .news-card-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+    line-height: var(--line-height-133); /* 32px at 24px, as in Figma */
+  }
+
+  @media (min-width: 40rem) {
+    .news-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .news {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .news-heading {
+      grid-column: 1 / 10;
+    }
+
+    /* As .clients-title: 888px wide with a 228px indent at 64px, plus
+       0.075em because "Stay Informed with Our" fills the first line to
+       the pixel and the line split would otherwise wrap "Our" (Figma
+       keeps it on the first line). */
+    .news-title {
+      --news-title-indent: 3.5625em;
+
+      max-width: 13.95em;
+    }
+
+    .news-link {
+      grid-column: 10 / -1;
+      align-self: end;
+      justify-self: end;
+    }
+
+    .news-grid {
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 }

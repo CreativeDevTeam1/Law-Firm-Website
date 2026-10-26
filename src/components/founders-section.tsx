@@ -1,52 +1,22 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LineReveal from "@/components/line-reveal";
+import TeamsCard, { type TeamsCardProps } from "@/components/teams-card";
 import TextLink from "@/components/text-link";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type Founder = {
-  name: string;
-  title: string;
-  photo: string;
-  /** Horizontal crop of the photo, as in Figma. */
-  photoPosition: string;
-};
-
-// Names and titles are Figma's placeholders until the real ones arrive.
-const FOUNDERS: Founder[] = [
-  { name: "Shady el Barkoky", title: "16 May 2026", photo: "/images/home-page/founders/founder-1.png", photoPosition: "21% 0" },
-  { name: "Shady el Barkoky", title: "16 May 2026", photo: "/images/home-page/founders/founder-2.png", photoPosition: "70% 0" },
-  { name: "Shady el Barkoky", title: "16 May 2026", photo: "/images/home-page/founders/founder-3.png", photoPosition: "39% 0" },
-  { name: "Shady el Barkoky", title: "16 May 2026", photo: "/images/home-page/founders/founder-4.png", photoPosition: "41% 0" },
+// Names and roles are Figma's placeholders until the real ones arrive. The
+// photo positions are Figma's crops.
+const FOUNDERS: TeamsCardProps[] = [
+  { name: "Shady el Barkoky", role: "16 May 2026", photo: "/images/home-page/founders/founder-1.png", photoPosition: "21% 0", href: "/team" },
+  { name: "Shady el Barkoky", role: "16 May 2026", photo: "/images/home-page/founders/founder-2.png", photoPosition: "70% 0", href: "/team" },
+  { name: "Shady el Barkoky", role: "16 May 2026", photo: "/images/home-page/founders/founder-3.png", photoPosition: "39% 0", href: "/team" },
+  { name: "Shady el Barkoky", role: "16 May 2026", photo: "/images/home-page/founders/founder-4.png", photoPosition: "41% 0", href: "/team" },
 ];
-
-function FounderCard({ founder }: { founder: Founder }) {
-  return (
-    <article className="founders-card">
-      <div className="founders-card-photo">
-        <Image
-          src={founder.photo}
-          alt={founder.name}
-          fill
-          sizes="(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 100vw"
-          style={{ objectPosition: founder.photoPosition }}
-        />
-      </div>
-      <div className="founders-card-info">
-        <h3 className="header-3-semibold">{founder.name}</h3>
-        <p className="founders-card-title body">{founder.title}</p>
-        <TextLink href="/team" icon="arrow-right">
-          Know more
-        </TextLink>
-      </div>
-    </article>
-  );
-}
 
 // Home page "Partners Behind the Firm" — Figma "founders-section".
 //
@@ -69,7 +39,7 @@ export default function FoundersSection() {
     mm.add("(min-width: 64rem) and (prefers-reduced-motion: no-preference)", () => {
       const slots = gsap.utils.toArray<HTMLElement>(".founders-slot", stack);
       const frames = gsap.utils.toArray<HTMLElement>(".founders-frame", stack);
-      const targets = gsap.utils.toArray<HTMLElement>(".founders-target .founders-card", stack.parentElement!);
+      const targets = gsap.utils.toArray<HTMLElement>(".founders-target .teams-card", stack.parentElement!);
       const cards = stack.querySelector(".founders-cards")!;
       const row = stack.parentElement!.querySelector(".founders-targets")!;
 
@@ -159,7 +129,7 @@ export default function FoundersSection() {
           {FOUNDERS.map((founder, i) => (
             <div className="founders-slot" key={i}>
               <div className="founders-frame">
-                <FounderCard founder={founder} />
+                <TeamsCard {...founder} />
               </div>
             </div>
           ))}
@@ -171,7 +141,7 @@ export default function FoundersSection() {
       <div className="founders-targets" aria-hidden="true" inert>
         {FOUNDERS.map((founder, i) => (
           <div className="founders-target" key={i}>
-            <FounderCard founder={founder} />
+            <TeamsCard {...founder} />
           </div>
         ))}
       </div>
