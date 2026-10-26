@@ -31,7 +31,7 @@ export default function AboutSection() {
           analysis, and unwavering dedication to protecting our clients&apos;
           legal and commercial interests.
         </LineReveal>
-        <TextLink href="/about" size="medium" icon="arrow-right">
+        <TextLink href="/about" size="medium" icon="arrow-right" reveal>
           More about the firm
         </TextLink>
       </div>

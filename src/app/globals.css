@@ -207,7 +207,14 @@
     --about-padding-y: var(--layout-padding-y); /* 40px → 80px */
     --about-row-gap: clamp(var(--number-64), 3.6286rem + 1.5238vw, var(--number-80)); /* 64px → 80px */
     --about-content-gap: clamp(var(--number-24), 1.3143rem + 0.7619vw, var(--number-32)); /* 24px → 32px */
-  }
+
+    /* Clients */
+    --clients-padding-x: var(--about-padding-x); /* 24px → 48px */
+    --clients-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --clients-row-gap: var(--about-row-gap); /* 64px → 80px */
+    --clients-card-gap: clamp(var(--number-16), 0.8429rem + 0.7619vw, var(--number-24)); /* 16px → 24px */
+    --clients-card-padding: var(--number-16); /* 16px */
+    --clients-logo-size: clamp(var(--number-96), 4.8857rem + 4.5714vw, var(--number-144)); /* 96px → 144px */  }
 }
 
 
@@ -554,6 +561,34 @@
   .text-link-icon-arrow-right {
     mask-image: url("/images/icons/arrow-right.svg");
   }
+
+  .text-link-label {
+    display: block;
+  }
+
+  /* reveal (text-link.tsx): the underline and arrow wait out of sight while
+     the text slides up, then come in once the link gets .text-link-revealed.
+     The underline draws in from the left with its usual transition; the
+     arrow slides in the way it enters on hover. The hover animations take
+     over from there. Without motion they're simply shown. */
+  @media (prefers-reduced-motion: no-preference) {
+    .text-link-reveal .link-arrow > * {
+      transition: transform 0.8s cubic-bezier(0, 0.55, 0.45, 1);
+    }
+
+    .text-link-reveal:not(.text-link-revealed)::before {
+      transform: scaleX(0) rotate(0.001deg);
+      transform-origin: left center;
+    }
+
+    .text-link-reveal:not(.text-link-revealed) .link-arrow > * {
+      transform: translate(-100%, 100%);
+    }
+
+    .text-link-reveal:not(.text-link-revealed) .link-arrow-right > * {
+      transform: translateX(-100%);
+    }
+  }
 }
 
 /* ==========================================================================
@@ -569,7 +604,7 @@
 
 @layer components {
   :root {
-    --navbar-logo-height: var(--number-24); /* short logo; 32px full logo from 1024px */
+    --navbar-logo-height: var(--number-18); /* short logo; 32px full logo from 1024px */
   }
 
   /* The bar is as tall as the logo plus its padding, as in Figma, so the
@@ -629,7 +664,7 @@
   }
 
   .navbar-logo-short {
-    width: 2.375rem; /* 38px */
+    width: calc(var(--navbar-logo-height) * 38 / 24); /* 28.5px; the SVG is 38 × 24 */
     height: var(--navbar-logo-height);
     mask-image: url("/images/logo/res-logo.svg");
   }
@@ -929,6 +964,116 @@
   }
 }
 
+/* ==========================================================================
+   Clients section — Figma "clients-section" (Web and Mobile) (clients-section.tsx)
+
+   The heading works like the About one: "(Our Clients)" sits on the first
+   line of the title, which is indented to make room for it. Phones stack
+   the title, the link and a 2-column grid of logo cards. From 1024px the
+   link sits beside the title, against the right edge, and the grid has 4
+   columns.
+
+   clients-section.tsx slides the cards in and swaps their logos.
+   ========================================================================== */
+
+@layer components {
+  .clients {
+    display: grid;
+    row-gap: var(--clients-row-gap);
+    padding: var(--clients-padding-y) var(--clients-padding-x);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  .clients-heading {
+    display: grid;
+  }
+
+  .clients-label,
+  .clients-title {
+    grid-area: 1 / 1;
+  }
+
+  .clients-label {
+    align-self: start;
+    margin-top: calc(0.775 * (var(--header-1-font-size) - var(--cta-medium-font-size)));
+    white-space: nowrap;
+  }
+
+  .clients-title {
+    --clients-title-indent: 3.75em; /* 105px at 28px */
+
+    text-indent: var(--clients-title-indent);
+  }
+
+  /* Only the first split line keeps the indent (see .about-title). */
+  .clients-title * {
+    text-indent: 0;
+  }
+
+  .clients-title > :first-child > :first-child {
+    text-indent: var(--clients-title-indent);
+  }
+
+  .clients-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--clients-card-gap);
+    list-style: none;
+  }
+
+  .clients-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    padding: var(--clients-card-padding);
+    overflow: clip;
+    border: 1px solid var(--color-neutral-500);
+    background: var(--color-neutral-100);
+  }
+
+  .clients-logo {
+    width: min(var(--clients-logo-size), 100%);
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
+  }
+
+  @media (min-width: 64rem) {
+    .clients {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    /* Up to the link's column; the title caps its own width (below). */
+    .clients-heading {
+      grid-column: 1 / 10;
+    }
+
+    /* Sized in em, not columns, so the title keeps Figma's three lines at
+       every width: 888px wide with a 228px indent at 64px (the indent lands
+       on column 3 at 1440px). In columns the lines would rewrap as the
+       columns and the text grow at different rates. */
+    .clients-title {
+      --clients-title-indent: 3.5625em;
+
+      max-width: 13.875em;
+    }
+
+    .clients-link {
+      grid-column: 10 / -1;
+      align-self: end;
+      justify-self: end;
+    }
+
+    .clients-grid {
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+}
+
 
 /* ==========================================================================
    Base
@@ -947,6 +1092,23 @@
     height: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scrollbar-width: none; /* the page still scrolls, with no visible scrollbar */
+  }
+
+  /* Browsers that ignore scrollbar-width (older Safari and Chromium). */
+  html::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Past the 1440px design the whole site scales with the screen, as on
+     sunnybonnell.com: 1rem is 16px at 1440px and grows from there. Every
+     size is in rem and the fluid values all reach their max at 1440px, so
+     wider screens show the 1440px design zoomed in instead of a stretched
+     layout around text that has stopped growing. */
+  @media (min-width: 90rem) {
+    html {
+      font-size: calc(100vw / 90);
+    }
   }
 
   body {

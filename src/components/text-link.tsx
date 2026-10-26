@@ -1,5 +1,8 @@
+"use client";
+
+import { useRef, type ComponentProps } from "react";
 import Link from "next/link";
-import type { ComponentProps } from "react";
+import { useLineReveal } from "@/hooks/use-line-reveal";
 
 const SIZES = {
   small: "cta-small",
@@ -15,32 +18,53 @@ type TextLinkProps = ComponentProps<typeof Link> & {
    * the line on hover; links without one draw the line in on hover.
    */
   icon?: "arrow-up-right" | "arrow-right";
+  /**
+   * Reveals the link when it scrolls into view: the text slides up (like
+   * <LineReveal>), then the underline draws in and the arrow slides in.
+   */
+  reveal?: boolean;
 };
 
 // The site's text link, in two variants that share one look at any size:
 //
 //   <TextLink href="/about">About</TextLink>
 //   <TextLink href="/contact" icon="arrow-up-right">Let's Talk</TextLink>
-//   <TextLink href="/about" size="medium" icon="arrow-right">More about the firm</TextLink>
+//   <TextLink href="/about" size="medium" icon="arrow-right" reveal>More about the firm</TextLink>
 //
 // The icon scales with the text size.
 export default function TextLink({
   size = "small",
   icon,
+  reveal = false,
   className = "",
   children,
   ...props
 }: TextLinkProps) {
+  const linkRef = useRef<HTMLAnchorElement>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
+
+  // Without `reveal` the label has no ref, so the hook does nothing.
+  useLineReveal(labelRef, {
+    onRevealed: () => linkRef.current?.classList.add("text-link-revealed"),
+  });
+
   const classes = [
     "text-link",
     icon ? "text-link-with-icon link-underline-swap" : "link-underline",
     SIZES[size],
+    reveal && "text-link-reveal",
     className,
   ];
 
   return (
-    <Link className={classes.filter(Boolean).join(" ")} {...props}>
-      {children}
+    <Link ref={linkRef} className={classes.filter(Boolean).join(" ")} {...props}>
+      {reveal ? (
+        <span ref={labelRef} className="text-link-label line-reveal">
+          {children}
+        </span>
+      ) : (
+        children
+      )}
       {icon && (
         <span className={`link-arrow link-${icon}`} aria-hidden="true">
           <span className={`text-link-icon text-link-icon-${icon}`} />

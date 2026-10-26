@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
@@ -23,6 +23,12 @@ export type LineRevealOptions = {
   ease?: string;
   /** ScrollTrigger start position, used when play is "scroll". */
   start?: string;
+  /**
+   * Runs once, as the last line settles into place (40% of its slide in),
+   * so whatever goes with the text (a link's underline and arrow, say) can
+   * follow it in. Never runs for visitors who prefer reduced motion.
+   */
+  onRevealed?: () => void;
 };
 
 export const LINE_REVEAL_DEFAULTS = {
@@ -32,7 +38,7 @@ export const LINE_REVEAL_DEFAULTS = {
   stagger: 0.08,
   ease: "power4.out",
   start: "top 85%",
-} satisfies Required<LineRevealOptions>;
+} satisfies Required<Omit<LineRevealOptions, "onRevealed">>;
 
 // Splits an element's text into lines and slides each line up from behind a
 // mask, once. autoSplit re-splits when the width or font changes so line
@@ -50,6 +56,12 @@ export function useLineReveal(
     ...LINE_REVEAL_DEFAULTS,
     ...options,
   };
+
+  // Kept in a ref so a new callback each render doesn't re-split the text.
+  const onRevealedRef = useRef(options.onRevealed);
+  useEffect(() => {
+    onRevealedRef.current = options.onRevealed;
+  });
 
   useEffect(() => {
     const element = ref.current;
@@ -71,11 +83,7 @@ export function useLineReveal(
           cancelWait();
           if (hasPlayed) return;
 
-          const tween = gsap.from(self.lines, {
-            yPercent: 100,
-            duration,
-            ease,
-            stagger,
+          const timeline = gsap.timeline({
             delay,
             paused: play === "load",
             onStart: () => {
@@ -87,10 +95,14 @@ export function useLineReveal(
                 : undefined,
           });
 
-          // "load" waits for the page intro (if there is one) to finish.
-          if (play === "load") cancelWait = whenIntroDone(() => tween.play());
+          timeline
+            .from(self.lines, { yPercent: 100, duration, ease, stagger })
+            .call(() => onRevealedRef.current?.(), [], `-=${duration * 0.6}`);
 
-          return tween;
+          // "load" waits for the page intro (if there is one) to finish.
+          if (play === "load") cancelWait = whenIntroDone(() => timeline.play());
+
+          return timeline;
         },
       });
 
