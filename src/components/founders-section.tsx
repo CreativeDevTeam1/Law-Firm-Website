@@ -29,15 +29,13 @@ function FounderCard({ founder }: { founder: Founder }) {
   return (
     <article className="founders-card">
       <div className="founders-card-photo">
-        <div className="founders-card-photo-parallax">
-          <Image
-            src={founder.photo}
-            alt={founder.name}
-            fill
-            sizes="(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 100vw"
-            style={{ objectPosition: founder.photoPosition }}
-          />
-        </div>
+        <Image
+          src={founder.photo}
+          alt={founder.name}
+          fill
+          sizes="(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 100vw"
+          style={{ objectPosition: founder.photoPosition }}
+        />
       </div>
       <div className="founders-card-info">
         <h3 className="header-3-semibold">{founder.name}</h3>
@@ -130,36 +128,6 @@ export default function FoundersSection() {
         fan.scrollTrigger?.kill();
         land.kill();
       };
-    });
-
-    // Parallax: each photo drifts from the top of its spare 10% to the
-    // bottom while its card crosses the screen, so it seems to move slower
-    // than the page. (±8.33% of the layer is ±10% of the frame.)
-    const drift = (layer: HTMLElement, trigger: Element) =>
-      gsap.fromTo(
-        layer,
-        { yPercent: -8.33 },
-        {
-          yPercent: 8.33,
-          ease: "none",
-          scrollTrigger: { trigger, start: "top bottom", end: "bottom top", scrub: true },
-        },
-      );
-
-    // Phones and tablets: each card is in the normal flow.
-    mm.add("(max-width: 63.99rem) and (prefers-reduced-motion: no-preference)", () => {
-      gsap.utils
-        .toArray<HTMLElement>(".founders-cards .founders-card-photo", stack)
-        .forEach((photo) => drift(photo.firstElementChild as HTMLElement, photo));
-    });
-
-    // Desktop: the cards are pinned and moving while stacked, so their
-    // photos follow the row they land in instead.
-    mm.add("(min-width: 64rem) and (prefers-reduced-motion: no-preference)", () => {
-      const row = stack.parentElement!.querySelector(".founders-targets")!;
-      gsap.utils
-        .toArray<HTMLElement>(".founders-cards .founders-card-photo-parallax", stack)
-        .forEach((layer) => drift(layer, row));
     });
 
     return () => mm.revert();
