@@ -3,8 +3,8 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import LineReveal from "@/components/line-reveal";
 import NewsCard, { type NewsCardProps } from "@/components/news-card";
+import SectionHeading from "@/components/section-heading";
 import TextLink from "@/components/text-link";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -52,12 +52,9 @@ export default function NewsSection() {
 
   return (
     <section className="news" aria-labelledby="news-title">
-      <div className="news-heading">
-        <LineReveal className="news-label cta-medium">(News &amp; Articles)</LineReveal>
-        <LineReveal as="h2" id="news-title" className="news-title header-1">
-          Stay Informed with Our Latest Legal News &amp; Expert Insights
-        </LineReveal>
-      </div>
+      <SectionHeading id="news-title" label="(News & Articles)" className="news-heading">
+        Stay Informed with Our Latest Legal News &amp; Expert Insights
+      </SectionHeading>
 
       <div className="news-link">
         <TextLink href="/news" size="medium" icon="arrow-right" reveal>

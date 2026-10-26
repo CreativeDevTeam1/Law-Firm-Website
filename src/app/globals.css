@@ -232,6 +232,26 @@
     --news-padding-y: var(--layout-padding-y); /* 40px → 80px */
     --news-row-gap: var(--about-row-gap); /* 64px → 80px */
 
+    /* Testimonials */
+    --testimonials-padding-x: var(--about-padding-x); /* 24px → 48px */
+    --testimonials-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --testimonials-row-gap: var(--about-row-gap); /* 64px → 80px */
+    --testimonials-card-gap: var(--number-24); /* 24px */
+    --testimonials-grid-row-gap: var(--number-25); /* 25px */
+    --testimonials-card-padding-x: clamp(var(--number-16), 0.6286rem + 1.5238vw, var(--number-32)); /* 16px → 32px */
+    --testimonials-card-padding-y: clamp(var(--number-24), 1.1286rem + 1.5238vw, var(--number-40)); /* 24px → 40px */
+    --testimonials-card-content-gap: clamp(var(--number-16), 0.8143rem + 0.7619vw, var(--number-24)); /* 16px → 24px */
+    --testimonials-profile-gap: var(--number-12); /* 12px */
+    --testimonials-profile-info-gap: var(--number-10); /* 10px */
+    /* Figma's 463px phone card is wider than a phone, so it starts at 300px
+       and grows to Figma's 628px desktop card. */
+    --testimonials-card-width: clamp(18.75rem, 11.1357rem + 31.2381vw, 39.25rem); /* 300px → 628px */
+    --testimonials-card-min-height: 17.125rem; /* 274px */
+    --testimonials-photo-size: var(--number-72); /* 72px */
+    /* How far the grid starts left of the section's edge, padding included,
+       so it lands at Figma's -388px on phones and -271px on desktop. */
+    --testimonials-grid-offset: clamp(19.9375rem, 27.9089rem - 8.8571vw, 25.75rem); /* 412px → 319px */
+
     /* Footer */
     --footer-padding-x: var(--about-padding-x); /* 24px → 48px */
     --footer-padding-y: var(--layout-padding-y); /* 40px → 80px */
@@ -1417,6 +1437,35 @@
    ========================================================================== */
 
 @layer components {
+  .section-heading {
+    display: grid;
+  }
+
+  .section-heading-label,
+  .section-heading-title {
+    grid-area: 1 / 1;
+  }
+
+  .section-heading-label {
+    z-index: 1;
+    align-self: start;
+    margin-top: calc(0.775 * (var(--header-1-font-size) - var(--cta-medium-font-size)));
+    white-space: nowrap;
+  }
+
+  .section-heading-title {
+    text-indent: var(--section-heading-indent);
+  }
+
+  /* SplitText wraps each line; only its first generated line keeps the indent. */
+  .section-heading-title * {
+    text-indent: 0;
+  }
+
+  .section-heading-title > :first-child > :first-child {
+    text-indent: var(--section-heading-indent);
+  }
+
   .news {
     display: grid;
     row-gap: var(--news-row-gap);
@@ -1426,37 +1475,7 @@
   }
 
   .news-heading {
-    display: grid;
-  }
-
-  .news-label,
-  .news-title {
-    grid-area: 1 / 1;
-  }
-
-  .news-label {
-    align-self: start;
-    margin-top: calc(0.775 * (var(--header-1-font-size) - var(--cta-medium-font-size)));
-    white-space: nowrap;
-  }
-
-  /* The label is longer than "(Our Clients)", so phones need a wider
-     indent than Figma's mobile frame gives it (there the two overlap):
-     the label's width (7.6 times its text size) plus a word space, so the
-     gap stays the same as the label and title grow at different rates. */
-  .news-title {
-    --news-title-indent: calc(7.6 * var(--cta-medium-font-size) + 0.25em);
-
-    text-indent: var(--news-title-indent);
-  }
-
-  /* Only the first split line keeps the indent (see .about-title). */
-  .news-title * {
-    text-indent: 0;
-  }
-
-  .news-title > :first-child > :first-child {
-    text-indent: var(--news-title-indent);
+    --section-heading-indent: calc(7.6 * var(--cta-medium-font-size) + 0.25em);
   }
 
   .news-grid {
@@ -1525,9 +1544,11 @@
        0.075em because "Stay Informed with Our" fills the first line to
        the pixel and the line split would otherwise wrap "Our" (Figma
        keeps it on the first line). */
-    .news-title {
-      --news-title-indent: 3.5625em;
+    .news-heading {
+      --section-heading-indent: 3.5625em;
+    }
 
+    .news-heading .section-heading-title {
       max-width: 13.95em;
     }
 
@@ -1540,6 +1561,144 @@
     .news-grid {
       grid-column: 1 / -1;
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+}
+
+
+/* ========================================================================== 
+   Testimonials section — Figma "testimonials-section" (Web and Mobile)
+   (testimonials-section.tsx)
+
+   The heading works like the News one (section-heading.tsx). Below, two
+   rows of fixed-width cards run off both sides of the screen, as in Figma,
+   and loop sideways in opposite directions (testimonials-section.tsx); with
+   reduced motion they stay where Figma puts them.
+   Cards are at least Figma's height; a longer quote makes its whole row
+   taller rather than being cut off.
+   ========================================================================== */
+
+@layer components {
+  /* minmax(0, 1fr): the card rows are far wider than the screen, and an
+     auto column would stretch to fit them, taking the heading with it. */
+  .testimonials {
+    overflow: clip;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--testimonials-row-gap);
+    padding: var(--testimonials-padding-y) var(--testimonials-padding-x);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  .testimonials-heading {
+    /* As .news-heading on phones: the label's width (6.3 times its text
+       size) plus a word space; from 1024px, the same em indent as the
+       Clients and News titles (below). */
+    --section-heading-indent: calc(6.3 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .testimonials-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--testimonials-grid-row-gap);
+    width: max-content;
+    margin-left: calc(-1 * var(--testimonials-grid-offset));
+  }
+
+  .testimonials-row {
+    display: flex;
+  }
+
+  /* One copy of the cards. The trailing padding is the gap before the next
+     copy, so a set's width is exactly one step of the loop. */
+  .testimonials-set {
+    flex: none;
+    display: flex;
+    gap: var(--testimonials-card-gap);
+    padding-right: var(--testimonials-card-gap);
+    will-change: transform;
+  }
+
+  /* width as well as flex-basis: Firefox sizes the set from the cards'
+     content (each quote on one line) unless they have a definite width,
+     which leaves a wide gap at the end of every set and breaks the loop. */
+  .testimonial-card {
+    flex: 0 0 var(--testimonials-card-width);
+    width: var(--testimonials-card-width);
+    min-height: var(--testimonials-card-min-height);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--testimonials-card-content-gap);
+    padding: var(--testimonials-card-padding-y) var(--testimonials-card-padding-x);
+    border: 1px solid var(--color-neutral-250);
+  }
+
+  .testimonial-profile {
+    display: flex;
+    align-items: center;
+    gap: var(--testimonials-profile-gap);
+    width: 100%;
+  }
+
+  .testimonial-photo {
+    position: relative;
+    flex: 0 0 var(--testimonials-photo-size);
+    height: var(--testimonials-photo-size);
+    overflow: hidden;
+    border-radius: 50%;
+  }
+
+  /* The photo is wider than the circle; Figma frames it right of centre. */
+  .testimonial-photo img {
+    object-fit: cover;
+    object-position: 75% center;
+  }
+
+  .testimonial-person {
+    min-width: 0;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--testimonials-profile-info-gap);
+  }
+
+  .testimonial-name {
+    width: 100%;
+  }
+
+  .testimonial-role,
+  .testimonial-quote {
+    color: var(--color-neutral-700);
+  }
+
+  .testimonial-quote {
+    width: 100%;
+    font-style: normal;
+  }
+
+  @media (min-width: 64rem) {
+    .testimonials {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    /* Same title as News, so the same width and indent as .news-heading:
+       888px wide with a 228px indent at 64px, on three lines. */
+    .testimonials-heading {
+      --section-heading-indent: 3.5625em;
+
+      grid-column: 1 / 10;
+    }
+
+    .testimonials-heading .section-heading-title {
+      max-width: 13.95em;
+    }
+
+    .testimonials-grid {
+      grid-column: 1 / -1;
     }
   }
 }
