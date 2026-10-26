@@ -17,12 +17,19 @@ type TextLinkProps = ComponentProps<typeof Link> & {
    * Adds an arrow icon. Links with an icon are underlined at rest and swap
    * the line on hover; links without one draw the line in on hover.
    */
-  icon?: "arrow-up-right" | "arrow-right";
+  icon?: "arrow-up-right" | "arrow-right" | "arrow-up";
   /**
    * Reveals the link when it scrolls into view: the text slides up (like
    * <LineReveal>), then the underline draws in and the arrow slides in.
    */
   reveal?: boolean;
+  /** Seconds to wait before the reveal starts, to stagger several links. */
+  revealDelay?: number;
+  /**
+   * ScrollTrigger start for the reveal (default "top 85%"). Links at the
+   * very end of the page need "top bottom": they can't scroll any higher.
+   */
+  revealStart?: string;
 };
 
 // The site's text link, in two variants that share one look at any size:
@@ -36,6 +43,8 @@ export default function TextLink({
   size = "small",
   icon,
   reveal = false,
+  revealDelay = 0,
+  revealStart,
   className = "",
   children,
   ...props
@@ -45,6 +54,8 @@ export default function TextLink({
 
   // Without `reveal` the label has no ref, so the hook does nothing.
   useLineReveal(labelRef, {
+    delay: revealDelay,
+    ...(revealStart && { start: revealStart }),
     onRevealed: () => linkRef.current?.classList.add("text-link-revealed"),
   });
 

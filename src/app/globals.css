@@ -231,6 +231,15 @@
     --news-padding-x: var(--about-padding-x); /* 24px → 48px */
     --news-padding-y: var(--layout-padding-y); /* 40px → 80px */
     --news-row-gap: var(--about-row-gap); /* 64px → 80px */
+
+    /* Footer */
+    --footer-padding-x: var(--about-padding-x); /* 24px → 48px */
+    --footer-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --footer-padding-bottom: clamp(var(--number-24), 1.3143rem + 0.7619vw, var(--number-32)); /* 24px → 32px, under the last row */
+    --footer-row-gap: var(--about-row-gap); /* 64px → 80px */
+    --footer-content-row-gap: var(--number-48); /* 48px */
+    --footer-group-gap: var(--number-24); /* 24px */
+    --footer-link-gap: var(--number-12); /* 12px */
   }
 }
 
@@ -531,7 +540,8 @@
       animation: link-arrow-through 0.7s both;
     }
 
-    a:hover .link-arrow-right > * {
+    a:hover .link-arrow-right > *,
+    a:hover .link-arrow-up > * {
       animation-name: link-arrow-through-right;
     }
   }
@@ -541,7 +551,8 @@
       animation: link-arrow-through 0.7s both;
     }
 
-    a:focus-visible .link-arrow-right > * {
+    a:focus-visible .link-arrow-right > *,
+    a:focus-visible .link-arrow-up > * {
       animation-name: link-arrow-through-right;
     }
   }
@@ -582,6 +593,14 @@
     mask-image: url("/images/icons/arrow-right.svg");
   }
 
+  /* The right arrow turned to point up. rotate applies before transform, so
+     the right arrow's hover and reveal motion (along its own x axis) runs
+     upwards here. */
+  .text-link-icon-arrow-up {
+    mask-image: url("/images/icons/arrow-right.svg");
+    rotate: -90deg;
+  }
+
   .text-link-label {
     display: block;
   }
@@ -605,7 +624,8 @@
       transform: translate(-100%, 100%);
     }
 
-    .text-link-reveal:not(.text-link-revealed) .link-arrow-right > * {
+    .text-link-reveal:not(.text-link-revealed) .link-arrow-right > *,
+    .text-link-reveal:not(.text-link-revealed) .link-arrow-up > * {
       transform: translateX(-100%);
     }
   }
@@ -1520,6 +1540,211 @@
     .news-grid {
       grid-column: 1 / -1;
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+}
+
+
+/* ==========================================================================
+   Footer — Figma "footter-section" (Web) and "footer-section" (Mobile) (footer.tsx)
+
+   Dark, on every page, and at least a screen tall: the heading and "Let's
+   Talk" at the top, a divider in the middle (from 640px; on phones just
+   above the groups), and below it the link groups and a last row with the
+   legal links and "Back to top".
+
+   Link groups: phones put Navigate and Social side by side with For
+   Inquiries and Location below; from 640px Navigate, Social and For
+   Inquiries share a row with Location below; from 1024px they follow
+   Figma's 12 columns (1–2, 3–4, 5–6 and 10–12), with "Let's Talk" beside
+   the heading at the right edge.
+
+   Last row: the legal links are always the very bottom, centred. On phones
+   "Back to top" sits just above them; from 1024px it shares their row,
+   against the right edge.
+
+   The footer clips its content, which footer.tsx slides down into place
+   on scroll (the reveal); it also draws the divider in.
+   ========================================================================== */
+
+@layer components {
+  .footer {
+    overflow: clip;
+    background: var(--color-neutral-950);
+    color: var(--color-neutral-100);
+  }
+
+  /* Phones: the top at the top, the divider and everything under it at the
+     bottom. (The link groups stack into a tall column there, so halves
+     would leave a screen of empty space under the heading.) */
+  .footer-inner {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    align-content: space-between;
+    row-gap: var(--footer-row-gap);
+    min-height: 100vh;
+    min-height: 100svh; /* the visible height on phones, under the browser bars */
+    padding: var(--footer-padding-bottom) var(--footer-padding-x);
+  }
+
+  /* The footer's padding is the same above and below (so the halves are
+     centred); the top gets the rest of its larger top space here. */
+  .footer-top {
+    display: grid;
+    align-self: start;
+    margin-top: calc(var(--footer-padding-y) - var(--footer-padding-bottom));
+    row-gap: var(--footer-row-gap);
+  }
+
+  /* The link groups just under the divider, the last row at the bottom. */
+  .footer-lower {
+    display: grid;
+    align-content: space-between;
+    row-gap: var(--footer-row-gap);
+  }
+
+  .footer-cta {
+    justify-self: start;
+  }
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--layout-col-gap);
+    row-gap: var(--footer-content-row-gap);
+  }
+
+  /* Drawn in from the left by footer.tsx. */
+  .footer-divider {
+    height: 1px;
+    background: var(--color-neutral-700);
+    transform-origin: left center;
+  }
+
+  /* The group gap loses the first link's 0.2em top padding (see below). */
+  .footer-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(var(--footer-group-gap) - 0.2 * var(--cta-small-font-size));
+  }
+
+  .footer-contact,
+  .footer-location {
+    grid-column: 1 / -1;
+  }
+
+  /* Each text link has 0.2em of padding above and below for its underline;
+     taking it back out of the gap keeps Figma's 12px between the words. */
+  .footer-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(var(--footer-link-gap) - 0.4em);
+    list-style: none;
+    color: var(--color-neutral-500);
+  }
+
+  /* No links here, so it gets back the padding the group gap takes off. */
+  .footer-address {
+    margin-top: calc(0.2 * var(--cta-small-font-size));
+    font-style: normal;
+    color: var(--color-neutral-500);
+  }
+
+  .footer-bottom {
+    display: grid;
+    row-gap: var(--footer-group-gap);
+  }
+
+  .footer-legal {
+    grid-row: 2;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--footer-link-gap);
+    list-style: none;
+    color: var(--color-neutral-500);
+  }
+
+  .footer-back-to-top {
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  /* From 640px, three rows: the top half, the divider, the bottom half.
+     The halves are always equal, so the divider sits in the middle of the
+     footer; if the bottom half needs more than half the screen, the footer
+     grows to keep them equal.
+
+     For Inquiries gets two columns: the email address doesn't fit one. */
+  @media (min-width: 40rem) {
+    .footer-inner {
+      grid-template-rows: 1fr auto 1fr;
+    }
+
+    .footer-content {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .footer-contact {
+      grid-column: span 2;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .footer-top {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .footer-title {
+      grid-column: 1 / span 8;
+    }
+
+    .footer-cta {
+      grid-column: 10 / -1;
+      justify-self: end;
+      align-self: start;
+    }
+
+    .footer-content {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .footer-navigate {
+      grid-column: 1 / span 2;
+    }
+
+    .footer-social {
+      grid-column: 3 / span 2;
+    }
+
+    .footer-contact {
+      grid-column: 5 / span 2;
+    }
+
+    .footer-location {
+      grid-column: 10 / span 3;
+    }
+
+    /* One row: the legal links centred on columns 5–8, as in Figma, and
+       "Back to top" against the right edge. */
+    .footer-bottom {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+      align-items: center;
+    }
+
+    .footer-legal {
+      grid-column: 5 / span 4;
+      grid-row: 1;
+    }
+
+    .footer-back-to-top {
+      grid-column: 10 / -1;
+      grid-row: 1;
+      justify-self: end;
     }
   }
 }

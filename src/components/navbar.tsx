@@ -23,8 +23,9 @@ const LINKS = [
 // once the intro finishes.
 //
 // Over the hero's photo the logo and links are light. Once the hero has
-// scrolled up past them they turn dark, for the light sections below. Pages
-// without a hero are dark throughout.
+// scrolled up past them they turn dark, for the light sections below, and
+// light again over the dark footer. Pages without a hero are dark until the
+// footer.
 export default function Navbar() {
   const navbarRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLAnchorElement>(null);
@@ -56,33 +57,72 @@ export default function Navbar() {
     const logo = logoRef.current;
     if (!navbar || !logo) return;
 
-    const setDark = (dark: boolean) => {
+    // Dark once past the hero (or throughout, without one), and light again
+    // over the dark footer.
+    let pastHero = false;
+    let overFooter = false;
+    const update = () => {
+      const dark = pastHero && !overFooter;
       navbar.classList.toggle("navbar-dark", dark);
       logo.classList.toggle("navbar-dark", dark);
     };
 
+    // Each switches when the element's edge reaches the middle of the bar,
+    // and back only when scrolling up past it again. (A start-to-end range
+    // would count the very bottom of the page as leaving it.)
+    const middle = () => `${navbar.offsetHeight / 2}px`;
+    const triggers: ScrollTrigger[] = [];
+
     const hero = document.querySelector(".hero");
-    if (!hero) {
-      setDark(true);
-      return () => setDark(false);
+    if (hero) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: hero,
+          start: () => `bottom ${middle()}`,
+          onEnter: () => {
+            pastHero = true;
+            update();
+          },
+          onLeaveBack: () => {
+            pastHero = false;
+            update();
+          },
+        }),
+      );
+    } else {
+      pastHero = true;
     }
 
-    // Switches when the hero's bottom edge reaches the middle of the bar, and
-    // back only when scrolling up into the hero again. (A start-to-end range
-    // would count the very bottom of the page as leaving it.)
-    const trigger = ScrollTrigger.create({
-      trigger: hero,
-      start: () => `bottom ${navbar.offsetHeight / 2}px`,
-      onEnter: () => setDark(true),
-      onLeaveBack: () => setDark(false),
-    });
+    const footer = document.querySelector(".footer");
+    if (footer) {
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: footer,
+          start: () => `top ${middle()}`,
+          onEnter: () => {
+            overFooter = true;
+            update();
+          },
+          onLeaveBack: () => {
+            overFooter = false;
+            update();
+          },
+        }),
+      );
+    }
 
     // Loading or refreshing partway down the page doesn't fire onEnter.
-    setDark(trigger.scroll() > trigger.start);
+    if (hero) pastHero = triggers[0].scroll() > triggers[0].start;
+    if (footer) {
+      const footerTrigger = triggers[triggers.length - 1];
+      overFooter = footerTrigger.scroll() > footerTrigger.start;
+    }
+    update();
 
     return () => {
-      trigger.kill();
-      setDark(false);
+      triggers.forEach((trigger) => trigger.kill());
+      navbar.classList.remove("navbar-dark");
+      logo.classList.remove("navbar-dark");
     };
   }, [pathname]);
 
