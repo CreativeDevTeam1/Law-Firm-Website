@@ -3339,6 +3339,114 @@
 
 
 /* ==========================================================================
+   Not found (404 page) — modelled on justgowiththeflow.com/404
+   (not-found-section.tsx)
+
+   One screen tall, with no footer. The "404" is drawn as SVG in the
+   reference's wide, heavy style (its typeface, Monument Extended, isn't
+   ours to copy) and is as wide as the page's content. Phones: the message and link at the top, clear of the navbar,
+   and the "404" at the bottom. From 1024px the "404" sits in the middle,
+   with the message in columns 1–6 and the link against the right edge
+   along the bottom.
+   ========================================================================== */
+
+@layer components {
+  body:has(.not-found) .footer {
+    display: none;
+  }
+
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    row-gap: var(--layout-padding-y);
+    min-height: 100vh;
+    padding: var(--persona-padding-top) var(--layout-padding-x) var(--layout-padding-x);
+  }
+
+  /* The figures are SVGs (not-found-section.tsx) one em tall, so the font
+     size is their height. With the gaps, the three are 3.15em wide, so this
+     size makes them exactly as wide as the page's content, as on the
+     reference. */
+  .not-found-code {
+    display: flex;
+    justify-content: center;
+    column-gap: 0.06em;
+    order: 2;
+    margin: 0;
+    font-size: calc((100vw - 2 * var(--layout-padding-x)) / 3.15);
+    line-height: 1;
+  }
+
+  /* Hidden until not-found-section.tsx starts the reveal, so the figures
+     never flash in before it. */
+  @media (prefers-reduced-motion: no-preference) {
+    .not-found-code {
+      visibility: hidden;
+    }
+  }
+
+  /* Each figure rises out of its own mask. */
+  .not-found-char-mask {
+    display: block;
+    overflow: clip;
+  }
+
+  .not-found-char {
+    width: auto;
+    height: 1em;
+    max-width: none;
+    fill: currentColor;
+  }
+
+  .not-found-text {
+    display: grid;
+    justify-items: start;
+    row-gap: var(--layout-padding-y);
+  }
+
+  .not-found-message {
+    max-width: 18em;
+    margin: 0;
+  }
+
+  @media (min-width: 64rem) {
+    .not-found {
+      padding-top: calc(var(--persona-padding-top) - var(--layout-padding-y));
+    }
+
+    /* The full width, or less on wide, short screens: whatever height is
+       left once the top and bottom padding, the gap and the message's two
+       lines (plus 1rem to spare) are taken off. */
+    .not-found-code {
+      flex-grow: 1;
+      align-items: center;
+      order: 0;
+      font-size: min(
+        (100vw - 2 * var(--layout-padding-x)) / 3.15,
+        100vh - var(--persona-padding-top) - var(--layout-padding-x) - 2 * var(--header-2-medium-font-size) - 1rem
+      );
+    }
+
+    .not-found-text {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+      align-items: end;
+    }
+
+    .not-found-message {
+      grid-column: 1 / span 6;
+    }
+
+    .not-found-link {
+      grid-column: 8 / -1;
+      justify-self: end;
+    }
+  }
+}
+
+
+/* ==========================================================================
    Footer — Figma "footter-section" (Web) and "footer-section" (Mobile) (footer.tsx)
 
    Dark, on every page, and at least a screen tall: the heading and "Let's
