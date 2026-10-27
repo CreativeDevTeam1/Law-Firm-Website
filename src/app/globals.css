@@ -1810,6 +1810,19 @@
     display: none;
   }
 
+  /* Mouse dragging (who-we-are-section.tsx): a grab hand where there's a
+     mouse, and no text selection while the row is being dragged. */
+  @media (hover: hover) and (pointer: fine) {
+    .core-values-list {
+      cursor: grab;
+    }
+  }
+
+  .core-values-list.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
+
   /* Figma's 318px, or a quarter of the row when that's wider. */
   .core-value {
     flex: 0 0 max(var(--core-value-width), (100% - 3 * var(--core-value-gap)) / 4);
@@ -1824,13 +1837,19 @@
     font-size: var(--number-128);
   }
 
+  /* Kept off the column's last gap's worth of width, so a paragraph that
+     fills its lines never runs up to the next value: at least twice the gap
+     between any two. Pretty wrapping evens the line ends out. */
   .core-value-text {
+    padding-inline-end: var(--core-value-gap);
     color: var(--color-neutral-700);
+    text-wrap: pretty;
   }
 
+  /* Desktop only: below 1024px the row is swiped or dragged instead. */
   .core-values-controls {
+    display: none;
     justify-self: end;
-    display: flex;
     gap: var(--core-values-button-gap);
   }
 
@@ -1898,6 +1917,10 @@
     .core-values-list,
     .core-values-controls {
       grid-column: 1 / -1;
+    }
+
+    .core-values-controls {
+      display: flex;
     }
   }
 }
