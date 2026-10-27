@@ -1,5 +1,6 @@
 import Image from "next/image";
-import TextLink from "@/components/text-link";
+import Link from "next/link";
+import { TextLinkLabel } from "@/components/text-link";
 
 export type TeamsCardProps = {
   /** Cut to three lines with an ellipsis if longer. */
@@ -15,8 +16,11 @@ export type TeamsCardProps = {
   className?: string;
 };
 
-// A team member card — Figma "Team Member Card": photo, name, role and a
-// "Know more" link. The photo's alt text is the person's name.
+// A team member card — Figma "Team Member Card": photo, name, role and
+// "Know more". The whole card is the link to the member's page; "Know
+// more" is its label, and its underline and arrow move as the card is
+// hovered or focused. The photo is left out of the link's name (the name
+// is already in it).
 //
 //   <TeamsCard name="Shady el Barkoky" role="Founding Partner" photo="/images/…" href="/team/…" />
 export default function TeamsCard({
@@ -29,11 +33,11 @@ export default function TeamsCard({
   className = "",
 }: TeamsCardProps) {
   return (
-    <article className={`teams-card ${className}`.trim()}>
+    <Link href={href} className={`teams-card ${className}`.trim()}>
       <div className="teams-card-photo">
         <Image
           src={photo}
-          alt={name}
+          alt=""
           fill
           sizes="(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 100vw"
           style={photoPosition ? { objectPosition: photoPosition } : undefined}
@@ -42,10 +46,8 @@ export default function TeamsCard({
       <div className="teams-card-info">
         <Name className="teams-card-name header-3-semibold">{name}</Name>
         <p className="teams-card-role body">{role}</p>
-        <TextLink href={href} icon="arrow-right">
-          Know more
-        </TextLink>
+        <TextLinkLabel icon="arrow-right">Know more</TextLinkLabel>
       </div>
-    </article>
+    </Link>
   );
 }

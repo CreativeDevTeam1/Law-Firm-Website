@@ -262,9 +262,11 @@
     --core-value-width: 19.875rem; /* 318px */
     --core-value-gap: var(--number-24); /* 24px */
     --core-value-content-gap: var(--number-32); /* 32px */
-    --core-values-button-gap: var(--number-24); /* 24px */
-    --core-values-button-padding: var(--number-8); /* 8px */
-    --core-values-icon-size: var(--number-24); /* 24px */
+
+    /* Carousel buttons (carousel-controls.tsx) */
+    --carousel-button-gap: var(--number-24); /* 24px */
+    --carousel-button-padding: var(--number-8); /* 8px */
+    --carousel-icon-size: var(--number-24); /* 24px */
 
     /* Image reveal (About page) — the image's starting size, from Figma */
     --image-reveal-start-height: 34.1875rem; /* 547px */
@@ -296,6 +298,19 @@
     --team-grid-top: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px, label to cards */
     --team-grid-col-gap: var(--layout-col-gap); /* 12px → 24px */
     --team-grid-row-gap: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px */
+
+    /* Persona (team member page) */
+    --persona-padding-x: var(--layout-padding-x); /* 16px → 48px */
+    --persona-padding-top: calc(var(--navbar-logo-height) + 2 * var(--navbar-padding-y) + var(--layout-padding-y)); /* clear of the navbar */
+    --persona-marquee-size: 10.625vw; /* row height, as wearemotto.com's names: 107px at 1006px */
+    --persona-photo-overlap: 0.6; /* of a row's height: the photo covers most of the last row */
+    --persona-row-gap: var(--layout-padding-y); /* 40px → 80px (Figma 38px → 80px) */
+    --persona-meta-gap: var(--number-16); /* 16px */
+    --persona-bio-gap: var(--number-40); /* 40px */
+    --persona-social-size: var(--number-40); /* 40px */
+    --persona-social-gap: var(--number-24); /* 24px */
+    --related-members-list-top: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px */
+    --related-members-controls-top: var(--number-48); /* 48px */
 
     /* Footer */
     --footer-padding-x: var(--about-padding-x); /* 24px → 48px */
@@ -453,7 +468,9 @@
                           right, then a fresh one draws in from the left.
 
    The line is the link's text colour (currentColor), so it works on light
-   and dark backgrounds. Keyboard focus shows it too. Only devices that can
+   and dark backgrounds. Keyboard focus shows it too. Either class can also
+   sit on a span inside a bigger link (a whole clickable card, say), and
+   then reacts to that link being hovered or focused. Only devices that can
    hover animate it; with reduced motion the line changes instantly.
    ========================================================================== */
 
@@ -499,35 +516,43 @@
   /* Active states: hover on hover-capable devices, and keyboard focus. */
   @media (hover: hover) {
     .link-underline:hover::before,
-    .link-underline-swap:hover::after {
+    a:hover .link-underline::before,
+    .link-underline-swap:hover::after,
+    a:hover .link-underline-swap::after {
       transform: scaleX(1) rotate(0.001deg);
       transform-origin: left center;
     }
 
-    .link-underline-swap:hover::before {
+    .link-underline-swap:hover::before,
+    a:hover .link-underline-swap::before {
       transform: scaleX(0) rotate(0.001deg);
       transform-origin: right center;
       transition-delay: 0s;
     }
 
-    .link-underline-swap:hover::after {
+    .link-underline-swap:hover::after,
+    a:hover .link-underline-swap::after {
       transition-delay: var(--link-underline-swap-delay);
     }
   }
 
   .link-underline:focus-visible::before,
-  .link-underline-swap:focus-visible::after {
+  a:focus-visible .link-underline::before,
+  .link-underline-swap:focus-visible::after,
+  a:focus-visible .link-underline-swap::after {
     transform: scaleX(1) rotate(0.001deg);
     transform-origin: left center;
   }
 
-  .link-underline-swap:focus-visible::before {
+  .link-underline-swap:focus-visible::before,
+  a:focus-visible .link-underline-swap::before {
     transform: scaleX(0) rotate(0.001deg);
     transform-origin: right center;
     transition-delay: 0s;
   }
 
-  .link-underline-swap:focus-visible::after {
+  .link-underline-swap:focus-visible::after,
+  a:focus-visible .link-underline-swap::after {
     transition-delay: var(--link-underline-swap-delay);
   }
 
@@ -1229,7 +1254,8 @@
 /* ==========================================================================
    Teams card — Figma "Team Member Card" (teams-card.tsx)
 
-   Photo, name, role and a "Know more" link inside a thin border. The name
+   Photo, name, role and "Know more" inside a thin border; the whole card is
+   the link, with "Know more" as its label. The name
    is cut to three lines with an ellipsis; the full name stays in the page
    for screen readers and search. The background is opaque so the cards
    can cover the Founders heading when stacked.
@@ -1244,6 +1270,14 @@
     padding: var(--card-padding);
     border: 1px solid var(--color-neutral-250);
     background: var(--color-neutral-100);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* The whole card is the link (teams-card.tsx). */
+  .teams-card:focus-visible {
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: 2px;
   }
 
   .teams-card-photo {
@@ -1802,6 +1836,103 @@
 
 
 /* ==========================================================================
+   Carousel (use-carousel.ts, carousel-controls.tsx; Core values, Related
+   members)
+
+   A row that scrolls sideways and snaps to each item: swiped on touch
+   screens, dragged with a mouse (a grab hand where there's one, and no text
+   selection mid-drag), or stepped by the arrow buttons, which are shown
+   from 1024px only and dim at either end. Each use sets its own gap,
+   padding and item widths.
+   ========================================================================== */
+
+@layer components {
+  .carousel {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    list-style: none;
+  }
+
+  .carousel::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carousel > * {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .carousel {
+      cursor: grab;
+    }
+  }
+
+  .carousel.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  .carousel-controls {
+    display: none;
+    gap: var(--carousel-button-gap);
+  }
+
+  /* Figma draws the border inside the 40px button, so it comes out of the
+     padding. */
+  .carousel-button {
+    display: flex;
+    padding: calc(var(--carousel-button-padding) - 1px);
+    border: 1px solid var(--color-neutral-250);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, opacity 0.3s;
+  }
+
+  .carousel-button:not(:disabled):hover {
+    background: var(--color-neutral-950);
+    color: var(--color-neutral-100);
+  }
+
+  .carousel-button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .carousel-button:focus-visible {
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: 2px;
+  }
+
+  .carousel-icon {
+    display: block;
+    width: var(--carousel-icon-size);
+    height: var(--carousel-icon-size);
+    background-color: currentColor;
+    mask: center / contain no-repeat;
+  }
+
+  .carousel-icon-back {
+    mask-image: url("/images/icons/arrow-left.svg");
+  }
+
+  .carousel-icon-forward {
+    mask-image: url("/images/icons/arrow-right.svg");
+  }
+
+  @media (min-width: 64rem) {
+    .carousel-controls {
+      display: flex;
+    }
+  }
+}
+
+
+/* ==========================================================================
    Who we are section (About page) — Figma "who-we-are-section" (Web and
    Mobile) (who-we-are-section.tsx)
 
@@ -1864,36 +1995,14 @@
     justify-self: start;
   }
 
-  /* Runs to both screen edges and scrolls sideways, with the page padding
-     kept inside it so the first and last values line up with the text. */
+  /* A carousel (see Carousel) that runs to both screen edges, with the page
+     padding kept inside it so the first and last values line up with the
+     text. */
   .core-values-list {
-    display: flex;
     gap: var(--core-value-gap);
     margin-inline: calc(-1 * var(--who-we-are-padding-x));
     padding-inline: var(--who-we-are-padding-x);
     scroll-padding-inline: var(--who-we-are-padding-x);
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    list-style: none;
-  }
-
-  .core-values-list::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Mouse dragging (who-we-are-section.tsx): a grab hand where there's a
-     mouse, and no text selection while the row is being dragged. */
-  @media (hover: hover) and (pointer: fine) {
-    .core-values-list {
-      cursor: grab;
-    }
-  }
-
-  .core-values-list.is-dragging {
-    cursor: grabbing;
-    user-select: none;
   }
 
   /* Figma's 318px, or a quarter of the row when that's wider. */
@@ -1902,7 +2011,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--core-value-content-gap);
-    scroll-snap-align: start;
   }
 
   /* Figma uses the full 128px on phones too, not the style's 72px. */
@@ -1919,54 +2027,8 @@
     text-wrap: pretty;
   }
 
-  /* Desktop only: below 1024px the row is swiped or dragged instead. */
   .core-values-controls {
-    display: none;
     justify-self: end;
-    gap: var(--core-values-button-gap);
-  }
-
-  /* Figma draws the border inside the 40px button, so it comes out of the
-     padding. */
-  .core-values-button {
-    display: flex;
-    padding: calc(var(--core-values-button-padding) - 1px);
-    border: 1px solid var(--color-neutral-250);
-    background: var(--color-neutral-100);
-    color: var(--color-neutral-950);
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s, opacity 0.3s;
-  }
-
-  .core-values-button:not(:disabled):hover {
-    background: var(--color-neutral-950);
-    color: var(--color-neutral-100);
-  }
-
-  .core-values-button:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-
-  .core-values-button:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
-    outline-offset: 2px;
-  }
-
-  .core-values-icon {
-    display: block;
-    width: var(--core-values-icon-size);
-    height: var(--core-values-icon-size);
-    background-color: currentColor;
-    mask: center / contain no-repeat;
-  }
-
-  .core-values-icon-back {
-    mask-image: url("/images/icons/arrow-left.svg");
-  }
-
-  .core-values-icon-forward {
-    mask-image: url("/images/icons/arrow-right.svg");
   }
 
   @media (min-width: 64rem) {
@@ -1990,10 +2052,6 @@
     .core-values-list,
     .core-values-controls {
       grid-column: 1 / -1;
-    }
-
-    .core-values-controls {
-      display: flex;
     }
   }
 }
@@ -2313,6 +2371,257 @@
     }
   }
 
+}
+
+
+/* ==========================================================================
+   Persona (team member page) — Figma "persona-page" (Web and Mobile)
+   (persona-profile.tsx, persona-marquee.tsx, related-members.tsx)
+
+   Opens like wearemotto.com's founder pages: three huge rows running edge
+   to edge (the firm's full logo and an asterisk, repeated, where Motto has
+   the founder's name), with the photo pulled up over most of the last row.
+   Then Figma's layout:
+   on phones everything stacks; from 1024px the photo spans columns 2–11,
+   the name, role and social links sit in columns 2–4 beside the statement
+   (columns 6–10), with the bio under the statement.
+
+   Related members: a divider, the label and a carousel of team cards
+   running to the screen edges, with the arrows below on the right. Cards
+   are most of the width on phones and two-and-a-bit across on tablets (so
+   the next one peeks in), and four across from 1024px, as in Figma.
+   ========================================================================== */
+
+@layer components {
+  .persona {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--persona-row-gap);
+    padding: var(--persona-padding-top) var(--persona-padding-x) var(--section-padding-y);
+    overflow: clip;
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  /* Shown for the moment the page waits on its URL (team/[slug]/page.tsx). */
+  .persona-placeholder {
+    min-height: 100vh;
+    background: var(--color-neutral-100);
+  }
+
+  /* Sized in em of the row height, so everything scales with it. */
+  .persona-marquee {
+    margin-inline: calc(-1 * var(--persona-padding-x));
+    font-size: var(--persona-marquee-size);
+    line-height: 1;
+  }
+
+  .persona-marquee-row {
+    display: flex;
+    height: 1em;
+  }
+
+  .persona-marquee-set {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.3em;
+    padding-right: 0.3em;
+  }
+
+  /* An eight-point asterisk between the logos: four thin bars through its
+     centre, two on the star and two on the inner span turned 45°. It spins
+     (persona-marquee.tsx). */
+  .persona-marquee-star,
+  .persona-marquee-star > span {
+    display: block;
+    width: 0.5em;
+    height: 0.5em;
+  }
+
+  .persona-marquee-star {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .persona-marquee-star > span {
+    position: absolute;
+    inset: 0;
+    transform: rotate(45deg);
+  }
+
+  .persona-marquee-star::before,
+  .persona-marquee-star::after,
+  .persona-marquee-star > span::before,
+  .persona-marquee-star > span::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: calc(50% - 0.03em);
+    width: 0.06em;
+    height: 100%;
+    background-color: currentColor;
+  }
+
+  .persona-marquee-star::after,
+  .persona-marquee-star > span::after {
+    transform: rotate(90deg);
+  }
+
+  /* The full logo (210 × 32) at most of the row's height, in the text
+     colour. */
+  .persona-marquee-logo {
+    width: calc(0.8em * 210 / 32);
+    height: 0.8em;
+    background-color: currentColor;
+    mask: url("/images/logo/full-logo.svg") center / contain no-repeat;
+  }
+
+  /* Over the marquee, pulled up past the gap and most of the last row. */
+  .persona-photo {
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 7 / 4; /* Figma's 358 × 205 */
+    margin-top: calc(-1 * (var(--persona-photo-overlap) * var(--persona-marquee-size) + var(--persona-row-gap)));
+    overflow: hidden;
+    background: var(--color-neutral-250);
+  }
+
+  .persona-photo img {
+    object-fit: cover;
+  }
+
+  .persona-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--persona-meta-gap);
+  }
+
+  .persona-role {
+    color: var(--color-neutral-700);
+  }
+
+  .persona-socials {
+    display: flex;
+    gap: var(--persona-social-gap);
+    list-style: none;
+  }
+
+  .persona-social {
+    display: block;
+    color: var(--color-neutral-950);
+    transition: opacity 0.3s;
+  }
+
+  .persona-social:hover {
+    opacity: 0.6;
+  }
+
+  .persona-social:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .persona-social-icon {
+    display: block;
+    width: var(--persona-social-size);
+    height: var(--persona-social-size);
+    background-color: currentColor;
+    mask: center / contain no-repeat;
+  }
+
+  .persona-social-linkedin {
+    mask-image: url("/images/icons/linkedin.svg");
+  }
+
+  .persona-social-instagram {
+    mask-image: url("/images/icons/instagram.svg");
+  }
+
+  .persona-bio {
+    display: grid;
+    row-gap: var(--persona-bio-gap);
+    max-width: 34em;
+    color: var(--color-neutral-700);
+  }
+
+  .related-members {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 var(--persona-padding-x) var(--section-padding-y);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  .related-members-divider {
+    display: block;
+    height: 1px;
+    background: var(--color-neutral-250);
+  }
+
+  .related-members-label {
+    margin-top: var(--persona-meta-gap);
+  }
+
+  /* A carousel (see Carousel) running to both screen edges, with the page
+     padding kept inside it so the first card lines up with the label. */
+  .related-members-list {
+    gap: var(--card-gap);
+    margin: var(--related-members-list-top) calc(-1 * var(--persona-padding-x)) 0;
+    padding-inline: var(--persona-padding-x);
+    scroll-padding-inline: var(--persona-padding-x);
+  }
+
+  .related-members-item {
+    width: 72%;
+  }
+
+  .related-members-controls {
+    justify-self: end;
+    margin-top: var(--related-members-controls-top);
+  }
+
+  @media (min-width: 48rem) {
+    .related-members-item {
+      width: 40%;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .persona {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .persona-marquee {
+      grid-column: 1 / -1;
+    }
+
+    .persona-photo {
+      grid-column: 2 / span 10;
+      aspect-ratio: 3 / 2; /* Figma's 1104 × 727 */
+    }
+
+    .persona-meta {
+      grid-column: 2 / span 3;
+      grid-row: 3;
+    }
+
+    .persona-statement {
+      grid-column: 6 / span 5;
+      grid-row: 3;
+    }
+
+    .persona-bio {
+      grid-column: 6 / span 5;
+      max-width: none;
+    }
+
+    .related-members-item {
+      width: calc((100% - 3 * var(--card-gap)) / 4);
+    }
+  }
 }
 
 

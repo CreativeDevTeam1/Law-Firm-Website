@@ -5,47 +5,19 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LineReveal from "@/components/line-reveal";
 import SectionHeading from "@/components/section-heading";
-import TeamsCard, { type TeamsCardProps } from "@/components/teams-card";
+import TeamsCard from "@/components/teams-card";
+import { TEAM, TEAM_GROUPS } from "@/lib/team";
 
 gsap.registerPlugin(ScrollTrigger);
-
-type Member = Omit<TeamsCardProps, "nameAs" | "className">;
-type Group = { id: string; label: string; members: Member[] };
-
-const PHOTOS = [
-  { photo: "/images/home-page/founders/founder-1.png", photoPosition: "21% 0" },
-  { photo: "/images/home-page/founders/founder-2.png", photoPosition: "70% 0" },
-  { photo: "/images/home-page/founders/founder-3.png", photoPosition: "39% 0" },
-  { photo: "/images/home-page/founders/founder-4.png", photoPosition: "41% 0" },
-];
-
-// TODO: Figma's placeholders until the real team arrives: every card is
-// "Shady el Barkoky" (with a date where the role goes, so the roles here
-// are stand-ins), the four founder photos cycle, and "Know more" points
-// at this page until each person has their own.
-const placeholders = (role: string, count = PHOTOS.length): Member[] =>
-  Array.from({ length: count }, (_, i) => ({
-    name: "Shady el Barkoky",
-    role,
-    href: "/team",
-    ...PHOTOS[i % PHOTOS.length],
-  }));
-
-// Keep each group a multiple of four, so the last row is full at four
-// columns (and at two).
-const GROUPS: Group[] = [
-  { id: "team-founders", label: "(Founders)", members: placeholders("Founding Partner") },
-  { id: "team-partners", label: "(Partners)", members: placeholders("Partner") },
-  { id: "team-seniors", label: "(Seniors)", members: placeholders("Senior Associate", 8) },
-];
 
 // Team page — Figma "team-section" (Web and Mobile). The heading has
 // "(Our Team)" set into its first line, like the home headings, with a
 // paragraph below (see Page header in globals.css). Then a group per level of
 // the firm: a divider that draws in from the left, the group's label and
-// its cards — two columns, four from 1024px (never three, which would
-// leave one of four cards alone on a row). The cards slide up and fade in
-// a row at a time, as on the home page.
+// its cards — two columns, four from 768px (never three, which would
+// leave one of four cards alone on a row). Each card links to the
+// member's page (/team/[slug]). The members are in src/lib/team.ts. The
+// cards slide up and fade in a row at a time, as on the home page.
 export default function TeamSection() {
   const directoryRef = useRef<HTMLDivElement>(null);
 
@@ -105,16 +77,23 @@ export default function TeamSection() {
       </div>
 
       <div className="team-directory" ref={directoryRef}>
-        {GROUPS.map((group) => (
-          <section className="team-group" key={group.id} aria-labelledby={group.id}>
+        {TEAM_GROUPS.map((group) => (
+          <section className="team-group" key={group.id} aria-labelledby={`team-${group.id}`}>
             <span className="team-group-divider" aria-hidden="true" />
-            <LineReveal as="h3" id={group.id} className="team-group-label cta-medium">
+            <LineReveal as="h3" id={`team-${group.id}`} className="team-group-label cta-medium">
               {group.label}
             </LineReveal>
             <ul className="team-grid">
-              {group.members.map((member, i) => (
-                <li key={i}>
-                  <TeamsCard {...member} nameAs="h4" />
+              {TEAM.filter((member) => member.group === group.id).map((member) => (
+                <li key={member.slug}>
+                  <TeamsCard
+                    name={member.name}
+                    role={member.role}
+                    photo={member.photo}
+                    photoPosition={member.photoPosition}
+                    href={`/team/${member.slug}`}
+                    nameAs="h4"
+                  />
                 </li>
               ))}
             </ul>

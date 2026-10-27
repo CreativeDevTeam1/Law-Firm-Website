@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type ComponentProps } from "react";
+import { useRef, type ComponentProps, type ReactNode } from "react";
 import Link from "next/link";
 import { useLineReveal } from "@/hooks/use-line-reveal";
 
@@ -10,6 +10,8 @@ const SIZES = {
   big: "cta-big",
 } as const;
 
+type Icon = "arrow-up-right" | "arrow-right" | "arrow-up";
+
 type TextLinkProps = ComponentProps<typeof Link> & {
   /** Text size, from the CTA text styles. Default "small". */
   size?: keyof typeof SIZES;
@@ -17,7 +19,7 @@ type TextLinkProps = ComponentProps<typeof Link> & {
    * Adds an arrow icon. Links with an icon are underlined at rest and swap
    * the line on hover; links without one draw the line in on hover.
    */
-  icon?: "arrow-up-right" | "arrow-right" | "arrow-up";
+  icon?: Icon;
   /**
    * Reveals the link when it scrolls into view: the text slides up (like
    * <LineReveal>), then the underline draws in and the arrow slides in.
@@ -59,16 +61,8 @@ export default function TextLink({
     onRevealed: () => linkRef.current?.classList.add("text-link-revealed"),
   });
 
-  const classes = [
-    "text-link",
-    icon ? "text-link-with-icon link-underline-swap" : "link-underline",
-    SIZES[size],
-    reveal && "text-link-reveal",
-    className,
-  ];
-
   return (
-    <Link ref={linkRef} className={classes.filter(Boolean).join(" ")} {...props}>
+    <Link ref={linkRef} className={textLinkClasses(size, icon, reveal && "text-link-reveal", className)} {...props}>
       {reveal ? (
         <span ref={labelRef} className="text-link-label line-reveal">
           {children}
@@ -76,11 +70,41 @@ export default function TextLink({
       ) : (
         children
       )}
-      {icon && (
-        <span className={`link-arrow link-${icon}`} aria-hidden="true">
-          <span className={`text-link-icon text-link-icon-${icon}`} />
-        </span>
-      )}
+      {icon && <TextLinkArrow icon={icon} />}
     </Link>
+  );
+}
+
+type TextLinkLabelProps = {
+  size?: keyof typeof SIZES;
+  icon?: Icon;
+  className?: string;
+  children: ReactNode;
+};
+
+// A text link's look without the link, for inside something that is itself
+// the link (a whole clickable card): its underline and arrow move when that
+// link is hovered or focused.
+//
+//   <Link href="/team/…" className="teams-card">… <TextLinkLabel icon="arrow-right">Know more</TextLinkLabel></Link>
+export function TextLinkLabel({ size = "small", icon, className = "", children }: TextLinkLabelProps) {
+  return (
+    <span className={textLinkClasses(size, icon, className)}>
+      {children}
+      {icon && <TextLinkArrow icon={icon} />}
+    </span>
+  );
+}
+
+const textLinkClasses = (size: keyof typeof SIZES, icon: Icon | undefined, ...extra: (string | false)[]) =>
+  ["text-link", icon ? "text-link-with-icon link-underline-swap" : "link-underline", SIZES[size], ...extra]
+    .filter(Boolean)
+    .join(" ");
+
+function TextLinkArrow({ icon }: { icon: Icon }) {
+  return (
+    <span className={`link-arrow link-${icon}`} aria-hidden="true">
+      <span className={`text-link-icon text-link-icon-${icon}`} />
+    </span>
   );
 }
