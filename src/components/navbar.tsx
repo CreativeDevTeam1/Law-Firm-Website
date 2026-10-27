@@ -19,8 +19,9 @@ const LINKS = [
 ];
 
 // Site navigation — Figma "Navigation" (Web) and "Mobile". Pinned over the
-// top of the page. On pages with an intro it waits off-screen and drops in
-// once the intro finishes.
+// top of the page, sliding away while scrolling down and back on scrolling
+// up. On pages with an intro it waits off-screen and drops in once the
+// intro finishes.
 //
 // Over the hero's photo the logo and links are light. Once the hero has
 // scrolled up past them they turn dark, for the light sections below, and
@@ -54,6 +55,50 @@ export default function Navbar() {
 
     return () => mm.revert();
   }, []);
+
+  // Out of the way while reading: scrolling down slides the bar and logo up
+  // off the screen, and scrolling back up (or reaching the top) brings them
+  // back, so they never sit on top of a heading or photo for long. Small
+  // scroll jitters are ignored. Keyboard focus inside them shows them too
+  // (CSS :focus-within).
+  useEffect(() => {
+    const navbar = navbarRef.current;
+    const logo = logoRef.current;
+    if (!navbar || !logo) return;
+
+    const TOLERANCE = 8;
+    let anchor = window.scrollY;
+    let hidden = false;
+    const setHidden = (next: boolean) => {
+      if (next === hidden) return;
+      hidden = next;
+      navbar.classList.toggle("navbar-hidden", next);
+      logo.classList.toggle("navbar-hidden", next);
+    };
+
+    const trigger = ScrollTrigger.create({
+      start: 0,
+      end: "max",
+      onUpdate: (self) => {
+        const scroll = self.scroll();
+        // Always shown while the bar still overlaps where it started.
+        if (scroll <= navbar.offsetHeight) {
+          anchor = scroll;
+          setHidden(false);
+          return;
+        }
+        if (Math.abs(scroll - anchor) < TOLERANCE) return;
+        setHidden(scroll > anchor);
+        anchor = scroll;
+      },
+    });
+
+    return () => {
+      trigger.kill();
+      navbar.classList.remove("navbar-hidden");
+      logo.classList.remove("navbar-hidden");
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const navbar = navbarRef.current;

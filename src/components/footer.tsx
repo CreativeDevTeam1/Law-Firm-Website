@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type MouseEvent } from "react";
+import { usePathname } from "next/navigation";
 import { useLenis } from "lenis/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -55,13 +56,12 @@ const LINK_STAGGER = 0.04;
 export default function Footer() {
   const footerRef = useRef<HTMLElement>(null);
   const lenis = useLenis();
+  const pathname = usePathname();
 
   useEffect(() => {
     const footer = footerRef.current;
     if (!footer) return;
 
-    const inner = footer.querySelector<HTMLElement>(".footer-inner")!;
-    const top = footer.querySelector<HTMLElement>(".footer-top")!;
     const divider = footer.querySelector<HTMLElement>(".footer-divider")!;
     const mm = gsap.matchMedia();
 
@@ -77,7 +77,26 @@ export default function Footer() {
           scrollTrigger: { trigger: divider, start: "top 90%", toggleActions: "play none none none" },
         },
       );
+    });
 
+    return () => mm.revert();
+  }, []);
+
+  // The section reveal is rebuilt on every page. The footer sits in the
+  // layout and is never remounted, so a trigger made once keeps the first
+  // page's positions: on a shorter page its start is never reached and the
+  // content stays stuck 30% up. (The reference rebuilds its footer on each
+  // page change too.) The refresh re-measures the footer's other triggers
+  // against the new page as well.
+  useEffect(() => {
+    const footer = footerRef.current;
+    if (!footer) return;
+
+    const inner = footer.querySelector<HTMLElement>(".footer-inner")!;
+    const top = footer.querySelector<HTMLElement>(".footer-top")!;
+    const mm = gsap.matchMedia();
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
       gsap.fromTo(
         inner,
         { yPercent: -30 },
@@ -94,9 +113,10 @@ export default function Footer() {
         },
       );
     });
+    ScrollTrigger.refresh();
 
     return () => mm.revert();
-  }, []);
+  }, [pathname]);
 
   const backToTop = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();

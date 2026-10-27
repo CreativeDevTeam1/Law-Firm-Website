@@ -189,6 +189,9 @@
     /* Page */
     --layout-padding-x: clamp(var(--number-16), 0.2571rem + 3.0476vw, var(--number-48)); /* 16px → 48px */
     --layout-padding-y: clamp(var(--number-40), 1.5714rem + 3.8095vw, var(--number-80)); /* 40px → 80px */
+    /* Above and below each page section, so two sections sit twice this
+       apart: 160px on phones to 320px at 1440px (and on up with the site). */
+    --section-padding-y: clamp(var(--number-80), 3.1429rem + 7.619vw, var(--number-160)); /* 80px → 160px */
     --layout-col-gap: clamp(var(--number-12), 0.4714rem + 1.1429vw, var(--number-24)); /* 12px → 24px */
 
     /* Navbar */
@@ -204,13 +207,13 @@
 
     /* About */
     --about-padding-x: clamp(var(--number-24), 0.9429rem + 2.2857vw, var(--number-48)); /* 24px → 48px */
-    --about-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --about-padding-y: var(--section-padding-y); /* 80px → 160px */
     --about-row-gap: clamp(var(--number-64), 3.6286rem + 1.5238vw, var(--number-80)); /* 64px → 80px */
     --about-content-gap: clamp(var(--number-24), 1.3143rem + 0.7619vw, var(--number-32)); /* 24px → 32px */
 
     /* Clients */
     --clients-padding-x: var(--about-padding-x); /* 24px → 48px */
-    --clients-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --clients-padding-y: var(--section-padding-y); /* 80px → 160px */
     --clients-row-gap: var(--about-row-gap); /* 64px → 80px */
     --clients-card-gap: clamp(var(--number-16), 0.8429rem + 0.7619vw, var(--number-24)); /* 16px → 24px */
     --clients-card-padding: var(--number-16); /* 16px */
@@ -218,7 +221,7 @@
 
     /* Founders */
     --founders-padding-x: var(--about-padding-x); /* 24px → 48px */
-    --founders-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --founders-padding-y: var(--section-padding-y); /* 80px → 160px */
     --founders-row-gap: var(--about-row-gap); /* 64px → 80px */
 
     /* Cards (teams-card.tsx, news-card.tsx) and the grids they sit in */
@@ -229,12 +232,12 @@
 
     /* News & Articles */
     --news-padding-x: var(--about-padding-x); /* 24px → 48px */
-    --news-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --news-padding-y: var(--section-padding-y); /* 80px → 160px */
     --news-row-gap: var(--about-row-gap); /* 64px → 80px */
 
     /* Testimonials */
     --testimonials-padding-x: var(--about-padding-x); /* 24px → 48px */
-    --testimonials-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --testimonials-padding-y: var(--section-padding-y); /* 80px → 160px */
     --testimonials-row-gap: var(--about-row-gap); /* 64px → 80px */
     --testimonials-card-gap: var(--number-24); /* 24px */
     --testimonials-grid-row-gap: var(--number-25); /* 25px */
@@ -269,7 +272,7 @@
 
     /* Practice area (About page) */
     --practice-areas-padding-x: var(--layout-padding-x); /* 16px → 48px */
-    --practice-areas-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --practice-areas-padding-y: var(--section-padding-y); /* 80px → 160px */
     --practice-areas-header-gap: calc(2 * var(--layout-padding-y)); /* 80px → 160px, under the heading: as Who we are → Core values */
     --practice-areas-row-gap: clamp(var(--number-40), 1.9429rem + 2.2857vw, var(--number-64)); /* 40px → 64px, between card rows */
     --practice-card-info-gap: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px, photo to text */
@@ -727,6 +730,45 @@
     mix-blend-mode: difference;
   }
 
+  /* Slid up off the screen while scrolling down (navbar.tsx). Uses the
+     translate property, separate from the transform GSAP sets for the
+     intro, so the two don't fight. Keyboard focus brings it back, but not
+     the focus a mouse click leaves on a link or button (:focus-visible
+     only): that would keep it pinned after using it to change page. */
+  .navbar,
+  .navbar-logo {
+    --navbar-hide-y: calc(-1 * (var(--navbar-logo-height) + 2 * var(--navbar-padding-y)));
+  }
+
+  .navbar.navbar-hidden:not(:has(:focus-visible)),
+  .navbar-logo.navbar-hidden:not(:focus-visible) {
+    translate: 0 var(--navbar-hide-y);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .navbar,
+    .navbar-logo {
+      transition:
+        color 0.3s ease,
+        translate 0.6s cubic-bezier(0.62, 0.05, 0.01, 0.99);
+    }
+  }
+
+  /* Tap targets at least 44px tall without moving anything: an invisible
+     area around the logo and the Menu button. */
+  .navbar-logo::after,
+  .navbar-menu-button::after {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--number-14)) calc(-1 * var(--number-12));
+  }
+
+  .navbar-logo:focus-visible,
+  .navbar-menu-button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: var(--number-8);
+  }
+
   /* Off-screen until the intro has finished (navbar.tsx drops them in). */
   @media (prefers-reduced-motion: no-preference) {
     body:has(.intro) .navbar,
@@ -769,6 +811,7 @@
   }
 
   .navbar-menu-button {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--navbar-item-gap);
@@ -1765,6 +1808,16 @@
     grid-template-columns: minmax(0, 1fr);
     row-gap: var(--who-we-are-row-gap);
     padding: var(--who-we-are-padding-y) var(--who-we-are-padding-x);
+  }
+
+  /* The section's outer edges get the space between sections; between its
+     two blocks it keeps the page padding twice over (80px → 160px). */
+  .who-we-are-intro {
+    padding-top: var(--section-padding-y);
+  }
+
+  .core-values {
+    padding-bottom: var(--section-padding-y);
   }
 
   /* As .news-heading on phones: the label's width (5.8 times its text size)
