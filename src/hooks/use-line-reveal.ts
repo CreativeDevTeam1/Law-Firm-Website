@@ -83,15 +83,23 @@ export function useLineReveal(
           cancelWait();
           if (hasPlayed) return;
 
+          // Not shown (display: none, e.g. a layout for another screen size):
+          // wait for the re-split when it appears; a trigger made now would
+          // count as passed and play out of sight.
+          if (!element.getClientRects().length) return;
+
           const timeline = gsap.timeline({
             delay,
             paused: play === "load",
             onStart: () => {
               hasPlayed = true;
             },
+            // Plays once but never kills itself: a once-trigger already passed
+            // kills itself when another trigger refreshes it, and ScrollTrigger
+            // then crashes ("curTrigger is undefined").
             scrollTrigger:
               play === "scroll"
-                ? { trigger: element, start, once: true }
+                ? { trigger: element, start, toggleActions: "play none none none" }
                 : undefined,
           });
 

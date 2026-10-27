@@ -24,7 +24,10 @@ const LINKS = [
 //
 // Over the hero's photo the logo and links are light. Once the hero has
 // scrolled up past them they turn dark, for the light sections below, and
-// light again over the dark footer. Pages without a hero are dark until the
+// light again over the dark footer and over any section marked
+// data-navbar-light (e.g. a full-screen photo). Over sections marked
+// data-navbar-blend (half light, half photo) they're light and inverted
+// against what's behind them. Pages without a hero are dark until the
 // footer.
 export default function Navbar() {
   const navbarRef = useRef<HTMLElement>(null);
@@ -58,13 +61,18 @@ export default function Navbar() {
     if (!navbar || !logo) return;
 
     // Dark once past the hero (or throughout, without one), and light again
-    // over the dark footer.
+    // over the dark footer and data-navbar-light sections.
     let pastHero = false;
     let overFooter = false;
+    const overLight = new Set<Element>();
+    const overBlend = new Set<Element>();
     const update = () => {
-      const dark = pastHero && !overFooter;
+      const blend = overBlend.size > 0;
+      const dark = pastHero && !overFooter && overLight.size === 0 && !blend;
       navbar.classList.toggle("navbar-dark", dark);
       logo.classList.toggle("navbar-dark", dark);
+      navbar.classList.toggle("navbar-blend", blend);
+      logo.classList.toggle("navbar-blend", blend);
     };
 
     // Each switches when the element's edge reaches the middle of the bar,
@@ -117,12 +125,38 @@ export default function Navbar() {
       const footerTrigger = triggers[triggers.length - 1];
       overFooter = footerTrigger.scroll() > footerTrigger.start;
     }
+
+    // Light (or blended) while the bar's middle is anywhere over a marked
+    // section. These sit mid-page, so unlike the footer they can be
+    // scrolled past.
+    const sectionTriggers = (
+      [
+        ["[data-navbar-light]", overLight],
+        ["[data-navbar-blend]", overBlend],
+      ] as const
+    ).flatMap(([selector, over]) =>
+      Array.from(document.querySelectorAll(selector), (section) => {
+        const trigger = ScrollTrigger.create({
+          trigger: section,
+          start: () => `top ${middle()}`,
+          end: () => `bottom ${middle()}`,
+          onToggle: (self) => {
+            if (self.isActive) over.add(section);
+            else over.delete(section);
+            update();
+          },
+        });
+        if (trigger.isActive) over.add(section);
+        return trigger;
+      }),
+    );
     update();
 
     return () => {
       triggers.forEach((trigger) => trigger.kill());
-      navbar.classList.remove("navbar-dark");
-      logo.classList.remove("navbar-dark");
+      sectionTriggers.forEach((trigger) => trigger.kill());
+      navbar.classList.remove("navbar-dark", "navbar-blend");
+      logo.classList.remove("navbar-dark", "navbar-blend");
     };
   }, [pathname]);
 

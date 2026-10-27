@@ -252,6 +252,28 @@
        so it lands at Figma's -388px on phones and -271px on desktop. */
     --testimonials-grid-offset: clamp(19.9375rem, 27.9089rem - 8.8571vw, 25.75rem); /* 412px → 319px */
 
+    /* Who we are (About page) */
+    --who-we-are-padding-x: var(--layout-padding-x); /* 16px → 48px */
+    --who-we-are-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --who-we-are-row-gap: clamp(var(--number-40), 1.5714rem + 3.8095vw, var(--number-80)); /* 40px → 80px */
+    --core-value-width: 19.875rem; /* 318px */
+    --core-value-gap: var(--number-24); /* 24px */
+    --core-value-content-gap: var(--number-32); /* 32px */
+    --core-values-button-gap: var(--number-24); /* 24px */
+    --core-values-button-padding: var(--number-8); /* 8px */
+    --core-values-icon-size: var(--number-24); /* 24px */
+
+    /* Image reveal (About page) — the image's starting size, from Figma */
+    --image-reveal-start-height: 34.1875rem; /* 547px */
+    --image-reveal-start-inset-x: 0.4375rem; /* 7px from each side on phones */
+
+    /* Practice area (About page) */
+    --practice-areas-padding-x: var(--layout-padding-x); /* 16px → 48px */
+    --practice-areas-padding-y: var(--layout-padding-y); /* 40px → 80px */
+    --practice-areas-header-gap: calc(2 * var(--layout-padding-y)); /* 80px → 160px, under the heading: as Who we are → Core values */
+    --practice-areas-row-gap: clamp(var(--number-40), 1.9429rem + 2.2857vw, var(--number-64)); /* 40px → 64px, between card rows */
+    --practice-card-info-gap: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px, photo to text */
+
     /* Footer */
     --footer-padding-x: var(--about-padding-x); /* 24px → 48px */
     --footer-padding-y: var(--layout-padding-y); /* 40px → 80px */
@@ -696,6 +718,13 @@
      past, for the light sections below it. */
   .navbar-dark {
     color: var(--color-neutral-950);
+  }
+
+  /* Over sections that are half light and half photo (data-navbar-blend):
+     the light colour, inverted against whatever is behind it, comes out
+     dark on the light background and light on the photo. */
+  .navbar-blend {
+    mix-blend-mode: difference;
   }
 
   /* Off-screen until the intro has finished (navbar.tsx drops them in). */
@@ -1437,7 +1466,12 @@
    ========================================================================== */
 
 @layer components {
+  /* The label's top margin lines its baseline up with the title's first
+     line; the two sizes default to the Header 1 title and CTA Medium label. */
   .section-heading {
+    --section-heading-title-size: var(--header-1-font-size);
+    --section-heading-label-size: var(--cta-medium-font-size);
+
     display: grid;
   }
 
@@ -1449,7 +1483,7 @@
   .section-heading-label {
     z-index: 1;
     align-self: start;
-    margin-top: calc(0.775 * (var(--header-1-font-size) - var(--cta-medium-font-size)));
+    margin-top: calc(0.775 * (var(--section-heading-title-size) - var(--section-heading-label-size)));
     white-space: nowrap;
   }
 
@@ -1699,6 +1733,329 @@
 
     .testimonials-grid {
       grid-column: 1 / -1;
+    }
+  }
+}
+
+
+/* ==========================================================================
+   Who we are section (About page) — Figma "who-we-are-section" (Web and
+   Mobile) (who-we-are-section.tsx)
+
+   Two blocks, each with the page padding. First the heading, then the
+   mission and vision with their labels set into the first line (from
+   1024px in Figma's columns 6–11). Then the core values: the label, a row
+   of fixed-width values that scrolls sideways (running to the screen edge,
+   as in Figma) when they don't all fit, and the arrow buttons on the right.
+
+   Figma's phone frame leaves out the "(Who we are)", "(Our Mission)" and
+   "(Our Vision)" labels; they're kept here, with the indents wide enough
+   for them, as in the home page sections.
+   ========================================================================== */
+
+@layer components {
+  .who-we-are {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  .who-we-are-intro,
+  .core-values {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--who-we-are-row-gap);
+    padding: var(--who-we-are-padding-y) var(--who-we-are-padding-x);
+  }
+
+  /* As .news-heading on phones: the label's width (5.8 times its text size)
+     plus a word space; from 1024px the em indent of the home headings. */
+  .who-we-are-heading {
+    --section-heading-indent: calc(5.8 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  /* Figma indents the mission and vision by 3.5em, which on phones is
+     narrower than "(Our Mission)" (6.05 times its text size), so the indent
+     is whichever is wider. Both use the same indent so their text lines up. */
+  .who-we-are-statement {
+    --section-heading-title-size: var(--header-2-semibold-font-size);
+    --section-heading-label-size: var(--header-4-font-size);
+    --section-heading-indent: max(3.5em, calc(6.05 * var(--header-4-font-size) + 0.25em));
+  }
+
+  /* Line height 1, like the title, so the label's baseline lines up. */
+  .who-we-are-statement .section-heading-label {
+    line-height: var(--line-height-100);
+  }
+
+  .core-values-title {
+    justify-self: start;
+  }
+
+  /* Runs to both screen edges and scrolls sideways, with the page padding
+     kept inside it so the first and last values line up with the text. */
+  .core-values-list {
+    display: flex;
+    gap: var(--core-value-gap);
+    margin-inline: calc(-1 * var(--who-we-are-padding-x));
+    padding-inline: var(--who-we-are-padding-x);
+    scroll-padding-inline: var(--who-we-are-padding-x);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    list-style: none;
+  }
+
+  .core-values-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Figma's 318px, or a quarter of the row when that's wider. */
+  .core-value {
+    flex: 0 0 max(var(--core-value-width), (100% - 3 * var(--core-value-gap)) / 4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--core-value-content-gap);
+    scroll-snap-align: start;
+  }
+
+  /* Figma uses the full 128px on phones too, not the style's 72px. */
+  .core-value-number {
+    font-size: var(--number-128);
+  }
+
+  .core-value-text {
+    color: var(--color-neutral-700);
+  }
+
+  .core-values-controls {
+    justify-self: end;
+    display: flex;
+    gap: var(--core-values-button-gap);
+  }
+
+  /* Figma draws the border inside the 40px button, so it comes out of the
+     padding. */
+  .core-values-button {
+    display: flex;
+    padding: calc(var(--core-values-button-padding) - 1px);
+    border: 1px solid var(--color-neutral-250);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, opacity 0.3s;
+  }
+
+  .core-values-button:not(:disabled):hover {
+    background: var(--color-neutral-950);
+    color: var(--color-neutral-100);
+  }
+
+  .core-values-button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .core-values-button:focus-visible {
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: 2px;
+  }
+
+  .core-values-icon {
+    display: block;
+    width: var(--core-values-icon-size);
+    height: var(--core-values-icon-size);
+    background-color: currentColor;
+    mask: center / contain no-repeat;
+  }
+
+  .core-values-icon-back {
+    mask-image: url("/images/icons/arrow-left.svg");
+  }
+
+  .core-values-icon-forward {
+    mask-image: url("/images/icons/arrow-right.svg");
+  }
+
+  @media (min-width: 64rem) {
+    .who-we-are-intro,
+    .core-values {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .who-we-are-heading {
+      --section-heading-indent: 3.5625em;
+
+      grid-column: 1 / -1;
+    }
+
+    .who-we-are-statement {
+      grid-column: 6 / span 6;
+    }
+
+    .core-values-title,
+    .core-values-list,
+    .core-values-controls {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+
+/* ==========================================================================
+   Image reveal (About page) — Figma "img-wrapper" (Web and Mobile)
+   (image-reveal.tsx)
+
+   The section is a full screen from the start; clip-path trims the image to
+   Figma's starting size (547px tall; 7px from each side on phones, columns
+   2–11 from 1024px) and --image-reveal-progress, run by the scroll from 0 to
+   1, opens it up to the whole screen. With reduced motion it's shown in full.
+
+   The starting image sits one page padding (40px → 80px) below the
+   section's top rather than centred, and the section keeps the same again
+   below it, so the space either side matches Who we are → Core values.
+   ========================================================================== */
+
+@layer components {
+  .image-reveal {
+    --image-reveal-progress: 1;
+    --image-reveal-inset-x: var(--image-reveal-start-inset-x);
+    /* Percentages here are of the section's height (top and bottom insets). */
+    --image-reveal-room-y: max(0px, 100% - var(--image-reveal-start-height));
+    --image-reveal-inset-top: min(var(--layout-padding-y), var(--image-reveal-room-y));
+    --image-reveal-inset-bottom: calc(var(--image-reveal-room-y) - var(--image-reveal-inset-top));
+
+    position: relative;
+    height: 100vh;
+    min-height: var(--image-reveal-start-height);
+    background: var(--color-neutral-100);
+  }
+
+  /* By the time it's scrolled past, the image fills the screen; the margin
+     is the room left above it at the start (the section is 100vh tall). */
+  @media (prefers-reduced-motion: no-preference) {
+    .image-reveal {
+      --image-reveal-progress: 0;
+      margin-bottom: min(var(--layout-padding-y), max(0px, 100vh - var(--image-reveal-start-height)));
+    }
+  }
+
+  .image-reveal-media {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(
+      calc(var(--image-reveal-inset-top) * (1 - var(--image-reveal-progress)))
+      calc(var(--image-reveal-inset-x) * (1 - var(--image-reveal-progress)))
+      calc(var(--image-reveal-inset-bottom) * (1 - var(--image-reveal-progress)))
+    );
+  }
+
+  .image-reveal-media img {
+    object-fit: cover;
+  }
+
+  /* Columns 2–11 of the 12-column page grid: the page padding, one column
+     and one gap in from each side. */
+  @media (min-width: 64rem) {
+    .image-reveal {
+      --image-reveal-inset-x: calc(
+        var(--layout-padding-x)
+        + (100% - 2 * var(--layout-padding-x) - 11 * var(--layout-col-gap)) / 12
+        + var(--layout-col-gap)
+      );
+    }
+  }
+}
+
+
+/* ==========================================================================
+   Practice area section (About page) — Figma "practice-area-section" (Web
+   and Mobile) (practice-areas-section.tsx)
+
+   The heading works like the home ones. Below it, a card per area laid out
+   like justgowiththeflow.com's work grid (section-work-grid in its
+   style.css): two columns from 720px, one below. Each card is a 5:4 photo
+   with its title and description under it.
+
+   The photo's cover (in the section's colour) and the photo's scale are
+   animated by practice-areas-section.tsx; the cover sits at scale 0 here so
+   the photo shows without JavaScript or with reduced motion.
+   ========================================================================== */
+
+@layer components {
+  .practice-areas {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--practice-areas-header-gap);
+    padding: var(--practice-areas-padding-y) var(--practice-areas-padding-x);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  /* As .news-heading on phones: the label's width (6.5 times its text size)
+     plus a word space; from 1024px the em indent of the home headings. */
+  .practice-areas-heading {
+    --section-heading-indent: calc(6.5 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .practice-areas-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--practice-areas-row-gap) var(--layout-col-gap);
+    list-style: none;
+  }
+
+  .practice-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--practice-card-info-gap);
+  }
+
+  .practice-card-photo {
+    position: relative;
+    aspect-ratio: 5 / 4;
+    overflow: hidden;
+    background: var(--color-neutral-250); /* while the photo loads */
+  }
+
+  .practice-card-media,
+  .practice-card-cover {
+    position: absolute;
+    inset: 0;
+  }
+
+  .practice-card-media img {
+    object-fit: cover;
+  }
+
+  /* 1px past each edge so no sliver of photo shows around it. */
+  .practice-card-cover {
+    inset: -1px;
+    background: var(--color-neutral-100);
+    transform: scaleY(0);
+    transform-origin: center top;
+    pointer-events: none;
+  }
+
+  .practice-card-info {
+    display: grid;
+    row-gap: var(--number-8);
+  }
+
+  .practice-card-text {
+    color: var(--color-neutral-700);
+  }
+
+  @media (min-width: 45rem) {
+    .practice-areas-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .practice-areas-heading {
+      --section-heading-indent: 3.5625em;
     }
   }
 }

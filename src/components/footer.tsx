@@ -73,7 +73,8 @@ export default function Footer() {
           scaleX: 1,
           duration: 1.6,
           ease: "power4.inOut",
-          scrollTrigger: { trigger: divider, start: "top 90%", once: true },
+          // Not once: true, which can crash ScrollTrigger (use-line-reveal.ts).
+          scrollTrigger: { trigger: divider, start: "top 90%", toggleActions: "play none none none" },
         },
       );
 
