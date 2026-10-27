@@ -113,7 +113,7 @@ export default function ClientsSection() {
       </div>
 
       <div className="clients-link">
-        <TextLink href="/contact" size="medium" icon="arrow-right" reveal>
+        <TextLink href="/client-intake" size="medium" icon="arrow-right" reveal>
           Become one of our clients
         </TextLink>
       </div>

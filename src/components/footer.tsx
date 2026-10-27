@@ -15,7 +15,7 @@ const NAVIGATE = [
   { href: "/about", label: "About" },
   { href: "/careers", label: "Careers" },
   { href: "/news", label: "News & Insight" },
-  { href: "/contact", label: "Contact" },
+  { href: "/client-intake", label: "Contact" },
 ];
 
 // The firm's profile links aren't known yet.
@@ -151,7 +151,7 @@ export default function Footer() {
             Your Trusted Legal Partner, Every Step of the Way
           </LineReveal>
           <div className="footer-cta">
-            <TextLink href="/contact" size="big" icon="arrow-up-right" reveal revealDelay={0.15}>
+            <TextLink href="/client-intake" size="big" icon="arrow-up-right" reveal revealDelay={0.15}>
               Let&rsquo;s Talk
             </TextLink>
           </div>

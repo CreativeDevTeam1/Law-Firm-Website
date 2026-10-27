@@ -228,7 +228,7 @@ export default function Navbar() {
           </ul>
         </nav>
 
-        <TextLink href="/contact" icon="arrow-up-right" className="navbar-cta">
+        <TextLink href="/client-intake" icon="arrow-up-right" className="navbar-cta">
           Let&apos;s Talk
         </TextLink>
 

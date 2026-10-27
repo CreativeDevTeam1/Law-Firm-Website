@@ -320,10 +320,29 @@
     --job-section-gap: var(--about-row-gap); /* 64px → 80px */
     --job-list-gap: clamp(var(--number-16), 0.8143rem + 0.7619vw, var(--number-24)); /* 16px → 24px */
     --job-form-gap: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px, the intro, fields and button */
-    --job-form-field-gap: var(--number-32); /* 32px, between fields */
-    --job-form-label-gap: var(--number-8); /* 8px, a label to its field */
     --job-form-note-top: var(--number-48); /* 48px more above the note, so 80px from the CV's hint */
-    --job-form-input-padding: var(--number-12); /* 12px, above and below the text */
+
+    /* Form fields (form-field.tsx) */
+    --form-field-gap: var(--number-32); /* 32px, between fields */
+    --form-label-gap: var(--number-8); /* 8px, a label to its field */
+    --form-input-padding: var(--number-12); /* 12px, above and below the text */
+    --form-file-padding: clamp(var(--number-16), 0.8143rem + 0.7619vw, var(--number-24)); /* 16px → 24px, as the option cards */
+    --form-file-gap: var(--number-16); /* 16px */
+    --form-file-icon-size: var(--number-48); /* 48px */
+    --form-file-arrow-size: var(--number-20); /* 20px */
+
+    /* Client intake (client-intake-form.tsx) */
+    --intake-step-gap: var(--number-32); /* 32px, a section's title, text and fields */
+    --intake-step-head-gap: var(--layout-padding-y); /* 40px → 80px, a section's title and text to its fields */
+    --intake-documents-top: var(--number-48); /* 48px more above the upload, so 80px from the brief */
+    --intake-step-padding-bottom: var(--section-padding-y); /* 80px → 160px, a section to the next one's line */
+    --intake-index-top: var(--number-120); /* 120px, how far below the screen's top the index sticks */
+    --intake-index-gap: var(--number-8); /* 8px, between the index's links */
+    --intake-option-gap: var(--number-16); /* 16px, between option cards */
+    --intake-option-padding: clamp(var(--number-16), 0.8143rem + 0.7619vw, var(--number-24)); /* 16px → 24px */
+    --intake-option-height: clamp(7rem, 5.9286rem + 4.7619vw, 10rem); /* 112px → 160px */
+    --intake-option-height-small: clamp(4.5rem, 3.9643rem + 2.381vw, 6rem); /* 72px → 96px, practice areas */
+    --intake-tick-size: var(--number-20); /* 20px */
 
     /* Persona (team member page) */
     --persona-padding-x: var(--layout-padding-x); /* 16px → 48px */
@@ -2674,6 +2693,613 @@
 
 
 /* ==========================================================================
+   Form fields (form-field.tsx) — the job application and Client intake
+
+   Open fields with only a line under them, as the page dividers; the line
+   darkens while a field has focus. One column on phones, two from 768px,
+   where wide fields (a note, a file) take the whole row. Uploads are a box
+   to drop files on or click, as the option cards. The submit button is in
+   the text link's look.
+   ========================================================================== */
+
+@layer components {
+  .form-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--form-field-gap) var(--layout-col-gap);
+    width: 100%;
+  }
+
+  .form-field {
+    display: grid;
+    align-content: start;
+    row-gap: var(--form-label-gap);
+  }
+
+  .form-label,
+  .form-hint {
+    color: var(--color-neutral-700);
+  }
+
+  .form-optional {
+    color: var(--color-neutral-500);
+  }
+
+  .form-input {
+    width: 100%;
+    padding: var(--form-input-padding) 0;
+    border: 0;
+    border-bottom: 1px solid var(--color-neutral-250);
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-neutral-950);
+    transition: border-color 0.3s;
+  }
+
+  .form-input::placeholder {
+    color: var(--color-neutral-500);
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-bottom-color: var(--color-neutral-950);
+  }
+
+  .form-textarea {
+    resize: vertical;
+  }
+
+  /* Upload: a box, as the option cards, with an arrow in a square, the
+     prompt (or the chosen files) over the hint, and "Browse" on the right.
+     The file input covers it all, unseen, so a click or a dropped file
+     lands on it. The border darkens on hover and focus; the box fills
+     dark while a file is dragged over it or once one is chosen. */
+  .form-file {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--form-file-gap);
+    padding: var(--form-file-padding);
+    border: 1px solid var(--color-neutral-250);
+    cursor: pointer;
+    transition: background-color 0.4s, border-color 0.4s, color 0.4s;
+  }
+
+  .form-file-input {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .form-file-icon {
+    display: grid;
+    place-items: center;
+    width: var(--form-file-icon-size);
+    height: var(--form-file-icon-size);
+    border: 1px solid currentColor;
+    font-size: var(--form-file-arrow-size);
+  }
+
+  .form-file-text {
+    display: grid;
+    row-gap: var(--number-4);
+    min-width: 0;
+  }
+
+  .form-file-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .form-file-text .form-hint {
+    transition: color 0.4s;
+  }
+
+  .form-file:focus-within {
+    border-color: var(--color-neutral-950);
+  }
+
+  .form-file[data-dragging],
+  .form-file[data-chosen] {
+    border-color: var(--color-neutral-950);
+    background: var(--color-neutral-950);
+    color: var(--color-neutral-100);
+  }
+
+  .form-file[data-dragging] .form-hint,
+  .form-file[data-chosen] .form-hint {
+    color: var(--color-neutral-250);
+  }
+
+  .form-file:has(:focus-visible) {
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    .form-file:hover {
+      border-color: var(--color-neutral-950);
+    }
+
+    .form-file:hover .form-file-button::before {
+      transform: scaleX(0) rotate(0.001deg);
+      transform-origin: right center;
+      transition-delay: 0s;
+    }
+
+    .form-file:hover .form-file-button::after {
+      transform: scaleX(1) rotate(0.001deg);
+      transform-origin: left center;
+      transition-delay: var(--link-underline-swap-delay);
+    }
+  }
+
+  /* The arrow passes through on hover, as a text link's. */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .form-file:hover .link-arrow > * {
+      animation: link-arrow-through-right 0.7s both;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .form-file,
+    .form-file-text .form-hint {
+      transition: none;
+    }
+  }
+
+  .form-submit {
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  @media (min-width: 48rem) {
+    .form-fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .form-field-wide {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+
+/* ==========================================================================
+   Client intake — no Figma frame; from the old intake form's fields and the
+   other pages' patterns (client-intake-form.tsx, src/lib/intake.ts)
+
+   The Page header with "(Client intake)" set into the heading, then the
+   form in six numbered sections, each under a divider that draws in, with
+   its title, a line on what it's for, and its fields (see Form fields) or
+   option cards. Cards are one across on phones (two for short ones) and
+   all in one row from 768px; a chosen card fills dark and shows its tick.
+
+   From 1024px an index of the sections sticks in columns 1–3 while the
+   sections scroll in columns 6–12: the section you're in is dark with a
+   short line before it, finished ones get a tick, and a line under them
+   fills as they're done. Phones leave the index out.
+
+   Once sent, in the header's place: a thank-you with "(Request received)"
+   set into it and the reference below, then the next steps as How we
+   hire's numbered rows.
+   ========================================================================== */
+
+@layer components {
+  .intake {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--careers-header-gap);
+    padding: var(--persona-padding-top) var(--careers-padding-x) var(--section-padding-y);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  /* "(Client intake)": 6.1 times its text size. */
+  .intake-heading {
+    --section-heading-indent: calc(6.1 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .intake-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .intake-index {
+    display: none;
+  }
+
+  .intake-step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--intake-step-gap);
+    padding-bottom: var(--intake-step-padding-bottom);
+  }
+
+  /* Drawn in from the left (use-divider-reveal.ts). */
+  .intake-step-divider {
+    display: block;
+    height: 1px;
+    margin-bottom: calc(var(--hiring-step-padding-top) - var(--intake-step-gap));
+    background: var(--color-neutral-250);
+    transform-origin: left center;
+  }
+
+  .intake-step-head {
+    display: grid;
+    margin-bottom: calc(var(--intake-step-head-gap) - var(--intake-step-gap));
+    row-gap: var(--hiring-step-content-gap);
+    max-width: 34em;
+  }
+
+  .intake-step-number,
+  .intake-step-text {
+    color: var(--color-neutral-700);
+  }
+
+  .intake-company-fields {
+    margin-top: var(--form-field-gap);
+  }
+
+  /* The brief's box ends in a line much like the upload's, so the upload
+     gets extra room to read as its own field (as the job form's note). */
+  .intake-documents {
+    margin-top: var(--intake-documents-top);
+  }
+
+  /* Option cards */
+  .intake-options {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--intake-option-gap);
+  }
+
+  .intake-options-compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .intake-option {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: end;
+    row-gap: var(--number-4);
+    min-height: var(--intake-option-height);
+    padding: var(--intake-option-padding);
+    border: 1px solid var(--color-neutral-250);
+    cursor: pointer;
+    transition: background-color 0.4s, border-color 0.4s, color 0.4s;
+  }
+
+  .intake-options-compact .intake-option {
+    min-height: var(--intake-option-height-small);
+  }
+
+  .intake-option-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .intake-option-text {
+    color: var(--color-neutral-700);
+    transition: color 0.4s;
+  }
+
+  /* Titles and descriptions keep to one line, trimmed if a card is ever
+     too narrow. */
+  .intake-option-title,
+  .intake-option-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* A ring in the corner, filled with a tick once the card is chosen. */
+  .intake-option-tick,
+  .intake-consent-box {
+    position: relative;
+    width: var(--intake-tick-size);
+    height: var(--intake-tick-size);
+    border: 1px solid currentColor;
+    transition: background-color 0.4s, border-color 0.4s;
+  }
+
+  .intake-option-tick {
+    position: absolute;
+    top: var(--intake-option-padding);
+    right: var(--intake-option-padding);
+    border-color: var(--color-neutral-250);
+    border-radius: 50%;
+  }
+
+  .intake-option-tick::after,
+  .intake-consent-box::after,
+  .intake-index-tick::after {
+    content: "";
+    position: absolute;
+    top: 22%;
+    left: 34%;
+    width: 30%;
+    height: 48%;
+    border: solid currentColor;
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.3s var(--link-underline-ease);
+  }
+
+  @media (hover: hover) {
+    .intake-option:hover {
+      border-color: var(--color-neutral-950);
+    }
+  }
+
+  .intake-option:has(:checked) {
+    border-color: var(--color-neutral-950);
+    background: var(--color-neutral-950);
+    color: var(--color-neutral-100);
+  }
+
+  .intake-option:has(:checked) .intake-option-text {
+    color: var(--color-neutral-250);
+  }
+
+  .intake-option:has(:checked) .intake-option-tick {
+    border-color: var(--color-neutral-100);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  .intake-option:has(:checked) .intake-option-tick::after,
+  .intake-consent:has(:checked) .intake-consent-box::after {
+    transform: rotate(45deg) scale(1);
+  }
+
+  .intake-option:has(:focus-visible),
+  .intake-consent:has(:focus-visible) .intake-consent-box {
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: 2px;
+  }
+
+  /* Consent and submit */
+  .intake-submit {
+    display: grid;
+    justify-items: start;
+    row-gap: var(--job-form-gap);
+    padding-top: var(--hiring-step-padding-top);
+    border-top: 1px solid var(--color-neutral-250);
+  }
+
+  .intake-consent {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--number-16);
+    max-width: 34em;
+    cursor: pointer;
+  }
+
+  .intake-consent-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .intake-consent-box {
+    margin-top: 0.15em;
+  }
+
+  .intake-consent:has(:checked) .intake-consent-box {
+    background: var(--color-neutral-950);
+    color: var(--color-neutral-100);
+  }
+
+  .intake-consent-text {
+    color: var(--color-neutral-700);
+  }
+
+  /* Sent */
+  .intake-sent {
+    display: grid;
+    justify-items: start;
+    row-gap: var(--careers-header-gap);
+  }
+
+  /* "(Request received)": 8.4 times its text size. */
+  .intake-sent-heading {
+    --section-heading-indent: calc(8.4 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .intake-next {
+    width: 100%;
+    list-style: none;
+  }
+
+  .intake-next-step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--hiring-step-content-gap);
+    padding: var(--hiring-step-padding-top) 0 var(--hiring-step-padding-bottom);
+    border-top: 1px solid var(--color-neutral-250);
+  }
+
+  .intake-next-number,
+  .intake-next-text {
+    color: var(--color-neutral-700);
+  }
+
+  .intake-next-content {
+    display: grid;
+    row-gap: var(--hiring-step-content-gap);
+    max-width: 34em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intake-option,
+    .intake-option-text,
+    .intake-option-tick,
+    .intake-option-tick::after,
+    .intake-consent-box,
+    .intake-consent-box::after,
+    .intake-index-tick::after {
+      transition: none;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .intake-options,
+    .intake-options-compact {
+      grid-template-columns: repeat(var(--intake-option-count), minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .intake,
+    .intake-form,
+    .intake-next-step {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .intake-header,
+    .intake-form,
+    .intake-sent {
+      grid-column: 1 / -1;
+    }
+
+    /* Index */
+    .intake-index {
+      position: sticky;
+      top: var(--intake-index-top);
+      grid-column: 1 / span 3;
+      align-self: start;
+      display: grid;
+      row-gap: var(--number-24);
+    }
+
+    .intake-index-list {
+      display: grid;
+      row-gap: var(--intake-index-gap);
+      list-style: none;
+    }
+
+    .intake-index-link {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: baseline;
+      column-gap: var(--number-8);
+      color: var(--color-neutral-500);
+      text-decoration: none;
+      transition: color 0.4s, padding-left 0.6s var(--link-underline-ease);
+    }
+
+    /* The short line before the section you're in. */
+    .intake-index-link::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: var(--number-12);
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.6s var(--link-underline-ease);
+    }
+
+    .intake-index-link[aria-current] {
+      padding-left: var(--number-20);
+      color: var(--color-neutral-950);
+    }
+
+    .intake-index-link[aria-current]::before {
+      transform: scaleX(1);
+    }
+
+    @media (hover: hover) {
+      .intake-index-link:hover {
+        color: var(--color-neutral-950);
+      }
+    }
+
+    .intake-index-link:focus-visible {
+      outline: 2px solid var(--color-neutral-950);
+      outline-offset: 2px;
+    }
+
+    .intake-index-tick {
+      position: relative;
+      width: var(--number-16);
+      height: var(--number-16);
+      align-self: center;
+    }
+
+    .intake-index-link[data-done] .intake-index-tick::after {
+      transform: rotate(45deg) scale(1);
+    }
+
+    .intake-progress {
+      display: grid;
+      row-gap: var(--number-12);
+    }
+
+    .intake-progress-bar {
+      position: relative;
+      display: block;
+      height: 1px;
+      background: var(--color-neutral-250);
+    }
+
+    .intake-progress-bar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: var(--color-neutral-950);
+      transform: scaleX(var(--intake-progress));
+      transform-origin: left center;
+      transition: transform 0.8s var(--link-underline-ease);
+    }
+
+    .intake-progress-text {
+      color: var(--color-neutral-700);
+    }
+
+    .intake-steps {
+      grid-column: 6 / -1;
+    }
+
+    .intake-next-number {
+      grid-column: 1 / span 4;
+    }
+
+    .intake-next-content {
+      grid-column: 6 / span 5;
+      max-width: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .intake-index-link,
+      .intake-index-link::before,
+      .intake-progress-bar::after {
+        transition: none;
+      }
+    }
+  }
+}
+
+
+/* ==========================================================================
    Job (a role's page) — no Figma frame; simple and static, with no marquee
    or scroll animations (job-content.tsx, other-roles.tsx)
 
@@ -2761,8 +3387,7 @@
     left: 0;
   }
 
-  /* Application: open fields with only a line under them, as the page's
-     dividers; the line darkens while a field has focus. */
+  /* Application: the Form fields under a short intro. */
   .job-form {
     display: grid;
     justify-items: start;
@@ -2773,106 +3398,10 @@
     color: var(--color-neutral-700);
   }
 
-  .job-form-fields {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--job-form-field-gap) var(--layout-col-gap);
-    width: 100%;
-  }
-
-  .job-form-field {
-    display: grid;
-    row-gap: var(--job-form-label-gap);
-  }
-
-  .job-form-label,
-  .job-form-hint {
-    color: var(--color-neutral-700);
-  }
-
-  .job-form-optional {
-    color: var(--color-neutral-500);
-  }
-
-  .job-form-input,
-  .job-form-file {
-    width: 100%;
-    padding: var(--job-form-input-padding) 0;
-    border: 0;
-    border-bottom: 1px solid var(--color-neutral-250);
-    border-radius: 0;
-    background: transparent;
-    color: var(--color-neutral-950);
-    transition: border-color 0.3s;
-  }
-
-  .job-form-input::placeholder {
-    color: var(--color-neutral-500);
-  }
-
-  .job-form-input:focus,
-  .job-form-file:focus-within {
-    outline: none;
-    border-bottom-color: var(--color-neutral-950);
-  }
-
-  .job-form-textarea {
-    resize: vertical;
-  }
-
   /* The CV's hint under its line sits close to the note's label, so the
      note gets extra room to read as its own field. */
   .job-form-field-note {
     margin-top: var(--job-form-note-top);
-  }
-
-  /* The file input stays in the label (so it's still clicked, focused and
-     checked) but out of sight; its file's name and "Attach file" show. */
-  .job-form-file {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--layout-col-gap);
-    cursor: pointer;
-  }
-
-  .job-form-file-input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .job-form-file-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .job-form-file-button {
-    flex-shrink: 0;
-  }
-
-  @media (hover: hover) {
-    .job-form-file:hover .job-form-file-button::before {
-      transform: scaleX(0) rotate(0.001deg);
-      transform-origin: right center;
-      transition-delay: 0s;
-    }
-
-    .job-form-file:hover .job-form-file-button::after {
-      transform: scaleX(1) rotate(0.001deg);
-      transform-origin: left center;
-      transition-delay: var(--link-underline-swap-delay);
-    }
-  }
-
-  .job-form-submit {
-    border: 0;
-    background: none;
-    color: inherit;
-    cursor: pointer;
   }
 
   .job-form-sent {
@@ -2902,15 +3431,6 @@
 
     .job-facts {
       grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    /* Two fields across; the CV and the note take the whole row. */
-    .job-form-fields {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .job-form-field-wide {
-      grid-column: 1 / -1;
     }
   }
 
