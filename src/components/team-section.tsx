@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LineReveal from "@/components/line-reveal";
 import SectionHeading from "@/components/section-heading";
 import TeamsCard from "@/components/teams-card";
+import { useDividerReveal } from "@/hooks/use-divider-reveal";
 import { TEAM, TEAM_GROUPS } from "@/lib/team";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -20,30 +21,16 @@ gsap.registerPlugin(ScrollTrigger);
 // cards slide up and fade in a row at a time, as on the home page.
 export default function TeamSection() {
   const directoryRef = useRef<HTMLDivElement>(null);
+  useDividerReveal(directoryRef, ".team-group-divider");
 
   useEffect(() => {
     const directory = directoryRef.current;
     if (!directory) return;
 
-    const dividers = gsap.utils.toArray<HTMLElement>(".team-group-divider", directory);
     const cards = gsap.utils.toArray<HTMLElement>(".teams-card", directory);
     const mm = gsap.matchMedia();
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
-      dividers.forEach((divider) =>
-        gsap.fromTo(
-          divider,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            duration: 1.6,
-            ease: "power4.inOut",
-            // Not once: true, which can crash ScrollTrigger (use-line-reveal.ts).
-            scrollTrigger: { trigger: divider, start: "top 90%", toggleActions: "play none none none" },
-          },
-        ),
-      );
-
       const reveal = ScrollTrigger.batch(cards, {
         start: "top bottom",
         once: true,

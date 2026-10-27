@@ -299,6 +299,32 @@
     --team-grid-col-gap: var(--layout-col-gap); /* 12px → 24px */
     --team-grid-row-gap: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px */
 
+    /* Careers (Careers page) */
+    --careers-padding-x: var(--layout-padding-x); /* 16px → 48px */
+    --careers-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --careers-header-gap: calc(2 * var(--layout-padding-y)); /* 80px → 160px, heading to the content: as Team */
+    --careers-group-gap: var(--about-row-gap); /* 64px → 80px, between groups: as Team */
+    --careers-group-head-gap: var(--number-16); /* 16px, divider to label: as Team */
+    --careers-role-padding-y: clamp(var(--number-20), 0.9714rem + 1.1429vw, var(--number-32)); /* 20px → 32px */
+    --careers-role-gap: var(--number-8); /* 8px, title to details on phones */
+    --careers-role-shift: var(--number-12); /* 12px, how far a role's title moves on hover */
+    --hiring-step-padding-top: clamp(var(--number-24), 1.3143rem + 0.7619vw, var(--number-32)); /* 24px → 32px */
+    --hiring-step-padding-bottom: var(--layout-padding-y); /* 40px → 80px */
+    --hiring-step-content-gap: var(--number-16); /* 16px */
+
+    /* Job (a role's page) */
+    --job-details-gap: var(--number-40); /* 40px, the details to "Apply" */
+    --job-heading-gap: var(--number-24); /* 24px, label to title from 1024px */
+    --job-fact-gap: var(--number-24); /* 24px */
+    --job-fact-term-gap: var(--number-8); /* 8px */
+    --job-section-gap: var(--about-row-gap); /* 64px → 80px */
+    --job-list-gap: clamp(var(--number-16), 0.8143rem + 0.7619vw, var(--number-24)); /* 16px → 24px */
+    --job-form-gap: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px, the intro, fields and button */
+    --job-form-field-gap: var(--number-32); /* 32px, between fields */
+    --job-form-label-gap: var(--number-8); /* 8px, a label to its field */
+    --job-form-note-top: var(--number-48); /* 48px more above the note, so 80px from the CV's hint */
+    --job-form-input-padding: var(--number-12); /* 12px, above and below the text */
+
     /* Persona (team member page) */
     --persona-padding-x: var(--layout-padding-x); /* 16px → 48px */
     --persona-padding-top: calc(var(--navbar-logo-height) + 2 * var(--navbar-padding-y) + var(--layout-padding-y)); /* clear of the navbar */
@@ -626,23 +652,23 @@
   }
 
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    a:hover .link-arrow > * {
+    :is(a, button):hover .link-arrow > * {
       animation: link-arrow-through 0.7s both;
     }
 
-    a:hover .link-arrow-right > *,
-    a:hover .link-arrow-up > * {
+    :is(a, button):hover .link-arrow-right > *,
+    :is(a, button):hover .link-arrow-up > * {
       animation-name: link-arrow-through-right;
     }
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    a:focus-visible .link-arrow > * {
+    :is(a, button):focus-visible .link-arrow > * {
       animation: link-arrow-through 0.7s both;
     }
 
-    a:focus-visible .link-arrow-right > *,
-    a:focus-visible .link-arrow-up > * {
+    :is(a, button):focus-visible .link-arrow-right > *,
+    :is(a, button):focus-visible .link-arrow-up > * {
       animation-name: link-arrow-through-right;
     }
   }
@@ -2381,6 +2407,605 @@
     }
   }
 
+}
+
+
+/* ==========================================================================
+   Careers (Careers page) — no Figma frame; built from the other pages'
+   patterns (careers-intro-section.tsx, careers-roles-section.tsx,
+   hiring-process-section.tsx, careers-closing-section.tsx)
+
+   Intro: the Page header with "(Careers)", then the reasons to join in the
+   About page's Core values carousel (its styles, see Who we are).
+
+   Open positions: the heading, then a group per practice as on the Team
+   page (a divider and the label), with the group's roles beside the label
+   in columns 5–12 from 1024px. Each role row (role-row.tsx, also on a
+   role's page) links to the role: title, details and "View role" in one
+   line from 768px, the details and "View role" under the title on phones.
+   On hover its line fills in from the left (the Link underline's motion)
+   and the title edges right.
+
+   How we hire: the heading, then numbered steps under dividers: the number
+   in columns 1–4 and the text in columns 6–10 from 1024px.
+
+   Closing: one large statement with "(Join us)" set into it.
+
+   Headings take the label's width plus a word space as their indent on
+   phones, and the home headings' em indent from 1024px.
+   ========================================================================== */
+
+@layer components {
+  .careers-intro,
+  .careers-roles,
+  .hiring,
+  .careers-closing {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  /* The Core values block below keeps the page padding above it, so the
+     header to it is twice that (80px → 160px), as Team's header gap. */
+  .careers-header {
+    padding: var(--careers-padding-y) var(--careers-padding-x) var(--layout-padding-y);
+  }
+
+  /* "(Careers)": 4.15 times its text size. */
+  .careers-heading {
+    --section-heading-indent: calc(4.15 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .careers-roles,
+  .hiring {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--careers-header-gap);
+    padding: var(--careers-padding-y) var(--careers-padding-x);
+  }
+
+  /* "(Open positions)": 7.4 times its text size. */
+  .careers-roles-heading {
+    --section-heading-indent: calc(7.4 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .careers-groups {
+    display: grid;
+    row-gap: var(--careers-group-gap);
+  }
+
+  .careers-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Drawn in from the left (use-divider-reveal.ts). */
+  .careers-group-divider,
+  .hiring-step-divider {
+    display: block;
+    height: 1px;
+    background: var(--color-neutral-250);
+    transform-origin: left center;
+  }
+
+  .careers-group-label {
+    margin-top: var(--careers-group-head-gap);
+  }
+
+  .careers-role-list {
+    list-style: none;
+  }
+
+  .careers-role {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--careers-role-gap) var(--layout-col-gap);
+    padding-block: var(--careers-role-padding-y);
+    border-bottom: 1px solid var(--color-neutral-250);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* The hover line, over the grey one: drawn in from the left and carried
+     on out to the right, like .link-underline. */
+  .careers-role::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 1px;
+    background-color: currentColor;
+    transform: scaleX(0) rotate(0.001deg);
+    transform-origin: right center;
+    transition: transform var(--link-underline-duration) var(--link-underline-ease);
+  }
+
+  /* The next group's divider follows the last role, so its grey line would
+     double up; the hover line still draws in. */
+  .careers-role-list > li:last-child .careers-role {
+    border-bottom-color: transparent;
+  }
+
+  .careers-role:focus-visible {
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: 2px;
+  }
+
+  .careers-role-title {
+    grid-column: 1 / -1;
+    transition: translate var(--link-underline-duration) var(--link-underline-ease);
+  }
+
+  .careers-role-meta {
+    color: var(--color-neutral-700);
+  }
+
+  .careers-role-apply {
+    justify-self: end;
+  }
+
+  @media (hover: hover) {
+    .careers-role:hover::after {
+      transform: scaleX(1) rotate(0.001deg);
+      transform-origin: left center;
+    }
+
+    .careers-role:hover .careers-role-title {
+      translate: var(--careers-role-shift) 0;
+    }
+  }
+
+  .careers-role:focus-visible::after {
+    transform: scaleX(1) rotate(0.001deg);
+    transform-origin: left center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .careers-role::after,
+    .careers-role-title {
+      transition: none;
+    }
+
+    .careers-role:hover .careers-role-title {
+      translate: none;
+    }
+  }
+
+  /* "(How we hire)": 6.1 times its text size. */
+  .hiring-heading {
+    --section-heading-indent: calc(6.1 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .hiring-steps {
+    list-style: none;
+  }
+
+  .hiring-step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--hiring-step-content-gap);
+    padding-bottom: var(--hiring-step-padding-bottom);
+  }
+
+  .hiring-step-number {
+    margin-top: var(--hiring-step-padding-top);
+    color: var(--color-neutral-700);
+  }
+
+  .hiring-step-content {
+    display: grid;
+    row-gap: var(--hiring-step-content-gap);
+    max-width: 34em;
+  }
+
+  .hiring-step-text {
+    color: var(--color-neutral-700);
+  }
+
+  .careers-closing {
+    display: grid;
+    padding: var(--careers-padding-y) var(--careers-padding-x);
+  }
+
+  /* "(Join us)": 3.8 times its text size. */
+  .careers-closing-heading {
+    --section-heading-indent: calc(3.8 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  @media (min-width: 48rem) {
+    .careers-role {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 3fr) auto;
+    }
+
+    .careers-role-title {
+      grid-column: auto;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .careers-roles,
+    .hiring,
+    .careers-closing,
+    .careers-group,
+    .hiring-step {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .careers-roles-heading,
+    .hiring-heading,
+    .careers-closing-heading {
+      --section-heading-indent: 3.5625em;
+
+      grid-column: 1 / span 10;
+    }
+
+    .careers-groups,
+    .hiring-steps {
+      grid-column: 1 / -1;
+    }
+
+    .careers-group-divider,
+    .hiring-step-divider {
+      grid-column: 1 / -1;
+    }
+
+    /* The label lines up with the first role's text. */
+    .careers-group-label {
+      grid-column: 1 / span 4;
+      margin-top: var(--careers-role-padding-y);
+    }
+
+    .careers-role-list {
+      grid-column: 5 / -1;
+    }
+
+    .hiring-step-number {
+      grid-column: 1 / span 4;
+    }
+
+    .hiring-step-content {
+      grid-column: 6 / span 5;
+      max-width: none;
+      margin-top: var(--hiring-step-padding-top);
+    }
+  }
+}
+
+
+/* ==========================================================================
+   Job (a role's page) — no Figma frame; simple and static, with no marquee
+   or scroll animations (job-content.tsx, other-roles.tsx)
+
+   On phones and tablets the title has "(Open position)" set into its first
+   line (the Section heading's styles), then the role's details under a
+   line with "Apply" after them (two across on phones, four from 768px).
+   From 1024px the label sits above the title with "Apply" level with it on
+   the right, and the four details run across the page, three columns each.
+   Then the summary, and each list under a line with its label: stacked on
+   phones, and from 1024px the label in columns 1–4 and the text in columns
+   6–11, as How we hire. The application form (job-application.tsx) is
+   the last of these, with its fields two across from 768px.
+
+   Other openings: laid out like Related (see Persona), with the role rows
+   (see Careers) across the page in place of the carousel, and a link back
+   to every opening below.
+   ========================================================================== */
+
+@layer components {
+  .job {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--job-section-gap);
+    padding: var(--persona-padding-top) var(--persona-padding-x) var(--section-padding-y);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  /* "(Open position)": 7 times its text size. */
+  .job-heading {
+    --section-heading-indent: calc(7 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .job-details,
+  .job-section {
+    padding-top: var(--hiring-step-padding-top);
+    border-top: 1px solid var(--color-neutral-250);
+  }
+
+  .job-details {
+    display: grid;
+    justify-items: start;
+    row-gap: var(--job-details-gap);
+  }
+
+  .job-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--job-fact-gap) var(--layout-col-gap);
+    width: 100%;
+  }
+
+  .job-fact {
+    display: grid;
+    align-content: start;
+    row-gap: var(--job-fact-term-gap);
+  }
+
+  .job-fact-term {
+    color: var(--color-neutral-700);
+  }
+
+  .job-section {
+    display: grid;
+    row-gap: var(--related-list-top);
+  }
+
+  .job-list {
+    display: grid;
+    row-gap: var(--job-list-gap);
+    list-style: none;
+  }
+
+  /* A short dash hangs in the margin before each item. */
+  .job-list-item {
+    position: relative;
+    padding-left: 1.25em;
+    color: var(--color-neutral-700);
+  }
+
+  .job-list-item::before {
+    content: "–";
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  /* Application: open fields with only a line under them, as the page's
+     dividers; the line darkens while a field has focus. */
+  .job-form {
+    display: grid;
+    justify-items: start;
+    row-gap: var(--job-form-gap);
+  }
+
+  .job-form-intro {
+    color: var(--color-neutral-700);
+  }
+
+  .job-form-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--job-form-field-gap) var(--layout-col-gap);
+    width: 100%;
+  }
+
+  .job-form-field {
+    display: grid;
+    row-gap: var(--job-form-label-gap);
+  }
+
+  .job-form-label,
+  .job-form-hint {
+    color: var(--color-neutral-700);
+  }
+
+  .job-form-optional {
+    color: var(--color-neutral-500);
+  }
+
+  .job-form-input,
+  .job-form-file {
+    width: 100%;
+    padding: var(--job-form-input-padding) 0;
+    border: 0;
+    border-bottom: 1px solid var(--color-neutral-250);
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-neutral-950);
+    transition: border-color 0.3s;
+  }
+
+  .job-form-input::placeholder {
+    color: var(--color-neutral-500);
+  }
+
+  .job-form-input:focus,
+  .job-form-file:focus-within {
+    outline: none;
+    border-bottom-color: var(--color-neutral-950);
+  }
+
+  .job-form-textarea {
+    resize: vertical;
+  }
+
+  /* The CV's hint under its line sits close to the note's label, so the
+     note gets extra room to read as its own field. */
+  .job-form-field-note {
+    margin-top: var(--job-form-note-top);
+  }
+
+  /* The file input stays in the label (so it's still clicked, focused and
+     checked) but out of sight; its file's name and "Attach file" show. */
+  .job-form-file {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--layout-col-gap);
+    cursor: pointer;
+  }
+
+  .job-form-file-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .job-form-file-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .job-form-file-button {
+    flex-shrink: 0;
+  }
+
+  @media (hover: hover) {
+    .job-form-file:hover .job-form-file-button::before {
+      transform: scaleX(0) rotate(0.001deg);
+      transform-origin: right center;
+      transition-delay: 0s;
+    }
+
+    .job-form-file:hover .job-form-file-button::after {
+      transform: scaleX(1) rotate(0.001deg);
+      transform-origin: left center;
+      transition-delay: var(--link-underline-swap-delay);
+    }
+  }
+
+  .job-form-submit {
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .job-form-sent {
+    display: grid;
+    row-gap: var(--job-list-gap);
+  }
+
+  .job-form-sent .body-big {
+    color: var(--color-neutral-700);
+  }
+
+  .other-roles-list {
+    margin-top: var(--related-list-top);
+  }
+
+  .other-roles-link {
+    justify-self: start;
+    margin-top: var(--related-controls-top);
+  }
+
+  @media (min-width: 48rem) {
+    .job-details {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      column-gap: var(--layout-col-gap);
+    }
+
+    .job-facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    /* Two fields across; the CV and the note take the whole row. */
+    .job-form-fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .job-form-field-wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .job,
+    .job-section {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    /* The label above the title instead of set into it: a short title
+       would otherwise sit far from its label. */
+    .job-heading {
+      --section-heading-indent: 0;
+
+      grid-column: 1 / span 8;
+      grid-row: 1;
+      row-gap: var(--job-heading-gap);
+    }
+
+    .job-heading .section-heading-label {
+      grid-area: 1 / 1;
+      margin-top: 0;
+    }
+
+    .job-heading .section-heading-title {
+      grid-area: 2 / 1;
+    }
+
+    /* The details' box steps aside so "Apply" can sit level with the title
+       and the facts can run across the page under their line. */
+    .job-details {
+      display: contents;
+    }
+
+    .job-apply {
+      grid-column: 9 / -1;
+      grid-row: 1;
+      align-self: end;
+      justify-self: end;
+    }
+
+    /* Other openings as a Careers group: the line across the page, the
+       label in columns 1–4 level with the first role, the roles and the
+       link in columns 5–12. */
+    .related.other-roles {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .other-roles .related-divider {
+      grid-column: 1 / -1;
+    }
+
+    .other-roles .related-label {
+      grid-column: 1 / span 4;
+      grid-row: 2;
+      margin-top: calc(var(--related-list-top) + var(--careers-role-padding-y));
+    }
+
+    .other-roles-list,
+    .other-roles-link {
+      grid-column: 5 / -1;
+    }
+
+    .other-roles-list {
+      grid-row: 2;
+    }
+
+    /* Four facts of three columns each. */
+    .job-facts {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      padding-top: var(--hiring-step-padding-top);
+      border-top: 1px solid var(--color-neutral-250);
+    }
+
+    .job-section {
+      grid-column: 1 / -1;
+    }
+
+    .job-summary {
+      grid-column: 6 / span 6;
+    }
+
+    .job-section-label {
+      grid-column: 1 / span 4;
+    }
+
+    .job-list,
+    .job-form,
+    .job-form-sent {
+      grid-column: 6 / span 6;
+    }
+  }
 }
 
 
