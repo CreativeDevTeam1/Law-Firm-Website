@@ -10,6 +10,8 @@ export type TeamsCardProps = {
   /** Crop of the photo (CSS object-position), e.g. "21% 0". Default centred. */
   photoPosition?: string;
   href: string;
+  /** Heading level of the name: one below the heading above the card. Default "h3". */
+  nameAs?: "h3" | "h4";
   className?: string;
 };
 
@@ -23,6 +25,7 @@ export default function TeamsCard({
   photo,
   photoPosition,
   href,
+  nameAs: Name = "h3",
   className = "",
 }: TeamsCardProps) {
   return (
@@ -37,7 +40,7 @@ export default function TeamsCard({
         />
       </div>
       <div className="teams-card-info">
-        <h3 className="teams-card-name header-3-semibold">{name}</h3>
+        <Name className="teams-card-name header-3-semibold">{name}</Name>
         <p className="teams-card-role body">{role}</p>
         <TextLink href={href} icon="arrow-right">
           Know more

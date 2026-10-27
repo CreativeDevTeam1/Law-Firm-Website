@@ -277,6 +277,26 @@
     --practice-areas-row-gap: clamp(var(--number-40), 1.9429rem + 2.2857vw, var(--number-64)); /* 40px → 64px, between card rows */
     --practice-card-info-gap: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px, photo to text */
 
+    /* Page header (Team and News pages) */
+    --page-intro-gap: var(--layout-padding-y); /* 40px → 80px, title to paragraph (Figma 80px) */
+
+    /* News list (News page) */
+    --news-list-padding-x: var(--layout-padding-x); /* 16px → 48px */
+    --news-list-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --news-list-gap: calc(2 * var(--layout-padding-y)); /* 80px → 160px, heading to the cards: as Team */
+    --news-list-col-gap: var(--layout-col-gap); /* 12px → 24px */
+    --news-list-row-gap: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px */
+
+    /* Team (Team page) */
+    --team-padding-x: var(--layout-padding-x); /* 16px → 48px */
+    --team-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --team-header-gap: calc(2 * var(--layout-padding-y)); /* 80px → 160px, heading to the groups: as Practice area */
+    --team-group-gap: var(--about-row-gap); /* 64px → 80px, between groups (Figma 80px) */
+    --team-group-head-gap: var(--number-16); /* 16px, divider to label */
+    --team-grid-top: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px, label to cards */
+    --team-grid-col-gap: var(--layout-col-gap); /* 12px → 24px */
+    --team-grid-row-gap: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px */
+
     /* Footer */
     --footer-padding-x: var(--about-padding-x); /* 24px → 48px */
     --footer-padding-y: var(--layout-padding-y); /* 40px → 80px */
@@ -2134,6 +2154,165 @@
       --section-heading-indent: 3.5625em;
     }
   }
+}
+
+
+/* ==========================================================================
+   Page header (Team and News pages: team-section.tsx, news-list-section.tsx)
+
+   A page's opening heading, with its label set into the first line like
+   the home headings, and a paragraph below: full width on phones (kept to
+   about 70 characters a line) and in columns 7–10 from 1024px, as in
+   Figma. Each page sets its heading's phone indent for its own label.
+   ========================================================================== */
+
+@layer components {
+  .page-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--page-intro-gap);
+  }
+
+  .page-intro {
+    max-width: 34em;
+    color: var(--color-neutral-700);
+  }
+
+  @media (min-width: 64rem) {
+    .page-header {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .page-heading {
+      --section-heading-indent: 3.5625em;
+
+      grid-column: 1 / -1;
+    }
+
+    .page-intro {
+      grid-column: 7 / span 4;
+      max-width: none;
+    }
+  }
+}
+
+
+/* ==========================================================================
+   News list (News page) — Figma "news-page" (news-list-section.tsx)
+
+   The Page header, then every article card (news-card.tsx). Twelve cards
+   fill every row at each step: one column on small phones, two from 480px,
+   three from 768px and four from 1024px (Figma's 318px cards at 1440px).
+   ========================================================================== */
+
+@layer components {
+  .news-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--news-list-gap);
+    padding: var(--news-list-padding-y) var(--news-list-padding-x);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  /* As .news-heading: the label's width (7.6 times its text size) plus a
+     word space. */
+  .news-list-heading {
+    --section-heading-indent: calc(7.6 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .news-list-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--news-list-row-gap) var(--news-list-col-gap);
+    list-style: none;
+  }
+
+  @media (min-width: 30rem) {
+    .news-list-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .news-list-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .news-list-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+}
+
+
+/* ==========================================================================
+   Team section (Team page) — Figma "team-section" (Web and Mobile)
+   (team-section.tsx)
+
+   The heading and paragraph are the Page header (below the hero, shared
+   with the News page), with "(Our Team)" set into the heading. Then a
+   group per level of the firm: a divider, the group's label, and its cards
+   (teams-card.tsx) in two columns, four from 768px, where two would make
+   each card over 450px wide. Three is skipped on purpose: four cards in
+   three columns would leave one alone on a row.
+   ========================================================================== */
+
+@layer components {
+  .team {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--team-header-gap);
+    padding: var(--team-padding-y) var(--team-padding-x);
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  /* As .news-heading on phones: the label's width (5.1 times its text size)
+     plus a word space; from 1024px the em indent of the home headings. */
+  .team-heading {
+    --section-heading-indent: calc(5.1 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .team-directory {
+    display: grid;
+    row-gap: var(--team-group-gap);
+  }
+
+  .team-group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Drawn in from the left by team-section.tsx. */
+  .team-group-divider {
+    display: block;
+    height: 1px;
+    background: var(--color-neutral-250);
+    transform-origin: left center;
+  }
+
+  .team-group-label {
+    margin-top: var(--team-group-head-gap);
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--team-grid-row-gap) var(--team-grid-col-gap);
+    margin-top: var(--team-grid-top);
+    list-style: none;
+  }
+
+  @media (min-width: 48rem) {
+    .team-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
 }
 
 
