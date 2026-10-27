@@ -279,7 +279,7 @@
     --practice-areas-row-gap: clamp(var(--number-40), 1.9429rem + 2.2857vw, var(--number-64)); /* 40px → 64px, between card rows */
     --practice-card-info-gap: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px, photo to text */
 
-    /* Page header (Team and News pages) */
+    /* Page header (Team, News, Careers and Client intake) */
     --page-intro-gap: var(--layout-padding-y); /* 40px → 80px, title to paragraph (Figma 80px) */
 
     /* News list (News page) */
@@ -307,6 +307,7 @@
     --careers-group-head-gap: var(--number-16); /* 16px, divider to label: as Team */
     --careers-role-padding-y: clamp(var(--number-20), 0.9714rem + 1.1429vw, var(--number-32)); /* 20px → 32px */
     --careers-role-gap: var(--number-8); /* 8px, title to details on phones */
+    --careers-role-meta-size: var(--number-14); /* 14px, a role's details */
     --careers-role-shift: var(--number-12); /* 12px, how far a role's title moves on hover */
     --hiring-step-padding-top: clamp(var(--number-24), 1.3143rem + 0.7619vw, var(--number-32)); /* 24px → 32px */
     --hiring-step-padding-bottom: var(--layout-padding-y); /* 40px → 80px */
@@ -314,7 +315,6 @@
 
     /* Job (a role's page) */
     --job-details-gap: var(--number-40); /* 40px, the details to "Apply" */
-    --job-heading-gap: var(--number-24); /* 24px, label to title from 1024px */
     --job-fact-gap: var(--number-24); /* 24px */
     --job-fact-term-gap: var(--number-8); /* 8px */
     --job-section-gap: var(--about-row-gap); /* 64px → 80px */
@@ -2271,12 +2271,13 @@
 
 
 /* ==========================================================================
-   Page header (Team and News pages: team-section.tsx, news-list-section.tsx)
+   Page header (Team, News, Careers and Client intake pages)
 
    A page's opening heading, with its label set into the first line like
    the home headings, and a paragraph below: full width on phones (kept to
-   about 70 characters a line) and in columns 7–10 from 1024px, as in
-   Figma. Each page sets its heading's phone indent for its own label.
+   about 70 characters a line) and in columns 6–9 from 1024px, as the home
+   About section's paragraph. Each page sets its heading's phone indent for
+   its own label; from 1024px all take the home headings' 3.5625em.
    ========================================================================== */
 
 @layer components {
@@ -2297,14 +2298,17 @@
       column-gap: var(--layout-col-gap);
     }
 
-    .page-heading {
+    /* Both classes, so this wins over each page's phone indent, which comes
+       later in this file: the home headings' indent from 1024px. */
+    .section-heading.page-heading {
       --section-heading-indent: 3.5625em;
 
       grid-column: 1 / -1;
     }
 
+    /* Columns 6–9, as the home About section's paragraph. */
     .page-intro {
-      grid-column: 7 / span 4;
+      grid-column: 6 / span 4;
       max-width: none;
     }
   }
@@ -2439,7 +2443,7 @@
 
    Open positions: the heading, then a group per practice as on the Team
    page (a divider and the label), with the group's roles beside the label
-   in columns 5–12 from 1024px. Each role row (role-row.tsx, also on a
+   in columns 6–12 from 1024px. Each role row (role-row.tsx, also on a
    role's page) links to the role: title, details and "View role" in one
    line from 768px, the details and "View role" under the title on phones.
    On hover its line fills in from the left (the Link underline's motion)
@@ -2555,8 +2559,14 @@
     transition: translate var(--link-underline-duration) var(--link-underline-ease);
   }
 
+  /* A notch under body text and kept to one line, trimmed if a column is
+     ever too narrow for it. */
   .careers-role-meta {
+    overflow: hidden;
     color: var(--color-neutral-700);
+    font-size: var(--careers-role-meta-size);
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .careers-role-apply {
@@ -2676,7 +2686,7 @@
     }
 
     .careers-role-list {
-      grid-column: 5 / -1;
+      grid-column: 6 / -1;
     }
 
     .hiring-step-number {
@@ -2878,8 +2888,8 @@
    other pages' patterns (client-intake-form.tsx, src/lib/intake.ts)
 
    The Page header with "(Client intake)" set into the heading, then the
-   form in six numbered sections, each under a divider that draws in, with
-   its title, a line on what it's for, and its fields (see Form fields) or
+   form in seven numbered sections, each under a divider that draws in,
+   with its title, a line on what it's for, and its fields (see Form fields) or
    option cards. Cards are one across on phones (two for short ones) and
    all in one row from 768px; a chosen card fills dark and shows its tick.
 
@@ -2943,10 +2953,6 @@
   .intake-step-number,
   .intake-step-text {
     color: var(--color-neutral-700);
-  }
-
-  .intake-company-fields {
-    margin-top: var(--form-field-gap);
   }
 
   /* The brief's box ends in a line much like the upload's, so the upload
@@ -3303,14 +3309,14 @@
    Job (a role's page) — no Figma frame; simple and static, with no marquee
    or scroll animations (job-content.tsx, other-roles.tsx)
 
-   On phones and tablets the title has "(Open position)" set into its first
-   line (the Section heading's styles), then the role's details under a
-   line with "Apply" after them (two across on phones, four from 768px).
-   From 1024px the label sits above the title with "Apply" level with it on
-   the right, and the four details run across the page, three columns each.
-   Then the summary, and each list under a line with its label: stacked on
-   phones, and from 1024px the label in columns 1–4 and the text in columns
-   6–11, as How we hire. The application form (job-application.tsx) is
+   The title has "(Open position)" set into its first line (the Section
+   heading's styles, with the home headings' indent from 1024px). On
+   phones and tablets the role's details follow under a line with "Apply"
+   after them (two across on phones, four from 768px). From 1024px "Apply"
+   sits level with the title on the right, and the four details run across
+   the page, three columns each. Then the summary, and each list under a
+   line with its label: stacked on phones, and from 1024px the label in
+   columns 1–4 and the text in columns 6–10, as the article and bio text. The application form (job-application.tsx) is
    the last of these, with its fields two across from 768px.
 
    Other openings: laid out like Related (see Persona), with the role rows
@@ -3441,23 +3447,13 @@
       column-gap: var(--layout-col-gap);
     }
 
-    /* The label above the title instead of set into it: a short title
-       would otherwise sit far from its label. */
+    /* "(Open position)" set into the first line with the home headings'
+       indent, as every other page. */
     .job-heading {
-      --section-heading-indent: 0;
+      --section-heading-indent: 3.5625em;
 
       grid-column: 1 / span 8;
       grid-row: 1;
-      row-gap: var(--job-heading-gap);
-    }
-
-    .job-heading .section-heading-label {
-      grid-area: 1 / 1;
-      margin-top: 0;
-    }
-
-    .job-heading .section-heading-title {
-      grid-area: 2 / 1;
     }
 
     /* The details' box steps aside so "Apply" can sit level with the title
@@ -3475,7 +3471,7 @@
 
     /* Other openings as a Careers group: the line across the page, the
        label in columns 1–4 level with the first role, the roles and the
-       link in columns 5–12. */
+       link in columns 6–12, as the role text above. */
     .related.other-roles {
       grid-template-columns: repeat(12, minmax(0, 1fr));
       column-gap: var(--layout-col-gap);
@@ -3493,7 +3489,7 @@
 
     .other-roles-list,
     .other-roles-link {
-      grid-column: 5 / -1;
+      grid-column: 6 / -1;
     }
 
     .other-roles-list {
@@ -3512,8 +3508,9 @@
       grid-column: 1 / -1;
     }
 
+    /* Columns 6–10, the column the article and bio text use. */
     .job-summary {
-      grid-column: 6 / span 6;
+      grid-column: 6 / span 5;
     }
 
     .job-section-label {
@@ -3523,7 +3520,7 @@
     .job-list,
     .job-form,
     .job-form-sent {
-      grid-column: 6 / span 6;
+      grid-column: 6 / span 5;
     }
   }
 }

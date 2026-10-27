@@ -10,7 +10,7 @@ import { ROLE_GROUPS, ROLES } from "@/lib/careers";
 
 // Careers "Open positions" — the heading with its label set into the first
 // line, then a group per practice: a divider that draws in (as on the Team
-// page), the group's label in columns 1–4 and its roles in columns 5–12.
+// page), the group's label in columns 1–4 and its roles in columns 6–12.
 // Each role is a row linking to its page (role-row.tsx). The rows slide up
 // and fade in a few at a time, as the cards do. The roles are in
 // src/lib/careers.ts.

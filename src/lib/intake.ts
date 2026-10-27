@@ -4,8 +4,8 @@
 export type IntakeOption = { value: string; title: string; description?: string };
 
 export const CLIENT_TYPES: IntakeOption[] = [
-  { value: "individual", title: "As an individual", description: "For a personal matter." },
-  { value: "company", title: "On behalf of a company", description: "For a business you represent." },
+  { value: "individual", title: "Individual", description: "For a personal matter." },
+  { value: "company", title: "Company", description: "For a business you represent." },
 ];
 
 export const ENGAGEMENTS: IntakeOption[] = [
@@ -27,7 +27,14 @@ export const PAYMENT_METHODS: IntakeOption[] = [
   { value: "cheque", title: "Cheque", description: "Made out to the firm." },
 ];
 
+// In order. Company information is always shown; its fields are only
+// required for a company.
 export const INTAKE_SECTIONS = [
+  {
+    id: "intake-client",
+    title: "Client type",
+    text: "Whether you’re coming to us yourself or for a business.",
+  },
   {
     id: "intake-personal",
     title: "Personal information",
@@ -36,7 +43,7 @@ export const INTAKE_SECTIONS = [
   {
     id: "intake-company",
     title: "Company information",
-    text: "Whether you’re coming to us yourself or for a business.",
+    text: "The business you represent, as on its commercial registry. Optional if you’re coming to us yourself.",
   },
   {
     id: "intake-engagement",

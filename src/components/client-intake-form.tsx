@@ -31,13 +31,15 @@ type Sent = { name: string; reference: string };
 
 // The Client intake page, where every "Let's Talk" leads — no Figma frame;
 // designed from the old intake form's fields and the site's patterns. The
-// Page header, then one form in six numbered sections, each under a divider
-// that draws in (as How we hire). From 1024px an index of the sections sticks
-// in columns 1–3 while the form scrolls in columns 6–12: it marks the section
-// you're in and ticks off each one once its required fields are filled. On
-// phones the index is left out and the sections stack. Choices are option
-// cards that fill dark when chosen; company details only show for a company.
-// Once sent, a thank-you with a reference and the next steps takes its place.
+// Page header, then one form in numbered sections, each under a divider
+// that draws in (as How we hire). It opens with the client type. Company
+// information is always there; choosing "Individual" makes its fields
+// optional (they're required otherwise). From 1024px an index of the
+// sections sticks in columns 1–3 while the form scrolls in columns 6–12: it
+// marks the section you're in and ticks off each one once its required
+// fields are filled. On phones the index is left out and the sections
+// stack. Choices are option cards that fill dark when chosen. Once sent, a
+// thank-you with a reference and the next steps takes its place.
 export default function ClientIntakeForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const stepsRef = useRef<HTMLDivElement>(null);
@@ -46,8 +48,13 @@ export default function ClientIntakeForm() {
 
   const [active, setActive] = useState<IntakeSectionId>(INTAKE_SECTIONS[0].id);
   const [done, setDone] = useState<IntakeSectionId[]>([]);
-  const [isCompany, setIsCompany] = useState(false);
+  const [isIndividual, setIsIndividual] = useState(false);
   const [sent, setSent] = useState<Sent | null>(null);
+
+  // Company details are needed unless the client said they're an individual.
+  const companyRequired = !isIndividual;
+  const number = (id: IntakeSectionId) =>
+    String(INTAKE_SECTIONS.findIndex((section) => section.id === id) + 1).padStart(2, "0");
 
   useDividerReveal(stepsRef, ".intake-step-divider");
 
@@ -69,8 +76,9 @@ export default function ClientIntakeForm() {
     );
   }, []);
 
-  // The company fields come and go with the choice above them.
-  useEffect(updateDone, [updateDone, isCompany]);
+  // Company information's fields stop or start being required with the
+  // client type.
+  useEffect(updateDone, [updateDone, isIndividual]);
 
   // The section crossing the middle of the screen is the one you're in.
   useEffect(() => {
@@ -134,7 +142,7 @@ export default function ClientIntakeForm() {
           <nav className="intake-index" ref={indexRef} aria-label="Form sections">
             <p className="intake-index-label cta-small">(Your request)</p>
             <ol className="intake-index-list">
-              {INTAKE_SECTIONS.map(({ id, title }, i) => {
+              {INTAKE_SECTIONS.map(({ id, title }) => {
                 const isDone = done.includes(id);
                 return (
                   <li key={id}>
@@ -146,7 +154,7 @@ export default function ClientIntakeForm() {
                       data-done={isDone || undefined}
                       onClick={(event) => goTo(event, id)}
                     >
-                      <span className="intake-index-number">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="intake-index-number">{number(id)}</span>
                       <span className="intake-index-title">{title}</span>
                       <span className="intake-index-tick" aria-hidden="true" />
                     </a>
@@ -167,7 +175,16 @@ export default function ClientIntakeForm() {
           </nav>
 
           <div className="intake-steps" ref={stepsRef}>
-            <IntakeStep index={0}>
+            <IntakeStep id="intake-client" number={number("intake-client")}>
+              <OptionCards
+                name="client-type"
+                labelledBy="intake-client-title"
+                options={CLIENT_TYPES}
+                onChange={(value) => setIsIndividual(value === "individual")}
+              />
+            </IntakeStep>
+
+            <IntakeStep id="intake-personal" number={number("intake-personal")}>
               <div className="form-fields">
                 <FormField idPrefix="intake" label="Full name in English" name="name-en" autoComplete="name" required />
                 <FormField idPrefix="intake" label="Full name in Arabic" name="name-ar" dir="rtl" lang="ar" required />
@@ -180,39 +197,62 @@ export default function ClientIntakeForm() {
               </div>
             </IntakeStep>
 
-            <IntakeStep index={1}>
-              <OptionCards
-                name="client-type"
-                labelledBy="intake-company-title"
-                options={CLIENT_TYPES}
-                onChange={(value) => setIsCompany(value === "company")}
-              />
-              {isCompany && (
-                <div className="form-fields intake-company-fields">
-                  <FormField idPrefix="intake" label="Company name in English" name="company-en" required />
-                  <FormField
-                    idPrefix="intake"
-                    label="Company name in Arabic"
-                    name="company-ar"
-                    dir="rtl"
-                    lang="ar"
-                    optional
-                  />
-                  <FormField idPrefix="intake" label="Business activity" name="business-activity" required />
-                  <FormField idPrefix="intake" label="Your position" name="position" required />
-                  <FormField idPrefix="intake" label="Commercial registry no." name="registry-number" required />
-                  <FormField idPrefix="intake" label="Tax ID no." name="tax-id" optional />
-                  <FormField idPrefix="intake" label="Company address" name="company-address" required wide />
-                  <FormField idPrefix="intake" label="Primary contact person" name="primary-contact" optional wide />
-                </div>
-              )}
+            <IntakeStep id="intake-company" number={number("intake-company")}>
+              <div className="form-fields">
+                <FormField
+                  idPrefix="intake"
+                  label="Company name in English"
+                  name="company-en"
+                  required={companyRequired}
+                  optional={!companyRequired}
+                />
+                <FormField
+                  idPrefix="intake"
+                  label="Company name in Arabic"
+                  name="company-ar"
+                  dir="rtl"
+                  lang="ar"
+                  optional
+                />
+                <FormField
+                  idPrefix="intake"
+                  label="Business activity"
+                  name="business-activity"
+                  required={companyRequired}
+                  optional={!companyRequired}
+                />
+                <FormField
+                  idPrefix="intake"
+                  label="Your position"
+                  name="position"
+                  required={companyRequired}
+                  optional={!companyRequired}
+                />
+                <FormField
+                  idPrefix="intake"
+                  label="Commercial registry no."
+                  name="registry-number"
+                  required={companyRequired}
+                  optional={!companyRequired}
+                />
+                <FormField idPrefix="intake" label="Tax ID no." name="tax-id" optional />
+                <FormField
+                  idPrefix="intake"
+                  label="Company address"
+                  name="company-address"
+                  required={companyRequired}
+                  optional={!companyRequired}
+                  wide
+                />
+                <FormField idPrefix="intake" label="Primary contact person" name="primary-contact" optional wide />
+              </div>
             </IntakeStep>
 
-            <IntakeStep index={2}>
+            <IntakeStep id="intake-engagement" number={number("intake-engagement")}>
               <OptionCards name="engagement" labelledBy="intake-engagement-title" options={ENGAGEMENTS} />
             </IntakeStep>
 
-            <IntakeStep index={3}>
+            <IntakeStep id="intake-practice" number={number("intake-practice")}>
               <OptionCards
                 name="practice"
                 labelledBy="intake-practice-title"
@@ -222,7 +262,7 @@ export default function ClientIntakeForm() {
               />
             </IntakeStep>
 
-            <IntakeStep index={4}>
+            <IntakeStep id="intake-matter" number={number("intake-matter")}>
               <div className="form-fields">
                 <FormField
                   idPrefix="intake"
@@ -246,7 +286,7 @@ export default function ClientIntakeForm() {
               </div>
             </IntakeStep>
 
-            <IntakeStep index={5}>
+            <IntakeStep id="intake-payment" number={number("intake-payment")}>
               <OptionCards name="payment" labelledBy="intake-payment-title" options={PAYMENT_METHODS} />
             </IntakeStep>
 
@@ -269,19 +309,19 @@ export default function ClientIntakeForm() {
   );
 }
 
-type IntakeStepProps = { index: number; children: ReactNode };
+type IntakeStepProps = { id: IntakeSectionId; number: string; children: ReactNode };
 
-// One numbered section: its divider, "01. Personal information" and a line
-// on what it's for, then its fields.
-function IntakeStep({ index, children }: IntakeStepProps) {
-  const { id, title, text } = INTAKE_SECTIONS[index];
+// One numbered section: its divider, "01. Client type" and a line on what
+// it's for, then its fields.
+function IntakeStep({ id, number, children }: IntakeStepProps) {
+  const { title, text } = INTAKE_SECTIONS.find((section) => section.id === id)!;
 
   return (
     <section className="intake-step" id={id} aria-labelledby={`${id}-title`}>
       <span className="intake-step-divider" aria-hidden="true" />
       <div className="intake-step-head">
         <h2 id={`${id}-title`} className="intake-step-title header-2-semibold">
-          <span className="intake-step-number">{`${String(index + 1).padStart(2, "0")}.`}</span> {title}
+          <span className="intake-step-number">{`${number}.`}</span> {title}
         </h2>
         <p className="intake-step-text body-big">{text}</p>
       </div>

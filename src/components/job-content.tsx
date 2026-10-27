@@ -5,14 +5,13 @@ import { ROLE_OFFER, roleGroup, type Role } from "@/lib/careers";
 type JobContentProps = { role: Role };
 
 // A role's page — no Figma frame; kept simple and static (no marquee or
-// scroll animations). On phones "(Open position)" is set into the title's
-// first line and the details and "Apply" follow; from 1024px the label sits
-// above the title with "Apply" level with it on the right, and the details
-// spread across the page in one row. Then the summary and lists, each under
-// a divider
-// with its label on the left: the label in columns 1–4 and the text in
-// columns 6–11 from 1024px, as How we hire. On phones it all stacks. Last,
-// the application form "Apply" scrolls down to.
+// scroll animations). "(Open position)" is set into the title's first line,
+// as on every page. On phones the details and "Apply" follow; from 1024px
+// "Apply" sits level with the title on the right, and the details spread
+// across the page in one row. Then the summary and lists, each under a
+// divider with its label on the left: the label in columns 1–4 and the
+// text in columns 6–10 from 1024px, as the article and bio text. On phones
+// it all stacks. Last, the application form "Apply" scrolls down to.
 export default function JobContent({ role }: JobContentProps) {
   const group = roleGroup(role);
 
