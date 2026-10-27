@@ -1,5 +1,6 @@
 import Image from "next/image";
-import TextLink from "@/components/text-link";
+import Link from "next/link";
+import { TextLinkLabel } from "@/components/text-link";
 
 export type NewsCardProps = {
   /** Shown as written, e.g. "16 May 2026". */
@@ -7,33 +8,24 @@ export type NewsCardProps = {
   /** Cut to three lines with an ellipsis if longer. */
   title: string;
   image: string;
-  /** Alt text for the image. Leave empty when it's only decorative. */
-  imageAlt?: string;
   href: string;
-  /** Element to render the card as, e.g. "li" inside a list. Default "article". */
-  as?: "article" | "li";
   className?: string;
 };
 
 // An article card — Figma "Team Member Card" (news variant): image, date,
-// title and a "Know more" link.
+// title and "Know more". As with the teams card, the whole card is the link
+// to the article; "Know more" is its label, and its underline and arrow
+// move as the card is hovered or focused. The image is left out of the
+// link's name (the title is already in it).
 //
 //   <NewsCard date="16 May 2026" title="…" image="/images/…" href="/news/…" />
-export default function NewsCard({
-  date,
-  title,
-  image,
-  imageAlt = "",
-  href,
-  as: Tag = "article",
-  className = "",
-}: NewsCardProps) {
+export default function NewsCard({ date, title, image, href, className = "" }: NewsCardProps) {
   return (
-    <Tag className={`news-card ${className}`.trim()}>
+    <Link href={href} className={`news-card ${className}`.trim()}>
       <div className="news-card-photo">
         <Image
           src={image}
-          alt={imageAlt}
+          alt=""
           fill
           sizes="(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 100vw"
         />
@@ -41,10 +33,8 @@ export default function NewsCard({
       <div className="news-card-info">
         <p className="news-card-date body">{date}</p>
         <h3 className="news-card-title header-3-semibold">{title}</h3>
-        <TextLink href={href} icon="arrow-right">
-          Know more
-        </TextLink>
+        <TextLinkLabel icon="arrow-right">Know more</TextLinkLabel>
       </div>
-    </Tag>
+    </Link>
   );
 }

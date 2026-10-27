@@ -3,25 +3,17 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import NewsCard, { type NewsCardProps } from "@/components/news-card";
+import NewsCard from "@/components/news-card";
 import SectionHeading from "@/components/section-heading";
 import TextLink from "@/components/text-link";
+import { ARTICLES } from "@/lib/news";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type Article = Pick<NewsCardProps, "date" | "title" | "image" | "href">;
-
-// Figma's placeholder articles until the real ones arrive.
-const ARTICLES: Article[] = [
-  { date: "16 May 2026", title: "Shady el-Barloky acted as legal counsel to Coca-Cola HBC", image: "/images/home-page/news/article-1.png", href: "/news" },
-  { date: "16 May 2026", title: "Shady el-Barloky acted as legal counsel to Coca-Cola HBC", image: "/images/home-page/news/article-2.png", href: "/news" },
-  { date: "16 May 2026", title: "Shady el-Barloky acted as legal counsel to Coca-Cola HBC", image: "/images/home-page/news/article-3.png", href: "/news" },
-  { date: "16 May 2026", title: "Shady el-Barloky acted as legal counsel to Coca-Cola HBC", image: "/images/home-page/news/article-4.png", href: "/news" },
-];
-
-// Home page "News & Articles" — Figma "news-&-articles-section". The
-// heading works like the Clients one; the cards slide up and fade in a row
-// at a time as they scroll into view, as the Clients cards do.
+// Home page "News & Articles" — Figma "news-&-articles-section": the
+// latest four articles (src/lib/news.ts). The heading works like the
+// Clients one; the cards slide up and fade in a row at a time as they
+// scroll into view, as the Clients cards do.
 export default function NewsSection() {
   const gridRef = useRef<HTMLUListElement>(null);
 
@@ -63,8 +55,10 @@ export default function NewsSection() {
       </div>
 
       <ul className="news-grid" ref={gridRef}>
-        {ARTICLES.map((article, i) => (
-          <NewsCard as="li" key={i} {...article} />
+        {ARTICLES.slice(0, 4).map((article) => (
+          <li key={article.slug}>
+            <NewsCard date={article.date} title={article.title} image={article.image} href={`/news/${article.slug}`} />
+          </li>
         ))}
       </ul>
     </section>

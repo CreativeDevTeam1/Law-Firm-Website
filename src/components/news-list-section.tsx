@@ -4,29 +4,11 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LineReveal from "@/components/line-reveal";
-import NewsCard, { type NewsCardProps } from "@/components/news-card";
+import NewsCard from "@/components/news-card";
 import SectionHeading from "@/components/section-heading";
+import { ARTICLES } from "@/lib/news";
 
 gsap.registerPlugin(ScrollTrigger);
-
-type Article = Pick<NewsCardProps, "date" | "title" | "image" | "href">;
-
-const IMAGES = [
-  "/images/home-page/news/article-1.png",
-  "/images/home-page/news/article-2.png",
-  "/images/home-page/news/article-3.png",
-  "/images/home-page/news/article-4.png",
-];
-
-// TODO: Figma's placeholder article, twelve times over, until the real
-// ones arrive (Figma has thirteen; twelve keeps every row full at one to
-// four columns). "Know more" points at this page until articles have pages.
-const ARTICLES: Article[] = Array.from({ length: 12 }, (_, i) => ({
-  date: "16 May 2026",
-  title: "Shady el-Barkoky acted as legal counsel to Coca-Cola HBC",
-  image: IMAGES[i % IMAGES.length],
-  href: "/news",
-}));
 
 // News page — Figma "news-page" (its "team-section" frame). The heading
 // and paragraph are laid out like the Team page's (see Page header in
@@ -78,8 +60,10 @@ export default function NewsListSection() {
       </div>
 
       <ul className="news-list-grid" ref={gridRef}>
-        {ARTICLES.map((article, i) => (
-          <NewsCard as="li" key={i} {...article} />
+        {ARTICLES.map((article) => (
+          <li key={article.slug}>
+            <NewsCard date={article.date} title={article.title} image={article.image} href={`/news/${article.slug}`} />
+          </li>
         ))}
       </ul>
     </section>

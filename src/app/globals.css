@@ -309,8 +309,8 @@
     --persona-bio-gap: var(--number-40); /* 40px */
     --persona-social-size: var(--number-40); /* 40px */
     --persona-social-gap: var(--number-24); /* 24px */
-    --related-members-list-top: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px */
-    --related-members-controls-top: var(--number-48); /* 48px */
+    --related-list-top: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px */
+    --related-controls-top: var(--number-48); /* 48px */
 
     /* Footer */
     --footer-padding-x: var(--about-padding-x); /* 24px → 48px */
@@ -1619,8 +1619,18 @@
     display: flex;
     flex-direction: column;
     gap: var(--card-content-gap);
+    height: 100%;
     padding: var(--card-padding);
     border: 1px solid var(--color-neutral-250);
+    background: var(--color-neutral-100);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* The whole card is the link (news-card.tsx), as the teams card. */
+  .news-card:focus-visible {
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: 2px;
   }
 
   .news-card-photo {
@@ -2376,7 +2386,7 @@
 
 /* ==========================================================================
    Persona (team member page) — Figma "persona-page" (Web and Mobile)
-   (persona-profile.tsx, persona-marquee.tsx, related-members.tsx)
+   (persona-profile.tsx, persona-marquee.tsx, related-carousel.tsx)
 
    Opens like wearemotto.com's founder pages: three huge rows running edge
    to edge (the firm's full logo and an asterisk, repeated, where Motto has
@@ -2386,8 +2396,9 @@
    the name, role and social links sit in columns 2–4 beside the statement
    (columns 6–10), with the bio under the statement.
 
-   Related members: a divider, the label and a carousel of team cards
-   running to the screen edges, with the arrows below on the right. Cards
+   Related (members here, articles on an article's page): a divider, the
+   label and a carousel of cards running to the screen edges, with the
+   arrows below on the right. Cards
    are most of the width on phones and two-and-a-bit across on tablets (so
    the next one peeks in), and four across from 1024px, as in Figma.
    ========================================================================== */
@@ -2403,7 +2414,8 @@
     color: var(--color-neutral-950);
   }
 
-  /* Shown for the moment the page waits on its URL (team/[slug]/page.tsx). */
+  /* Shown for the moment the page waits on its URL (team/[slug]/page.tsx,
+     news/[slug]/page.tsx). */
   .persona-placeholder {
     min-height: 100vh;
     background: var(--color-neutral-100);
@@ -2546,7 +2558,7 @@
     color: var(--color-neutral-700);
   }
 
-  .related-members {
+  .related {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     padding: 0 var(--persona-padding-x) var(--section-padding-y);
@@ -2554,36 +2566,36 @@
     color: var(--color-neutral-950);
   }
 
-  .related-members-divider {
+  .related-divider {
     display: block;
     height: 1px;
     background: var(--color-neutral-250);
   }
 
-  .related-members-label {
+  .related-label {
     margin-top: var(--persona-meta-gap);
   }
 
   /* A carousel (see Carousel) running to both screen edges, with the page
      padding kept inside it so the first card lines up with the label. */
-  .related-members-list {
+  .related-list {
     gap: var(--card-gap);
-    margin: var(--related-members-list-top) calc(-1 * var(--persona-padding-x)) 0;
+    margin: var(--related-list-top) calc(-1 * var(--persona-padding-x)) 0;
     padding-inline: var(--persona-padding-x);
     scroll-padding-inline: var(--persona-padding-x);
   }
 
-  .related-members-item {
+  .related-item {
     width: 72%;
   }
 
-  .related-members-controls {
+  .related-controls {
     justify-self: end;
-    margin-top: var(--related-members-controls-top);
+    margin-top: var(--related-controls-top);
   }
 
   @media (min-width: 48rem) {
-    .related-members-item {
+    .related-item {
       width: 40%;
     }
   }
@@ -2618,8 +2630,84 @@
       max-width: none;
     }
 
-    .related-members-item {
+    .related-item {
       width: calc((100% - 3 * var(--card-gap)) / 4);
+    }
+  }
+}
+
+
+/* ==========================================================================
+   Article (news article page) — Figma "news-page" › "persona-page"
+   (article-content.tsx, related-articles.tsx)
+
+   Opens like the Persona page, with its marquee and the photo pulled up
+   over most of the last row. Then Figma's layout: on phones everything
+   stacks; from 1024px the photo spans columns 2–11, the headline columns
+   2–11 with the date set into its first line (Section heading, at the
+   Page header's indent), and the body columns 6–10. Then Related articles
+   (see Persona).
+   ========================================================================== */
+
+@layer components {
+  .article {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--persona-row-gap);
+    padding: var(--persona-padding-top) var(--persona-padding-x) var(--section-padding-y);
+    overflow: clip;
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-950);
+  }
+
+  /* Over the marquee, as the Persona photo. */
+  .article-photo {
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 7 / 4; /* as the Persona photo on phones */
+    margin-top: calc(-1 * (var(--persona-photo-overlap) * var(--persona-marquee-size) + var(--persona-row-gap)));
+    overflow: hidden;
+    background: var(--color-neutral-250);
+  }
+
+  .article-photo img {
+    object-fit: cover;
+  }
+
+  /* The label's width ("(16 May 2026)": 6.3 times its text size) plus a
+     word space. */
+  .article-headline {
+    --section-heading-indent: calc(6.3 * var(--cta-medium-font-size) + 0.25em);
+  }
+
+  .article-body {
+    display: grid;
+    row-gap: var(--persona-bio-gap);
+    max-width: 34em;
+    color: var(--color-neutral-700);
+  }
+
+  @media (min-width: 64rem) {
+    .article {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .article-photo {
+      grid-column: 2 / span 10;
+      aspect-ratio: 3 / 2; /* Figma's 1116 × 727 */
+    }
+
+    /* Figma's 228px indent at 64px, as the Page header. */
+    .article-headline {
+      --section-heading-indent: 3.5625em;
+
+      grid-column: 2 / span 10;
+    }
+
+    .article-body {
+      grid-column: 6 / span 5;
+      max-width: none;
     }
   }
 }
