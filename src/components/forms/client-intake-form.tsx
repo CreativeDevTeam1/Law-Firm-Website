@@ -125,8 +125,9 @@ export default function ClientIntakeForm() {
         <IntakeSent {...sent} />
       ) : (
         <div className="page-header intake-header">
-          <SectionHeading as="h1" id="intake-title" label="(Consultation Request)" className="page-heading intake-heading">
-            Tell us how we can assist with your legal matter
+          <SectionHeading as="h1" id="intake-title" label="(Consult Us)" className="page-heading intake-heading">
+            Tell us how we can assist with your legal matter, and we will
+            connect you with the right lawyer for your case.
           </SectionHeading>
           <LineReveal className="page-intro body" delay={0.1}>
             Share a few details about your matter and preferred consultation

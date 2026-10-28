@@ -20,6 +20,11 @@ const LINKS = [
   { href: "/news", label: "News & Insight" },
 ];
 
+// Whether a link's page is the one showing, or a page under it (a team
+// member's page counts as Team, an article as News & Insight).
+const isCurrentSection = (href: string, pathname: string) =>
+  href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+
 // Site navigation — Figma "Navigation" (Web) and "Mobile". Pinned over the
 // top of the page, sliding away while scrolling down and back on scrolling
 // up. On pages with an intro it waits off-screen and drops in once the
@@ -255,7 +260,9 @@ export default function Navbar() {
           <ul>
             {LINKS.map((link) => (
               <li key={link.href}>
-                <TextLink href={link.href}>{link.label}</TextLink>
+                <TextLink href={link.href} aria-current={isCurrentSection(link.href, pathname) ? "page" : undefined}>
+                  {link.label}
+                </TextLink>
               </li>
             ))}
           </ul>

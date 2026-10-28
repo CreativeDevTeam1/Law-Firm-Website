@@ -263,9 +263,8 @@
     --who-we-are-padding-x: var(--layout-padding-x); /* 16px → 48px */
     --who-we-are-padding-y: var(--layout-padding-y); /* 40px → 80px */
     --who-we-are-row-gap: clamp(var(--number-40), 1.5714rem + 3.8095vw, var(--number-80)); /* 40px → 80px */
-    --core-value-width: 19.875rem; /* 318px */
-    --core-value-gap: var(--number-24); /* 24px */
-    --core-value-content-gap: var(--number-32); /* 32px */
+    --values-index-row-padding: clamp(var(--number-20), 0.9714rem + 1.1429vw, var(--number-32)); /* 20px → 32px */
+    --values-index-indent: var(--number-48); /* the number's column, under 1024px */
 
     /* Carousel buttons (carousel-controls.tsx) */
     --carousel-button-gap: var(--number-24); /* 24px */
@@ -280,8 +279,9 @@
     --practice-areas-padding-x: var(--layout-padding-x); /* 16px → 48px */
     --practice-areas-padding-y: var(--section-padding-y); /* 64px → 160px */
     --practice-areas-header-gap: calc(2 * var(--layout-padding-y)); /* 80px → 160px, under the heading: as Who we are → Core values */
-    --practice-areas-row-gap: clamp(var(--number-40), 1.9429rem + 2.2857vw, var(--number-64)); /* 40px → 64px, between card rows */
-    --practice-card-info-gap: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px, photo to text */
+    --practice-photo-gap: var(--number-16); /* 16px, photo to text in an open row, under 1024px */
+    --practice-frame-top: var(--layout-padding-y); /* 40px → 80px, where the pinned photo stops */
+    --practice-frame-caption-gap: var(--number-16); /* 16px, photo to its number */
 
     /* Page header (Team, News, Careers and Client intake) */
     --page-intro-gap: var(--layout-padding-y); /* 40px → 80px, title to paragraph (Figma 80px) */
@@ -914,6 +914,13 @@
     display: flex;
     gap: var(--navbar-menu-gap);
     list-style: none;
+  }
+
+  /* The current page's link keeps its hover underline, drawing it in from
+     the left as the page changes (see Link underline). */
+  .navbar-menu [aria-current="page"]::before {
+    transform: scaleX(1) rotate(0.001deg);
+    transform-origin: left center;
   }
 
   @media (min-width: 64rem) {
@@ -2346,9 +2353,9 @@
 
    Two blocks, each with the page padding. First the heading, then the
    mission and vision with their labels set into the first line (from
-   1024px in Figma's columns 6–11). Then the core values: the label, a row
-   of fixed-width values that scrolls sideways (running to the screen edge,
-   as in Figma) when they don't all fit, and the arrow buttons on the right.
+   1024px in Figma's columns 6–11). Then the core values: the label and the
+   values index (see Values index below). The Core values carousel styles
+   here are used by the Careers page's reasons to join.
 
    Figma's phone frame leaves out the "(Who we are)", "(Our Mission)" and
    "(Our Vision)" labels; they're kept here, with the indents wide enough
@@ -2403,40 +2410,22 @@
     justify-self: start;
   }
 
-  /* A carousel (see Carousel) that runs to both screen edges, with the page
-     padding kept inside it so the first and last values line up with the
-     text. */
-  .core-values-list {
-    gap: var(--core-value-gap);
-    margin-inline: calc(-1 * var(--who-we-are-padding-x));
-    padding-inline: var(--who-we-are-padding-x);
-    scroll-padding-inline: var(--who-we-are-padding-x);
-  }
+  /* Tablets (768px–1023px), as the home page's About section: two columns
+     under the full-width heading, with the mission and vision stacked in
+     the second. */
+  @media (min-width: 48rem) and (max-width: 63.999rem) {
+    .who-we-are-intro {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
 
-  /* Figma's 318px, or a quarter of the row when that's wider. */
-  .core-value {
-    flex: 0 0 max(var(--core-value-width), (100% - 3 * var(--core-value-gap)) / 4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--core-value-content-gap);
-  }
+    .who-we-are-heading {
+      grid-column: 1 / -1;
+    }
 
-  /* Figma uses the full 128px on phones too, not the style's 72px. */
-  .core-value-number {
-    font-size: var(--number-128);
-  }
-
-  /* Kept off the column's last gap's worth of width, so a paragraph that
-     fills its lines never runs up to the next value: at least twice the gap
-     between any two. Pretty wrapping evens the line ends out. */
-  .core-value-text {
-    padding-inline-end: var(--core-value-gap);
-    color: var(--color-neutral-700);
-    text-wrap: pretty;
-  }
-
-  .core-values-controls {
-    justify-self: end;
+    .who-we-are-statement {
+      grid-column: 2;
+    }
   }
 
   @media (min-width: 64rem) {
@@ -2457,9 +2446,226 @@
     }
 
     .core-values-title,
-    .core-values-list,
-    .core-values-controls {
+    .values-index {
       grid-column: 1 / -1;
+    }
+  }
+}
+
+/* ==========================================================================
+   Values index (About page's Core values, who-we-are-section.tsx)
+
+   An editorial index, after Studio Freight's principles: a row per value
+   between hairline rules (drawn in from the left, use-divider-reveal.ts),
+   each with its number, its title in Header 1 and a (+), which rise in
+   after the rule as the row scrolls into view. The open row
+   eases down to show its description and, on the right from 768px, its
+   number in display type; the text rises in as it opens. One row is open
+   at a time, opened by clicking or tapping it; on screens that can hover,
+   the rows other than the one under the pointer fade back. Expo out, as
+   the menu.
+   ========================================================================== */
+
+@layer components {
+  .values-index {
+    --values-index-ease: cubic-bezier(0.19, 1, 0.22, 1); /* expo.out */
+
+    list-style: none;
+  }
+
+  .values-index-rule {
+    display: block;
+    height: 1px;
+    background: var(--color-neutral-250);
+    transform-origin: left center;
+  }
+
+  /* The number, the title and the (+) on one baseline. */
+  .values-index-toggle {
+    display: grid;
+    grid-template-columns: var(--values-index-indent) minmax(0, 1fr) auto;
+    align-items: baseline;
+    column-gap: var(--layout-col-gap);
+    width: 100%;
+    padding-block: var(--values-index-row-padding);
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.6s var(--values-index-ease);
+  }
+
+  .values-index-toggle:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: var(--number-4);
+  }
+
+  /* Masks the number and the (+) rise out of as the row scrolls in
+     (who-we-are-section.tsx), with a little room below for the brackets. */
+  .values-index-number,
+  .values-index-sign {
+    display: inline-block;
+    overflow: hidden;
+    padding-block: 0.1em;
+    margin-block: -0.1em;
+    color: var(--color-neutral-500);
+  }
+
+  .values-index-number > span {
+    display: inline-block;
+  }
+
+  .values-index-title {
+    display: block;
+  }
+
+  /* The + inside the brackets: two bars the text's weight; opening turns
+     the upright one flat over the other, making a −. */
+  .values-index-sign > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15em;
+  }
+
+  .values-index-plus {
+    position: relative;
+    width: 0.6em;
+    height: 0.6em;
+  }
+
+  .values-index-plus::before,
+  .values-index-plus::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 0.09em;
+    margin-top: -0.045em;
+    background: currentColor;
+  }
+
+  .values-index-plus::after {
+    rotate: 90deg;
+    transition: rotate 0.6s var(--values-index-ease);
+  }
+
+  .is-open .values-index-plus::after {
+    rotate: 0deg;
+  }
+
+  /* Closed, the panel's one row is 0 tall; open, as tall as its content.
+     The padding sits on the body inside, so nothing shows when closed. */
+  .values-index-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.9s var(--values-index-ease);
+  }
+
+  .is-open .values-index-panel {
+    grid-template-rows: 1fr;
+  }
+
+  .values-index-panel-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .values-index-body {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--layout-col-gap);
+    padding: 0 0 var(--values-index-row-padding) calc(var(--values-index-indent) + var(--layout-col-gap));
+  }
+
+  .values-index-text,
+  .values-index-big {
+    opacity: 0;
+    translate: 0 40%;
+    transition:
+      translate 0.9s var(--values-index-ease),
+      opacity 0.6s var(--values-index-ease);
+  }
+
+  .is-open .values-index-text,
+  .is-open .values-index-big {
+    opacity: 1;
+    translate: 0 0;
+    transition-delay: 0.1s;
+  }
+
+  .values-index-text {
+    max-width: 32em;
+    color: var(--color-neutral-700);
+    text-wrap: pretty;
+  }
+
+  /* The number in display type, on the right; left out on phones. Line
+     height 1, so the panel (which clips) has room for the digits' tops. */
+  .values-index-big {
+    display: none;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  @media (min-width: 48rem) {
+    .values-index-big {
+      display: block;
+    }
+  }
+
+  @media (hover: hover) {
+    .values-index:hover .values-index-toggle:not(:hover) {
+      color: var(--color-neutral-500);
+    }
+  }
+
+  /* From 1024px the whole index takes columns 6–12, in line with the
+     mission and vision above, with "(Our Core Values)" beside it in
+     columns 1–5. The titles start the column; the number moves to the
+     right, before the (+), as Mews's "/ 01". */
+  @media (min-width: 64rem) {
+    .core-values .core-values-title {
+      grid-column: 1 / span 5;
+      grid-row: 1;
+    }
+
+    .core-values .values-index {
+      grid-column: 6 / -1;
+      grid-row: 1;
+    }
+
+    .values-index-toggle {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+    }
+
+    .values-index-title {
+      order: 1;
+    }
+
+    .values-index-number {
+      order: 2;
+    }
+
+    .values-index-sign {
+      order: 3;
+    }
+
+    .values-index-body {
+      padding-left: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .values-index-toggle,
+    .values-index-panel,
+    .values-index-text,
+    .values-index-big,
+    .values-index-plus::after {
+      transition: none;
     }
   }
 }
@@ -2469,14 +2675,18 @@
    Image reveal (About page) — Figma "img-wrapper" (Web and Mobile)
    (image-reveal.tsx)
 
-   The section is a full screen from the start; clip-path trims the image to
-   Figma's starting size (547px tall; 7px from each side on phones, columns
-   2–11 from 1024px) and --image-reveal-progress, run by the scroll from 0 to
-   1, opens it up to the whole screen. With reduced motion it's shown in full.
+   From 1024px the section is a full screen from the start; clip-path trims
+   the image to Figma's starting size (547px tall, columns 2–11) and
+   --image-reveal-progress, run by the scroll from 0 to 1, opens it up to
+   the whole screen. The starting image sits one page padding (40px → 80px)
+   below the section's top rather than centred, and the section keeps the
+   same again below it, so the space either side matches Who we are → Core
+   values.
 
-   The starting image sits one page padding (40px → 80px) below the
-   section's top rather than centred, and the section keeps the same again
-   below it, so the space either side matches Who we are → Core values.
+   Under 1024px the section is landscape (4:3, 3:2 from 768px) and the image
+   opens from inside the page padding to the screen edges (see below).
+
+   With reduced motion it's shown in full.
    ========================================================================== */
 
 @layer components {
@@ -2517,6 +2727,30 @@
     object-fit: cover;
   }
 
+  /* Under 1024px a screen-tall box would show only a sliver of a wide
+     photo, so the section is landscape instead: 4:3 on phones, 3:2 from
+     768px. The image starts inside the page padding (the side padding, and
+     half the page padding above and below) and opens to the screen edges.
+     No room is needed below it: it's open before it scrolls on. */
+  @media (max-width: 63.999rem) {
+    .image-reveal {
+      --image-reveal-inset-x: var(--layout-padding-x);
+      --image-reveal-inset-top: calc(var(--layout-padding-y) / 2);
+      --image-reveal-inset-bottom: calc(var(--layout-padding-y) / 2);
+
+      height: auto;
+      min-height: 0;
+      aspect-ratio: 4 / 3;
+      margin-bottom: 0;
+    }
+  }
+
+  @media (min-width: 48rem) and (max-width: 63.999rem) {
+    .image-reveal {
+      aspect-ratio: 3 / 2;
+    }
+  }
+
   /* Columns 2–11 of the 12-column page grid: the page padding, one column
      and one gap in from each side. */
   @media (min-width: 64rem) {
@@ -2535,14 +2769,18 @@
    Practice area section (About page) — Figma "practice-area-section" (Web
    and Mobile) (practice-areas-section.tsx)
 
-   The heading works like the home ones. Below it, a card per area laid out
-   like justgowiththeflow.com's work grid (section-work-grid in its
-   style.css): two columns from 720px, one below. Each card is a 5:4 photo
-   with its title and description under it.
+   The heading works like the home ones. Below it, the areas as the same
+   editorial index as the Core values (the values-index styles), set in
+   Header 2 as there are thirteen of them. Under 1024px an open row shows
+   its photo (5:4) above its description.
 
-   The photo's cover (in the section's colour) and the photo's scale are
-   animated by practice-areas-section.tsx; the cover sits at scale 0 here so
-   the photo shows without JavaScript or with reduced motion.
+   From 1024px the index takes columns 6–12, as the Core values, and a 5:4
+   photo frame in columns 1–4 stays pinned while the index scrolls past,
+   with the shown area's number under it. Each area's photo is a layer in
+   the frame; practice-areas-section.tsx raises and wipes in the one shown.
+   The frame's cover (in the section's colour) is animated there too; it
+   sits at scale 0 here so the photo shows without JavaScript or with
+   reduced motion.
    ========================================================================== */
 
 @layer components {
@@ -2561,38 +2799,42 @@
     --section-heading-indent: calc(6.5 * var(--cta-medium-font-size) + 0.25em);
   }
 
-  .practice-areas-grid {
+  .practice-areas-split {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--practice-areas-row-gap) var(--layout-col-gap);
-    list-style: none;
   }
 
-  .practice-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--practice-card-info-gap);
+  .practice-frame {
+    display: none;
   }
 
-  .practice-card-photo {
+  .practice-frame-media {
     position: relative;
     aspect-ratio: 5 / 4;
     overflow: hidden;
     background: var(--color-neutral-250); /* while the photo loads */
   }
 
-  .practice-card-media,
-  .practice-card-cover {
+  .practice-frame-photos,
+  .practice-frame-photo,
+  .practice-frame-cover {
     position: absolute;
     inset: 0;
   }
 
-  .practice-card-media img {
+  /* The first area's photo on top until the script takes over. */
+  .practice-frame-photo:first-child {
+    z-index: 1;
+  }
+
+  .practice-frame-photo img,
+  .practice-index-photo img {
     object-fit: cover;
   }
 
   /* 1px past each edge so no sliver of photo shows around it. */
-  .practice-card-cover {
+  .practice-frame-cover {
+    z-index: 100;
     inset: -1px;
     background: var(--color-neutral-100);
     transform: scaleY(0);
@@ -2600,24 +2842,53 @@
     pointer-events: none;
   }
 
-  .practice-card-info {
-    display: grid;
-    row-gap: var(--number-8);
+  .practice-frame-caption {
+    margin-top: var(--practice-frame-caption-gap);
+    color: var(--color-neutral-500);
   }
 
-  .practice-card-text {
-    color: var(--color-neutral-700);
+  .practice-frame-count {
+    color: var(--color-neutral-950);
   }
 
-  @media (min-width: 45rem) {
-    .practice-areas-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  /* An open row: its photo, then its description, under the title. */
+  .practice-index .values-index-body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--practice-photo-gap);
+  }
+
+  .practice-index-photo {
+    position: relative;
+    aspect-ratio: 5 / 4;
+    overflow: hidden;
+    background: var(--color-neutral-250); /* while the photo loads */
   }
 
   @media (min-width: 64rem) {
     .practice-areas-heading {
       --section-heading-indent: 3.5625em;
+    }
+
+    .practice-areas-split {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+      align-items: start;
+    }
+
+    .practice-frame {
+      display: block;
+      position: sticky;
+      top: var(--practice-frame-top);
+      grid-column: 1 / span 4;
+    }
+
+    .practice-index {
+      grid-column: 6 / -1;
+    }
+
+    .practice-index-photo {
+      display: none;
     }
   }
 }
@@ -2789,10 +3060,10 @@
 /* ==========================================================================
    Careers (Careers page) — no Figma frame; built from the other pages'
    patterns (careers-intro-section.tsx, careers-roles-section.tsx,
-   hiring-process-section.tsx, careers-closing-section.tsx)
+   careers-reasons-section.tsx, hiring-process-section.tsx,
+   careers-closing-section.tsx)
 
-   Intro: the Page header with "(Careers)", then the reasons to join in the
-   About page's Core values carousel (its styles, see Who we are).
+   Intro: the Page header with "(Careers)".
 
    Open positions: the heading, then a group per practice as on the Team
    page (a divider and the label), with the group's roles beside the label
@@ -2801,6 +3072,9 @@
    line from 768px, the details and "View role" under the title on phones.
    On hover its line fills in from the left (the Link underline's motion)
    and the title edges right.
+
+   Why join us: the About page's Core values index (see Who we are and
+   Values index), "(Why join us)" beside it from 1024px.
 
    How we hire: the heading, then numbered steps under dividers: the number
    in columns 1–4 and the text in columns 6–10 from 1024px.
@@ -2814,16 +3088,20 @@
 @layer components {
   .careers-intro,
   .careers-roles,
+  .careers-reasons,
   .hiring,
   .careers-closing {
     background: var(--color-neutral-100);
     color: var(--color-neutral-950);
   }
 
-  /* The Core values block below keeps the page padding above it, so the
-     header to it is twice that (80px → 160px), as Team's header gap. */
   .careers-header {
-    padding: var(--careers-padding-y) var(--careers-padding-x) var(--layout-padding-y);
+    padding: var(--careers-padding-y) var(--careers-padding-x);
+  }
+
+  /* The Core values grid (see Who we are), with this page's padding. */
+  .careers-reasons {
+    padding: var(--careers-padding-y) var(--careers-padding-x);
   }
 
   /* "(Careers)": 4.15 times its text size. */
@@ -3266,9 +3544,9 @@
     color: var(--color-neutral-950);
   }
 
-  /* "(Client intake)": 6.1 times its text size. */
+  /* "(Consult Us)": 5.45 times its text size. */
   .intake-heading {
-    --section-heading-indent: calc(6.1 * var(--cta-medium-font-size) + 0.25em);
+    --section-heading-indent: calc(5.45 * var(--cta-medium-font-size) + 0.25em);
   }
 
   .intake-form {

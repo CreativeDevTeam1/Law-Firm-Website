@@ -49,7 +49,8 @@ export default function NewsListSection() {
     <section className="news-list" aria-labelledby="news-list-title">
       <div className="page-header">
         <SectionHeading id="news-list-title" label="(News & Articles)" className="page-heading news-list-heading">
-          Stay Informed with Our Latest Legal News &amp; Expert Insights
+          Stay informed with our latest legal news and expert insights on the
+          changes shaping business and investment in Egypt.
         </SectionHeading>
         <LineReveal className="page-intro body" delay={0.1}>
           Built upon professionalism, integrity, and client-focused

@@ -1,10 +1,9 @@
 "use client";
 
-import { useRef } from "react";
-import CarouselControls from "@/components/ui/carousel-controls";
+import { useRef, useState } from "react";
+import { useIndexReveal } from "@/hooks/use-index-reveal";
 import LineReveal from "@/components/ui/line-reveal";
 import SectionHeading from "@/components/ui/section-heading";
-import { useCarousel } from "@/hooks/use-carousel";
 
 type CoreValue = { title: string; description: string };
 
@@ -12,52 +11,59 @@ const CORE_VALUES: CoreValue[] = [
   {
     title: "Integrity",
     description:
-      "Every matter is handled with honesty, transparency, and strict adherence to professional ethics.",
+      "We act honestly, communicate clearly, and place professional responsibility at the centre of every engagement.",
   },
   {
     title: "Excellence",
     description:
-      "We strive for the highest standards of legal practice through thorough preparation, continuous development, and meticulous attention to detail.",
+      "We pursue quality through rigorous analysis, precise execution, and a continuous commitment to improving our practice.",
   },
   {
     title: "Confidentiality",
     description:
-      "Protecting our clients’ information and interests remains one of our highest priorities.",
+      "We safeguard the information entrusted to us and exercise discretion at every stage of a matter.",
   },
   {
     title: "Professionalism",
     description:
-      "Every client receives respectful, responsive, and dedicated legal representation.",
+      "We bring discipline, respect, responsiveness, and sound judgment to every client relationship.",
   },
   {
     title: "Commitment",
     description:
-      "We approach every legal matter with determination, responsibility, and unwavering dedication.",
+      "We take ownership of our work and remain focused on the client’s objectives from instruction through resolution.",
   },
   {
     title: "Strategic Thinking",
     description:
-      "Legal challenges require more than technical knowledge—they require careful planning, sound judgment, and forward-thinking legal strategies.",
+      "We connect legal analysis with practical context to develop strategies that address immediate needs and longer-term consequences.",
   },
 ];
 
 // About page "Who we are" — Figma "who-we-are-section". The heading, then the
 // firm's mission and vision, each with its label set into the first line
-// (like the home page headings). Below, the core values sit in a row that
-// scrolls sideways when they don't all fit: swiped on touch screens,
-// dragged with a mouse, or (from 1024px) moved one value at a time by the
-// arrow buttons, which switch off at either end (use-carousel.ts).
+// (like the home page headings). Below, the core values as an editorial
+// index: a row per value between hairline rules, with its number, its
+// title in large type and a (+). Each row reveals as it scrolls in: its
+// rule draws in from the left (as the Team page dividers), then the
+// number and the (+) rise out of their masks with the title's line reveal.
+// Clicking or tapping a row opens it, showing its description and its
+// number in display type, and closes the one before; clicking it again
+// closes it. The first opens as part of its reveal, once its title is in,
+// so its description and number animate in too. (Not on hover: opening
+// changes the rows' heights, so the list would shift under the pointer.)
 export default function WhoWeAreSection() {
-  const listRef = useRef<HTMLUListElement>(null);
-  const { canScroll, step } = useCarousel(listRef);
+  const indexRef = useRef<HTMLDivElement>(null);
+  const [openIndex, setOpenIndex] = useState(-1);
+
+  useIndexReveal(indexRef, setOpenIndex);
 
   return (
     <section className="who-we-are" aria-labelledby="who-we-are-title">
       <div className="who-we-are-intro">
         <SectionHeading id="who-we-are-title" label="(Who we are)" className="who-we-are-heading">
-          As legal landscapes continue to evolve, our firm remains committed to
-          delivering modern legal solutions while maintaining the highest
-          standards of professional ethics and confidentiality.
+          We are an Egyptian law firm helping clients navigate complex legal
+          and commercial decisions with clarity, discipline, and confidence.
         </SectionHeading>
 
         <SectionHeading
@@ -68,8 +74,8 @@ export default function WhoWeAreSection() {
           labelClassName="header-4"
           className="who-we-are-statement"
         >
-          To provide reliable legal solutions that protect our clients’
-          interests with professionalism, integrity, and excellence.
+          To deliver clear, rigorous, and practical legal counsel that protects
+          our clients’ interests and supports sound decisions.
         </SectionHeading>
 
         <SectionHeading
@@ -80,40 +86,61 @@ export default function WhoWeAreSection() {
           labelClassName="header-4"
           className="who-we-are-statement"
         >
-          To become a leading legal institution in Egypt and the Arab region,
-          recognized for exceptional service, professionalism, trust, and
-          lasting client relationships.
+          To build a trusted Egyptian legal institution recognised for the
+          quality of its judgment, the strength of its relationships, and the
+          consistency of its service.
         </SectionHeading>
       </div>
 
-      <div className="core-values">
+      <div className="core-values" ref={indexRef}>
         <LineReveal as="h3" className="core-values-title cta-medium">
           (Our Core Values)
         </LineReveal>
 
-        <ul className="carousel core-values-list" id="core-values-list" ref={listRef}>
-          {CORE_VALUES.map((value, i) => (
-            <li className="core-value" key={value.title}>
-              <LineReveal className="core-value-number display-header-2">
-                {`${String(i + 1).padStart(2, "0")}.`}
-              </LineReveal>
-              <LineReveal as="h4" className="core-value-title header-3-semibold" delay={0.1}>
-                {value.title}
-              </LineReveal>
-              <LineReveal className="core-value-text body" delay={0.15}>
-                {value.description}
-              </LineReveal>
-            </li>
-          ))}
-        </ul>
-
-        <CarouselControls
-          className="core-values-controls"
-          controls="core-values-list"
-          canScroll={canScroll}
-          step={step}
-          itemName="value"
-        />
+        <ol className="values-index">
+          {CORE_VALUES.map((value, i) => {
+            const number = String(i + 1).padStart(2, "0");
+            const isOpen = i === openIndex;
+            return (
+              <li className={`values-index-item${isOpen ? " is-open" : ""}`} key={value.title}>
+                <span className="values-index-rule" aria-hidden="true" />
+                <h4 className="values-index-heading">
+                  <button
+                    type="button"
+                    className="values-index-toggle"
+                    aria-expanded={isOpen}
+                    aria-controls={`core-value-${i}`}
+                    onClick={() => setOpenIndex(isOpen ? -1 : i)}
+                  >
+                    <span className="values-index-number cta-medium">
+                      <span>{number}</span>
+                    </span>
+                    <LineReveal as="span" className="values-index-title header-1" delay={0.3}>
+                      {value.title}
+                    </LineReveal>
+                    {/* A + whose upright turns flat into a − as the row opens. */}
+                    <span className="values-index-sign cta-medium" aria-hidden="true">
+                      <span>
+                        (<span className="values-index-plus" />)
+                      </span>
+                    </span>
+                  </button>
+                </h4>
+                <div className="values-index-panel" id={`core-value-${i}`} inert={!isOpen}>
+                  <div className="values-index-panel-inner">
+                    <div className="values-index-body">
+                      <p className="values-index-text body">{value.description}</p>
+                      <span className="values-index-big display-header-2" aria-hidden="true">
+                        {number}.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {i === CORE_VALUES.length - 1 && <span className="values-index-rule" aria-hidden="true" />}
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );

@@ -12,7 +12,7 @@ type CarouselControlsProps = {
 // 1024px (see Carousel in globals.css).
 //
 //   const { canScroll, step } = useCarousel(listRef);
-//   <CarouselControls controls="core-values-list" canScroll={canScroll} step={step} itemName="value" />
+//   <CarouselControls controls="related-members-list" canScroll={canScroll} step={step} itemName="member" />
 export default function CarouselControls({
   controls,
   canScroll,
