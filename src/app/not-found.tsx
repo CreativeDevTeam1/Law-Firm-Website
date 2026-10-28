@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import NotFoundSection from "@/components/not-found-section";
+import NotFoundSection from "@/components/sections/not-found-section";
 
 export const metadata: Metadata = { title: "Page not found" };
 

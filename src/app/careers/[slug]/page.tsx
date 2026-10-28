@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import JobContent from "@/components/job-content";
-import OtherRoles from "@/components/other-roles";
+import JobContent from "@/components/sections/job-content";
+import OtherRoles from "@/components/sections/other-roles";
 import { getRole, otherRoles, roleGroup, ROLES } from "@/lib/careers";
 
 // Every role's page is built ahead of time; any other slug is a 404

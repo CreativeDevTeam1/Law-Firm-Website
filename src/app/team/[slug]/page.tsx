@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import PersonaProfile from "@/components/persona-profile";
-import RelatedMembers from "@/components/related-members";
+import PersonaProfile from "@/components/sections/persona-profile";
+import RelatedMembers from "@/components/sections/related-members";
 import { getMember, relatedMembers, TEAM } from "@/lib/team";
 
 // Every member's page is built ahead of time; any other slug is a 404

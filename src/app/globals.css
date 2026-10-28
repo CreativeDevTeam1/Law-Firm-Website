@@ -954,14 +954,117 @@
       justify-self: end;
     }
   }
+
+  /* Over the open mobile menu: light, whatever is underneath. */
+  .navbar.navbar-open,
+  .navbar-logo.navbar-open {
+    color: var(--color-neutral-100);
+    mix-blend-mode: normal;
+  }
+
+  /* Menu / Close, stacked in a one-line window; as on sunnybonnell.com. */
+  .navbar-menu-label {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .navbar-menu-label > span {
+    transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .navbar-menu-label > span:last-child {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(100%);
+  }
+
+  .is-open .navbar-menu-label > span:first-child {
+    transform: translateY(-100%);
+  }
+
+  .is-open .navbar-menu-label > span:last-child {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Mobile menu (mobile-menu.tsx) — under 1024px, as on sunnybonnell.com
+
+   Full screen and dark, under the navbar and logo (z-index 10 and 11), so
+   the Menu button becomes Close in place. Links sit in rows split by faint
+   rules. Hidden until the script positions it, and only shown while open.
+   ========================================================================== */
+
+@layer components {
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    overflow: hidden;
+    visibility: hidden;
+    background: var(--color-neutral-950);
+    color: var(--color-neutral-100);
+  }
+
+  .mobile-menu-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--number-48);
+    height: 100%;
+    overflow-y: auto;
+    padding-top: calc(var(--navbar-logo-height) + 2 * var(--navbar-padding-y));
+    padding-bottom: var(--navbar-padding-y);
+  }
+
+  .mobile-menu-list {
+    list-style: none;
+    border-block: 1px solid rgb(240 240 240 / 0.1); /* neutral-100 at 10% */
+  }
+
+  .mobile-menu-item {
+    overflow: hidden; /* the mask each link rises out of */
+  }
+
+  .mobile-menu-item + .mobile-menu-item {
+    border-top: 1px solid rgb(240 240 240 / 0.1);
+  }
+
+  .mobile-menu-item-inner {
+    transform-origin: left bottom;
+  }
+
+  .mobile-menu-link {
+    display: block;
+    padding: var(--number-20) var(--layout-padding-x) var(--number-16);
+  }
+
+  .mobile-menu-link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: calc(-1 * var(--number-4));
+  }
+
+  .mobile-menu-cta {
+    padding-inline: var(--layout-padding-x);
+  }
+
+  @media (min-width: 64rem) {
+    .mobile-menu {
+      display: none;
+    }
+  }
 }
 
 /* ==========================================================================
    Intro — opening loader on the home page (intro.tsx)
 
-   The firm's name sits in large type, split at the middle of the screen:
-   .intro-top above the middle, .intro-bottom below it. .intro-window is an
-   invisible marker for the small window the hero first opens into.
+   The firm's name sits in large type, centred on the screen and split
+   between its second and third lines: .intro-top above the split,
+   .intro-bottom below it. .intro-window is an invisible marker for the
+   small window the hero first opens into, centred on the split.
 
    Layering while it plays: dark page background, then the name, then the
    hero (z-index 1), which is clipped down to the window and grows over the
@@ -970,6 +1073,11 @@
    ========================================================================== */
 
 @layer components {
+  :root {
+    /* The firm's name in the intro and the page transition curtain. */
+    --brand-name-font-size: min(0.6 * var(--display-header-font-size), 11vw); /* 48px → 110px */
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     body:has(.intro) {
       background: var(--color-neutral-950);
@@ -994,6 +1102,7 @@
     overflow: hidden;
     pointer-events: none;
     color: var(--color-neutral-100);
+    font-size: var(--brand-name-font-size); /* so em below is the name's size */
     text-align: center;
     text-transform: uppercase;
   }
@@ -1001,7 +1110,6 @@
   .intro-text {
     font-family: var(--display-header-font-family), sans-serif;
     font-weight: var(--display-header-font-weight);
-    font-size: min(var(--display-header-font-size), 14vw);
     line-height: 0.85;
     letter-spacing: -0.05em;
   }
@@ -1012,17 +1120,19 @@
     inset-inline: 0;
   }
 
+  /* Three 0.85em lines centred on the screen put the split half a line
+     below the middle. */
   .intro-top {
-    bottom: 50%;
+    bottom: calc(50% - 0.425em);
   }
 
   .intro-bottom {
-    top: 50%;
+    top: calc(50% + 0.425em);
   }
 
   .intro-window {
     position: absolute;
-    top: 50%;
+    top: calc(50% + 0.425em);
     left: 50%;
     width: clamp(12.5rem, 7.8571rem + 19.0476vw, 25rem); /* 200px → 400px */
     aspect-ratio: 16 / 10;
@@ -1049,6 +1159,22 @@
     position: relative;
     overflow: hidden;
     color: var(--color-neutral-100);
+  }
+
+  /* The photo is zoomed in on Shady: its box is --hero-zoom times the
+     section's size, offset so the point where his face sits (49% across,
+     30% down) stays put. Done with the box, not a transform, so the intro
+     (intro.tsx) can still transform the photo freely. */
+  .hero-media {
+    --hero-zoom: 1.15;
+    --hero-focus-x: 49%;
+    --hero-focus-y: 30%;
+
+    position: absolute;
+    top: calc(var(--hero-focus-y) * (1 - var(--hero-zoom)));
+    left: calc(var(--hero-focus-x) * (1 - var(--hero-zoom)));
+    width: calc(100% * var(--hero-zoom));
+    height: calc(100% * var(--hero-zoom));
   }
 
   .hero-image {
@@ -4163,6 +4289,221 @@
       grid-column: 10 / -1;
       grid-row: 1;
       justify-self: end;
+    }
+  }
+}
+
+/* Page transition (page-transition.tsx). The curtain's timings and eases are
+   copied from sunnybonnell.com's page transition (Taxi.js + GSAP), with a
+   short hold added while the screen is covered so the firm's name can be
+   read:
+   0–1s      the curtain wipes up over the old page, which dims to 70%;
+             the name rises in, line by line, behind the curtain's edge
+   1–1.5s    held; the name rests in the middle
+   1.5–2.5s  the curtain wipes off upwards and the name rises out; the new
+             page brightens back
+   GSAP eases as CSS: power1.inOut, power3.in, power3.inOut, power4.inOut,
+   power4.out. */
+@layer components {
+  :root {
+    --page-curtain-cover: 1s;
+    --page-curtain-reveal: 1s;
+    --page-reveal-start: 1.5s; /* cover + hold */
+    --ease-power1-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+    --ease-power3-in: cubic-bezier(0.32, 0, 0.67, 0);
+    --ease-power3-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-power4-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+    --ease-power4-out: cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* See-through: it is captured so the curtain has a full-screen group to
+     draw on. The name only shows while a transition runs, so it appears in
+     the snapshots and never on the page itself. (Browsers without
+     :active-view-transition get the curtain without the name.) */
+  .page-curtain {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    pointer-events: none;
+    color: var(--color-neutral-100);
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  /* Set as .intro-text, the opening loader's name. */
+  .page-curtain-text {
+    visibility: hidden;
+    font-family: var(--display-header-font-family), sans-serif;
+    font-weight: var(--display-header-font-weight);
+    font-size: var(--brand-name-font-size);
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+  }
+
+  /* Each line is captured on its own, so it can rise through its own box
+     like the loader's masked lines. */
+  :root:active-view-transition .page-curtain-text {
+    visibility: visible;
+    view-transition-class: page-curtain-text;
+  }
+
+  :root:active-view-transition .page-curtain-text:nth-child(1) {
+    view-transition-name: page-curtain-text-1;
+  }
+
+  :root:active-view-transition .page-curtain-text:nth-child(2) {
+    view-transition-name: page-curtain-text-2;
+  }
+
+  :root:active-view-transition .page-curtain-text:nth-child(3) {
+    view-transition-name: page-curtain-text-3;
+  }
+
+  ::view-transition-group(.page-curtain) {
+    z-index: 1; /* above the page */
+    background: var(--color-neutral-950);
+    animation:
+      page-curtain-cover var(--page-curtain-cover) var(--ease-power3-in-out) both,
+      page-curtain-reveal var(--page-curtain-reveal) var(--ease-power4-in-out) var(--page-reveal-start) forwards;
+  }
+
+  ::view-transition-new(.page-curtain) {
+    animation: none;
+  }
+
+  /* The line's box is the mask, as in the loader. */
+  ::view-transition-group(.page-curtain-text) {
+    z-index: 2; /* above the curtain */
+    overflow: clip;
+    animation: none;
+  }
+
+  /* The previous page's copy of the name. */
+  ::view-transition-old(.page-curtain-text) {
+    display: none;
+  }
+
+  /* The loader's line rise (power4.out, 0.1s apart), shortened to 0.7s to
+     fit the curtain. The first line starts once the curtain has passed it. */
+  ::view-transition-new(.page-curtain-text) {
+    animation:
+      page-text-in 0.7s var(--ease-power4-out) var(--page-text-delay) both,
+      page-text-out 0.5s var(--ease-power3-in) var(--page-reveal-start) forwards;
+  }
+
+  ::view-transition-new(page-curtain-text-1) {
+    --page-text-delay: 0.55s;
+  }
+
+  ::view-transition-new(page-curtain-text-2) {
+    --page-text-delay: 0.65s;
+  }
+
+  ::view-transition-new(page-curtain-text-3) {
+    --page-text-delay: 0.75s;
+  }
+
+  /* The old page stays put and dims (sunnybonnell's black overlay at 30%),
+     and goes once the curtain covers the screen. */
+  ::view-transition-old(.page-old) {
+    animation:
+      page-dim 0.8s var(--ease-power3-in-out) forwards,
+      page-hide var(--page-reveal-start) steps(1, end) forwards;
+  }
+
+  /* The new page is hidden until the curtain starts to lift, then starts
+     dimmed and brightens as it goes. */
+  ::view-transition-new(.page-new) {
+    animation:
+      page-hold var(--page-reveal-start) steps(1, end) both,
+      page-brighten var(--page-curtain-reveal) var(--ease-power1-in-out) var(--page-reveal-start) both;
+  }
+
+  @keyframes page-curtain-cover {
+    from {
+      clip-path: inset(100% 0 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes page-curtain-reveal {
+    from {
+      clip-path: inset(0 0 0 0);
+    }
+    to {
+      clip-path: inset(0 0 100% 0);
+    }
+  }
+
+  @keyframes page-text-in {
+    from {
+      translate: 0 100%;
+    }
+    to {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes page-text-out {
+    from {
+      translate: 0 0;
+    }
+    to {
+      translate: 0 -100%;
+    }
+  }
+
+  @keyframes page-dim {
+    to {
+      filter: brightness(0.7);
+    }
+  }
+
+  @keyframes page-hide {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes page-hold {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes page-brighten {
+    from {
+      filter: brightness(0.7);
+    }
+    to {
+      filter: brightness(1);
+    }
+  }
+
+  /* Reduced motion: pages swap straight away. */
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+
+    ::view-transition-group(.page-curtain) {
+      background: none;
+    }
+
+    :root:active-view-transition .page-curtain-text {
+      visibility: hidden;
     }
   }
 }

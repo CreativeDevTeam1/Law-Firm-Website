@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import ClientIntakeForm from "@/components/client-intake-form";
+import ClientIntakeForm from "@/components/forms/client-intake-form";
 
 export const metadata: Metadata = { title: "Client intake" };
 

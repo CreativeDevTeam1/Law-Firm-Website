@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import ArticleContent from "@/components/article-content";
-import RelatedArticles from "@/components/related-articles";
+import ArticleContent from "@/components/sections/article-content";
+import RelatedArticles from "@/components/sections/related-articles";
 import { ARTICLES, getArticle, relatedArticles } from "@/lib/news";
 
 // Every article's page is built ahead of time; any other slug is a 404

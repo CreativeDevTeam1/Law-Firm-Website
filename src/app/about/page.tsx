@@ -1,7 +1,7 @@
-import HeroSection from "@/components/hero-section";
-import ImageReveal from "@/components/image-reveal";
-import PracticeAreasSection from "@/components/practice-areas-section";
-import WhoWeAreSection from "@/components/who-we-are-section";
+import HeroSection from "@/components/sections/hero-section";
+import ImageReveal from "@/components/ui/image-reveal";
+import PracticeAreasSection from "@/components/sections/practice-areas-section";
+import WhoWeAreSection from "@/components/sections/who-we-are-section";
 
 export default function About() {
   return (

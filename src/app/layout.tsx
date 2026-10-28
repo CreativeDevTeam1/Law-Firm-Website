@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import Footer from "@/components/footer";
-import Navbar from "@/components/navbar";
-import SmoothScroll from "@/components/smooth-scroll";
+import Footer from "@/components/layout/footer";
+import Navbar from "@/components/layout/navbar";
+import PageTransition from "@/components/layout/page-transition";
+import SmoothScroll from "@/components/layout/smooth-scroll";
 import "./globals.css";
 
 // Only the weights the design system uses (--font-weight-book/medium/semibold).
@@ -40,9 +41,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           React loads; this ignores those attribute differences on <body> only. */}
       <body suppressHydrationWarning>
         <SmoothScroll>
-          <Navbar />
-          {children}
-          <Footer />
+          <PageTransition>
+            <Navbar />
+            {children}
+            <Footer />
+          </PageTransition>
         </SmoothScroll>
       </body>
     </html>
