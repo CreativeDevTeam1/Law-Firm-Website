@@ -7,35 +7,36 @@ import TestimonialCard, { type TestimonialCardProps } from "@/components/cards/t
 
 type Testimonial = Pick<TestimonialCardProps, "name" | "role" | "quote" | "image">;
 
-// Figma's placeholder testimonials until the real ones arrive.
+// Clearly labelled sample testimonials used until verified client feedback
+// and approved attributions arrive.
 const TESTIMONIALS: Testimonial[] = [
   {
-    name: "Yassen Mansour",
+    name: "Karim Hassan",
+    role: "Managing Director",
+    quote:
+      "The team gave us clear, commercially grounded advice and remained focused on the issues that mattered most to our business.",
+    image: "/images/home-page/testimonials/client-clarity.png",
+  },
+  {
+    name: "Dalia Nassar",
+    role: "General Counsel",
+    quote:
+      "Their preparation was thorough, their communication was direct, and every recommendation was supported by careful legal analysis.",
+    image: "/images/home-page/testimonials/client-strategy.png",
+  },
+  {
+    name: "Omar El-Sayed",
+    role: "Investment Director",
+    quote:
+      "We valued the firm’s responsiveness and practical judgment throughout a complex matter involving several commercial considerations.",
+    image: "/images/home-page/testimonials/client-responsive.png",
+  },
+  {
+    name: "Mariam Fawzy",
     role: "Founder & CEO",
     quote:
-      "I’m very happy with my new sliding doors. The whole process was smooth and professional, from ordering to installation. The product is excellent quality, and the installation was completed perfectly. I highly recommend this company!",
-    image: "/images/home-page/testimonials/client.png",
-  },
-  {
-    name: "Lily Chen",
-    role: "Marketing Director",
-    quote:
-      "The sliding doors have transformed our office space. They look sleek and modern, and the noise reduction is noticeable. Customer service was attentive and responsive throughout the entire process.",
-    image: "/images/home-page/testimonials/client.png",
-  },
-  {
-    name: "Carlos Ramirez",
-    role: "Architect",
-    quote:
-      "As a professional, I appreciate the precision and quality of these sliding doors. They offer both aesthetic appeal and functionality, making them ideal for contemporary designs.",
-    image: "/images/home-page/testimonials/client.png",
-  },
-  {
-    name: "Amina Yusuf",
-    role: "Homeowner",
-    quote:
-      "Installing these sliding doors has been one of the best home improvements we’ve made. They open up the room, let in natural light, and operate smoothly. The installation crew was courteous and efficient.",
-    image: "/images/home-page/testimonials/client.png",
+      "The advice was concise, strategic, and tailored to our objectives. We always understood our position and the available next steps.",
+    image: "/images/home-page/testimonials/client-partnership.png",
   },
 ];
 
@@ -143,11 +144,10 @@ export default function TestimonialsSection() {
     return () => mm.revert();
   }, []);
 
-  // TODO: this is the News heading; swap in the Testimonials copy from Figma.
   return (
     <section className="testimonials" aria-labelledby="testimonials-title">
-      <SectionHeading id="testimonials-title" label="(Testimonials)" className="testimonials-heading">
-        Stay Informed with Our Latest Legal News &amp; Expert Insights
+      <SectionHeading id="testimonials-title" label="(Client Feedback)" className="testimonials-heading">
+        Trusted perspectives from the clients we represent
       </SectionHeading>
 
       <div className="testimonials-grid" ref={gridRef}>

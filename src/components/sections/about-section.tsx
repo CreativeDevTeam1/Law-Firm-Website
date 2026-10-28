@@ -7,29 +7,31 @@ export default function AboutSection() {
       <div className="about-heading">
         <LineReveal className="about-label cta-medium">(About)</LineReveal>
         <LineReveal as="h2" id="about-title" className="about-title header-1">
-          Shady El-Barkoky Law Firm is a full-service Egyptian law firm based in
-          New Cairo, providing legal representation, consultation, and strategic
-          solutions across all major areas of law.
+          An Egyptian law firm combining rigorous preparation, commercial
+          judgment, and committed representation across every stage of a
+          matter.
         </LineReveal>
       </div>
 
       <LineReveal as="h3" className="about-subtitle header-3-medium">
-        As laws evolve
+        Counsel shaped around the matter at hand.
       </LineReveal>
 
       <div className="about-content">
         <LineReveal className="about-text body">
-          Built upon professionalism, integrity, and client-focused
-          representation, the firm serves individuals, corporations, investors,
-          entrepreneurs, and institutions seeking dependable legal counsel in an
-          increasingly complex legal and commercial environment.
+          Based in New Cairo, Shady El-Barkoky Law Firm advises businesses,
+          institutions, investors, and individuals across corporate,
+          commercial, dispute, and private-client matters. Each engagement
+          begins with a clear understanding of the legal position, the
+          client&apos;s objectives, and the wider context in which decisions are
+          made.
         </LineReveal>
         <LineReveal className="about-text body" delay={0.1}>
-          Our multidisciplinary approach enables us to address legal matters
-          from both practical and strategic perspectives. Every instruction
-          entrusted to our firm is handled with meticulous preparation, careful
-          analysis, and unwavering dedication to protecting our clients&apos;
-          legal and commercial interests.
+          Working across disciplines allows the firm to address immediate
+          legal questions without losing sight of their practical and
+          commercial consequences. From preventive advice and negotiations to
+          complex proceedings, we deliver focused strategies designed to
+          protect our clients&apos; interests and support confident decisions.
         </LineReveal>
         <TextLink href="/about" size="medium" icon="arrow-right" reveal>
           More about the firm

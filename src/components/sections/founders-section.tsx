@@ -9,13 +9,12 @@ import TextLink from "@/components/ui/text-link";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Names and roles are Figma's placeholders until the real ones arrive. The
-// photo positions are Figma's crops.
+// Fictional working names and roles until the verified partner profiles arrive.
 const FOUNDERS: TeamsCardProps[] = [
-  { name: "Shady el Barkoky", role: "16 May 2026", photo: "/images/home-page/founders/founder-1.png", photoPosition: "21% 0", href: "/team" },
-  { name: "Shady el Barkoky", role: "16 May 2026", photo: "/images/home-page/founders/founder-2.png", photoPosition: "70% 0", href: "/team" },
-  { name: "Shady el Barkoky", role: "16 May 2026", photo: "/images/home-page/founders/founder-3.png", photoPosition: "39% 0", href: "/team" },
-  { name: "Shady el Barkoky", role: "16 May 2026", photo: "/images/home-page/founders/founder-4.png", photoPosition: "41% 0", href: "/team" },
+  { name: "Karim El-Masry", role: "Managing Partner", photo: "/images/home-page/founders/partner-cinematic-1.png", href: "/team" },
+  { name: "Nouran Khalil", role: "Partner, Corporate & Commercial", photo: "/images/home-page/founders/partner-cinematic-2.png", href: "/team" },
+  { name: "Ahmed Nassar", role: "Partner, Dispute Resolution", photo: "/images/home-page/founders/partner-cinematic-3.png", href: "/team" },
+  { name: "Salma Farouk", role: "Partner, Investment & Regulatory", photo: "/images/home-page/founders/partner-cinematic-4.png", href: "/team" },
 ];
 
 // Home page "Partners Behind the Firm" — Figma "founders-section".
@@ -47,8 +46,14 @@ export default function FoundersSection() {
       // screen between the navbar and an equal space at the bottom, less
       // room for the fan's 40px lift: bigger on tall screens, smaller on
       // short ones, never under the navbar.
+      // Each card also takes its spot's height first: the spots in the row
+      // are all as tall as the tallest card, so the cards land level (they
+      // land by their centres) whichever names and roles wrap.
       let zoom = 1;
       const measureZoom = () => {
+        frames.forEach((frame, i) => {
+          frame.style.height = `${targets[i].offsetHeight}px`;
+        });
         const navbar = document.querySelector<HTMLElement>(".navbar")?.offsetHeight ?? 0;
         zoom = (window.innerHeight - 2 * navbar - 80) / frames[0].offsetHeight;
       };
@@ -97,6 +102,7 @@ export default function FoundersSection() {
       return () => {
         fan.scrollTrigger?.kill();
         land.kill();
+        frames.forEach((frame) => frame.style.removeProperty("height"));
       };
     });
 

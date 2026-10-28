@@ -25,15 +25,14 @@ export default function HeroSection() {
 
       <div className="hero-intro">
         <LineReveal className="hero-quote header-2-medium">
-          &quot;Legal excellence is not measured by words—it is demonstrated
-          through preparation, integrity, and unwavering commitment to every
-          client we represent.&quot;
+          &quot;Legal excellence is measured not by words, but by preparation,
+          integrity, and unwavering commitment to every client we
+          represent.&quot;
         </LineReveal>
         <LineReveal className="hero-description body" delay={0.15}>
-          Providing comprehensive legal services across a broad spectrum of
-          practice areas, Shady El-Barkoky Law Firm serves individuals,
-          corporations, investors, entrepreneurs, and institutions with
-          dedication, professionalism, and strategic legal insight.
+          Shady El-Barkoky Law Firm advises individuals, businesses, investors,
+          and institutions across a broad range of legal matters, combining
+          careful analysis with practical, strategically informed counsel.
         </LineReveal>
       </div>
     </section>

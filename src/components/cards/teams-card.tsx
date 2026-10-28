@@ -39,7 +39,7 @@ export default function TeamsCard({
           src={photo}
           alt=""
           fill
-          sizes="(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 100vw"
+          sizes="(min-width: 64rem) 25vw, (min-width: 30rem) 50vw, 100vw"
           style={photoPosition ? { objectPosition: photoPosition } : undefined}
         />
       </div>

@@ -27,7 +27,7 @@ export default function NewsCard({ date, title, image, href, className = "" }: N
           src={image}
           alt=""
           fill
-          sizes="(min-width: 64rem) 25vw, (min-width: 40rem) 50vw, 100vw"
+          sizes="(min-width: 64rem) 25vw, (min-width: 30rem) 50vw, 100vw"
         />
       </div>
       <div className="news-card-info">

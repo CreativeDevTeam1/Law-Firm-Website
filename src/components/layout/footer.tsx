@@ -152,7 +152,7 @@ export default function Footer() {
           </LineReveal>
           <div className="footer-cta">
             <TextLink href="/client-intake" size="big" icon="arrow-up-right" reveal revealDelay={0.15}>
-              Let&rsquo;s Talk
+              Consult Us
             </TextLink>
           </div>
         </div>

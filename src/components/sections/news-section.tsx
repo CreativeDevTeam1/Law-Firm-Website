@@ -45,12 +45,12 @@ export default function NewsSection() {
   return (
     <section className="news" aria-labelledby="news-title">
       <SectionHeading id="news-title" label="(News & Articles)" className="news-heading">
-        Stay Informed with Our Latest Legal News &amp; Expert Insights
+        Perspectives on law, business, and the decisions shaping both
       </SectionHeading>
 
       <div className="news-link">
         <TextLink href="/news" size="medium" icon="arrow-right" reveal>
-          Browse all our news
+          Explore all insights
         </TextLink>
       </div>
 

@@ -104,7 +104,7 @@ export default function MobileMenu({ id, links, pathname, isOpen, onClose }: Mob
               icon="arrow-up-right"
               onClick={closeIfCurrent("/client-intake")}
             >
-              Let&apos;s Talk
+              Consult Us
             </TextLink>
           </div>
         </div>

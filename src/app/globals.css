@@ -190,8 +190,8 @@
     --layout-padding-x: clamp(var(--number-16), 0.2571rem + 3.0476vw, var(--number-48)); /* 16px → 48px */
     --layout-padding-y: clamp(var(--number-40), 1.5714rem + 3.8095vw, var(--number-80)); /* 40px → 80px */
     /* Above and below each page section, so two sections sit twice this
-       apart: 160px on phones to 320px at 1440px (and on up with the site). */
-    --section-padding-y: clamp(var(--number-80), 3.1429rem + 7.619vw, var(--number-160)); /* 80px → 160px */
+       apart: 128px on phones to 320px at 1440px (and on up with the site). */
+    --section-padding-y: clamp(var(--number-64), 1.7714rem + 9.1429vw, var(--number-160)); /* 64px → 160px */
     --layout-col-gap: clamp(var(--number-12), 0.4714rem + 1.1429vw, var(--number-24)); /* 12px → 24px */
 
     /* Navbar */
@@ -207,37 +207,41 @@
 
     /* About */
     --about-padding-x: clamp(var(--number-24), 0.9429rem + 2.2857vw, var(--number-48)); /* 24px → 48px */
-    --about-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --about-padding-y: var(--section-padding-y); /* 64px → 160px */
     --about-row-gap: clamp(var(--number-64), 3.6286rem + 1.5238vw, var(--number-80)); /* 64px → 80px */
     --about-content-gap: clamp(var(--number-24), 1.3143rem + 0.7619vw, var(--number-32)); /* 24px → 32px */
 
     /* Clients */
     --clients-padding-x: var(--about-padding-x); /* 24px → 48px */
-    --clients-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --clients-padding-y: var(--section-padding-y); /* 64px → 160px */
     --clients-row-gap: var(--about-row-gap); /* 64px → 80px */
     --clients-card-gap: clamp(var(--number-16), 0.8429rem + 0.7619vw, var(--number-24)); /* 16px → 24px */
-    --clients-card-padding: var(--number-16); /* 16px */
+    --clients-card-padding: var(--card-padding); /* 12px → 16px */
     --clients-logo-size: clamp(var(--number-96), 4.8857rem + 4.5714vw, var(--number-144)); /* 96px → 144px */
 
     /* Founders */
     --founders-padding-x: var(--about-padding-x); /* 24px → 48px */
-    --founders-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --founders-padding-y: var(--section-padding-y); /* 64px → 160px */
     --founders-row-gap: var(--about-row-gap); /* 64px → 80px */
 
     /* Cards (teams-card.tsx, news-card.tsx) and the grids they sit in */
     --card-gap: var(--clients-card-gap); /* 16px → 24px */
-    --card-padding: var(--number-16); /* 16px */
+    --card-padding: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px */
     --card-content-gap: clamp(var(--number-16), 0.6286rem + 1.5238vw, var(--number-32)); /* 16px → 32px */
     --card-info-gap: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px */
+    /* Text inside the cards: smaller than the Header 3 / Body / CTA Small
+       styles they're set in, for the card size. */
+    --card-title-font-size: clamp(var(--number-16), 0.9071rem + 0.381vw, var(--number-20)); /* 16px → 20px */
+    --card-text-font-size: clamp(0.8125rem, 0.7893rem + 0.0952vw, var(--number-14)); /* 13px → 14px */
 
     /* News & Articles */
     --news-padding-x: var(--about-padding-x); /* 24px → 48px */
-    --news-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --news-padding-y: var(--section-padding-y); /* 64px → 160px */
     --news-row-gap: var(--about-row-gap); /* 64px → 80px */
 
     /* Testimonials */
     --testimonials-padding-x: var(--about-padding-x); /* 24px → 48px */
-    --testimonials-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --testimonials-padding-y: var(--section-padding-y); /* 64px → 160px */
     --testimonials-row-gap: var(--about-row-gap); /* 64px → 80px */
     --testimonials-card-gap: var(--number-24); /* 24px */
     --testimonials-grid-row-gap: var(--number-25); /* 25px */
@@ -274,7 +278,7 @@
 
     /* Practice area (About page) */
     --practice-areas-padding-x: var(--layout-padding-x); /* 16px → 48px */
-    --practice-areas-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --practice-areas-padding-y: var(--section-padding-y); /* 64px → 160px */
     --practice-areas-header-gap: calc(2 * var(--layout-padding-y)); /* 80px → 160px, under the heading: as Who we are → Core values */
     --practice-areas-row-gap: clamp(var(--number-40), 1.9429rem + 2.2857vw, var(--number-64)); /* 40px → 64px, between card rows */
     --practice-card-info-gap: clamp(var(--number-12), 0.6571rem + 0.381vw, var(--number-16)); /* 12px → 16px, photo to text */
@@ -284,14 +288,14 @@
 
     /* News list (News page) */
     --news-list-padding-x: var(--layout-padding-x); /* 16px → 48px */
-    --news-list-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --news-list-padding-y: var(--section-padding-y); /* 64px → 160px */
     --news-list-gap: calc(2 * var(--layout-padding-y)); /* 80px → 160px, heading to the cards: as Team */
     --news-list-col-gap: var(--layout-col-gap); /* 12px → 24px */
     --news-list-row-gap: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px */
 
     /* Team (Team page) */
     --team-padding-x: var(--layout-padding-x); /* 16px → 48px */
-    --team-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --team-padding-y: var(--section-padding-y); /* 64px → 160px */
     --team-header-gap: calc(2 * var(--layout-padding-y)); /* 80px → 160px, heading to the groups: as Practice area */
     --team-group-gap: var(--about-row-gap); /* 64px → 80px, between groups (Figma 80px) */
     --team-group-head-gap: var(--number-16); /* 16px, divider to label */
@@ -301,7 +305,7 @@
 
     /* Careers (Careers page) */
     --careers-padding-x: var(--layout-padding-x); /* 16px → 48px */
-    --careers-padding-y: var(--section-padding-y); /* 80px → 160px */
+    --careers-padding-y: var(--section-padding-y); /* 64px → 160px */
     --careers-header-gap: calc(2 * var(--layout-padding-y)); /* 80px → 160px, heading to the content: as Team */
     --careers-group-gap: var(--about-row-gap); /* 64px → 80px, between groups: as Team */
     --careers-group-head-gap: var(--number-16); /* 16px, divider to label: as Team */
@@ -335,7 +339,7 @@
     --intake-step-gap: var(--number-32); /* 32px, a section's title, text and fields */
     --intake-step-head-gap: var(--layout-padding-y); /* 40px → 80px, a section's title and text to its fields */
     --intake-documents-top: var(--number-48); /* 48px more above the upload, so 80px from the brief */
-    --intake-step-padding-bottom: var(--section-padding-y); /* 80px → 160px, a section to the next one's line */
+    --intake-step-padding-bottom: var(--section-padding-y); /* 64px → 160px, a section to the next one's line */
     --intake-index-top: var(--number-120); /* 120px, how far below the screen's top the index sticks */
     --intake-index-gap: var(--number-8); /* 8px, between the index's links */
     --intake-option-gap: var(--number-16); /* 16px, between option cards */
@@ -771,7 +775,7 @@
 
    Pinned over the top of the page. Phones: short logo and a Menu button.
    From 1024px: full logo, links from column 7 of a 12-column grid, and
-   "Let's Talk" on the right. The links are <TextLink>s (see Text link).
+   "Consult Us" on the right. The links are <TextLink>s (see Text link).
    The logo and links are light over the hero and turn dark once it has
    scrolled past. The logos and the menu icon are drawn as CSS masks filled
    with the text colour, so their colour follows the tokens.
@@ -868,8 +872,7 @@
   }
 
   .navbar-logo-full,
-  .navbar-logo-short,
-  .navbar-icon {
+  .navbar-logo-short {
     display: block;
     background-color: currentColor;
     mask-repeat: no-repeat;
@@ -888,16 +891,6 @@
     width: calc(var(--navbar-logo-height) * 38 / 24); /* 28.5px; the SVG is 38 × 24 */
     height: var(--navbar-logo-height);
     mask-image: url("/images/logo/res-logo.svg");
-  }
-
-  .navbar-icon {
-    flex-shrink: 0;
-    width: var(--number-16);
-    height: var(--number-16);
-  }
-
-  .navbar-icon-menu {
-    mask-image: url("/images/icons/menu.svg");
   }
 
   .navbar-menu-button {
@@ -987,6 +980,62 @@
 
   .is-open .navbar-menu-label > span:last-child {
     transform: none;
+  }
+
+  /* The hamburger, drawn as menu.svg (16px: three 12px lines, 1px thick,
+     4px apart) so its lines can move. Open, the middle one shrinks away and
+     the outer two meet in the middle and turn into an X, with the label's
+     timing. */
+  .navbar-menu-icon {
+    position: relative;
+    flex-shrink: 0;
+    width: var(--number-16);
+    height: var(--number-16);
+  }
+
+  .navbar-menu-icon > span {
+    position: absolute;
+    left: 12.5%;
+    width: 75%;
+    height: calc(var(--number-16) / 16);
+    margin-top: calc(var(--number-16) / -32);
+    border-radius: 999px;
+    background: currentColor;
+    transition:
+      transform 1s cubic-bezier(0.23, 1, 0.32, 1),
+      opacity 0.3s ease;
+  }
+
+  .navbar-menu-icon > span:nth-child(1) {
+    top: 25%;
+  }
+
+  .navbar-menu-icon > span:nth-child(2) {
+    top: 50%;
+  }
+
+  .navbar-menu-icon > span:nth-child(3) {
+    top: 75%;
+  }
+
+  .is-open .navbar-menu-icon > span:nth-child(1) {
+    transform: translateY(calc(var(--number-16) / 4)) rotate(45deg);
+  }
+
+  .is-open .navbar-menu-icon > span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .is-open .navbar-menu-icon > span:nth-child(3) {
+    transform: translateY(calc(var(--number-16) / -4)) rotate(-45deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .navbar-menu-label > span,
+    .navbar-menu-icon > span {
+      transition: none;
+    }
   }
 }
 
@@ -1226,8 +1275,10 @@
    down so the two baselines line up (0.775 × the difference in font size,
    measured from Figma at both sizes).
 
-   Phones stack everything. From 1024px "As laws evolve" takes columns 1–2
-   and the text columns 6–9.
+   Phones stack everything. From 768px the subtitle and the text stack in
+   the second of two columns under the heading. From 1024px the subtitle takes
+   columns 1–3 of the 12 and the text columns 6–9. The subtitle is always
+   two lines.
    ========================================================================== */
 
 @layer components {
@@ -1271,6 +1322,23 @@
     text-indent: var(--about-title-indent);
   }
 
+  /* Under 1024px: label above the title, no indent (as .section-heading). */
+  @media (max-width: 63.999rem) {
+    .about-heading {
+      row-gap: var(--heading-label-gap);
+    }
+
+    .about-label {
+      margin-top: 0;
+    }
+
+    .about-title {
+      --about-title-indent: 0;
+
+      grid-area: 2 / 1;
+    }
+  }
+
   .about-subtitle,
   .about-content {
     align-self: start;
@@ -1285,6 +1353,34 @@
 
   .about-text {
     color: var(--color-neutral-700);
+  }
+
+  /* The subtitle always takes two lines, breaking after "around": "Counsel
+     shaped around" is 10.6em wide and "… around the" 12.3em, so a width
+     between the two splits it there at any size. A width rather than a
+     maximum: at 1024px its three columns are a little narrower than the
+     first line, and it runs on into the empty fourth. (Not a <br>: the line
+     split would keep breaking at it even if it were hidden.) */
+  .about-subtitle {
+    width: 11.4em;
+  }
+
+  /* Tablets (768px–1023px): two columns under the full-width heading, with
+     the subtitle and the text stacked in the second. */
+  @media (min-width: 48rem) and (max-width: 63.999rem) {
+    .about {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .about-heading {
+      grid-column: 1 / -1;
+    }
+
+    .about-subtitle,
+    .about-content {
+      grid-column: 2;
+    }
   }
 
   @media (min-width: 64rem) {
@@ -1303,7 +1399,7 @@
     }
 
     .about-subtitle {
-      grid-column: 1 / span 2;
+      grid-column: 1 / span 3;
     }
 
     .about-content {
@@ -1317,9 +1413,10 @@
 
    The heading works like the About one: "(Our Clients)" sits on the first
    line of the title, which is indented to make room for it. Phones stack
-   the title, the link and a 2-column grid of logo cards. From 1024px the
-   link sits beside the title, against the right edge, and the grid has 4
-   columns.
+   the title, the link and a 2-column grid of logo cards (4 rows). From
+   768px the title takes two of three columns, the link its own row, and
+   the grid is 3 columns by 2 rows. From 1024px the link sits beside
+   the title, against the right edge, and the grid is 4 columns by 2 rows.
 
    clients-section.tsx slides the cards in and swaps their logos.
    ========================================================================== */
@@ -1363,6 +1460,23 @@
     text-indent: var(--clients-title-indent);
   }
 
+  /* Under 1024px: label above the title, no indent (as .section-heading). */
+  @media (max-width: 63.999rem) {
+    .clients-heading {
+      row-gap: var(--heading-label-gap);
+    }
+
+    .clients-label {
+      margin-top: 0;
+    }
+
+    .clients-title {
+      --clients-title-indent: 0;
+
+      grid-area: 2 / 1;
+    }
+  }
+
   .clients-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1386,6 +1500,33 @@
     height: auto;
     aspect-ratio: 1;
     object-fit: contain;
+  }
+
+  /* Tablets (768px–1023px): on three columns, the heading takes the first
+     two and the link its own row below; the logos are three columns by two
+     rows, so the last two of the eight cards are left out. */
+  @media (min-width: 48rem) and (max-width: 63.999rem) {
+    .clients {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .clients-heading {
+      grid-column: 1 / span 2;
+    }
+
+    .clients-link,
+    .clients-grid {
+      grid-column: 1 / -1;
+    }
+
+    .clients-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .clients-card:nth-child(n + 7) {
+      display: none;
+    }
   }
 
   @media (min-width: 64rem) {
@@ -1461,14 +1602,24 @@
     object-fit: cover;
   }
 
+  /* Fills the rest of the card, with "Know more" at the bottom, so cards
+     in a row end level however the name and role wrap. */
   .teams-card-info {
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--card-info-gap);
   }
 
+  .teams-card-info .text-link,
+  .news-card-info .text-link {
+    margin-top: auto;
+    font-size: var(--card-text-font-size);
+  }
+
   .teams-card-name {
+    font-size: var(--card-title-font-size);
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
@@ -1478,6 +1629,7 @@
   }
 
   .teams-card-role {
+    font-size: var(--card-text-font-size);
     color: var(--color-neutral-700);
   }
 }
@@ -1490,7 +1642,7 @@
    indented as in Figma's columns 4, 2 and 4 and centred, with the link
    under "the Firm", then from 1024px at the right edge on the last line's
    baseline. Below, the founder cards: one column
-   on phones, two from 640px, four in a row from 1024px.
+   on phones, two from 480px, four in a row from 1024px.
 
    From 1024px with motion, founders-section.tsx stacks the cards over the
    pinned heading before they land in the row; the "Stacked cards" rules
@@ -1558,7 +1710,16 @@
     display: none;
   }
 
-  @media (min-width: 40rem) {
+  /* In the plain grid, the card fills its slot, so the cards in a row are
+     as tall as each other. (Stacked, founders-section.tsx sizes them.) */
+  @media (max-width: 63.999rem) {
+    .founders-frame {
+      height: 100%;
+    }
+  }
+
+  /* Two columns from 480px, as the News page's grid. */
+  @media (min-width: 30rem) {
     .founders-cards,
     .founders-targets {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1729,7 +1890,7 @@
    The heading works like the Clients one: "(News & Articles)" sits on the
    first line of the title, indented to make room for it, and from 1024px
    "Browse all our news" sits beside it against the right edge. Below, the
-   article cards (news-card.tsx): one column on phones, two from 640px,
+   article cards (news-card.tsx): one column on phones, two from 480px,
    four from 1024px. The cards share the card tokens with the teams card.
    ========================================================================== */
 
@@ -1766,6 +1927,31 @@
 
   .section-heading-title > :first-child > :first-child {
     text-indent: var(--section-heading-indent);
+  }
+
+  /* Under 1024px the label sits on its own line above the title instead of
+     in its first line, so the title has no indent. Both classes, so the
+     indent wins over each section's own, wherever it is in this file. The
+     About and Clients headings (not built on section-heading.tsx) do the
+     same. */
+  :root {
+    --heading-label-gap: var(--number-16); /* label to title, when stacked */
+  }
+
+  @media (max-width: 63.999rem) {
+    .section-heading.section-heading {
+      --section-heading-indent: 0;
+
+      row-gap: var(--heading-label-gap);
+    }
+
+    .section-heading-label {
+      margin-top: 0;
+    }
+
+    .section-heading-title {
+      grid-area: 2 / 1;
+    }
   }
 
   .news {
@@ -1814,20 +2000,24 @@
     object-fit: cover;
   }
 
+  /* As .teams-card-info: "Know more" at the bottom of the card. */
   .news-card-info {
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--card-info-gap);
   }
 
   .news-card-date {
+    font-size: var(--card-text-font-size);
     color: var(--color-neutral-700);
   }
 
   /* At most three lines; a longer title is cut off with an ellipsis. The
      full title stays in the page for screen readers and search. */
   .news-card-title {
+    font-size: var(--card-title-font-size);
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
@@ -1836,9 +2026,29 @@
     line-height: var(--line-height-133); /* 32px at 24px, as in Figma */
   }
 
-  @media (min-width: 40rem) {
+  /* Two columns from 480px, as the News page's grid. */
+  @media (min-width: 30rem) {
     .news-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Tablets (768px–1023px), as the Clients section: on three columns, the
+     heading takes the first two, and the link and the cards each a full
+     row below. */
+  @media (min-width: 48rem) and (max-width: 63.999rem) {
+    .news {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .news-heading {
+      grid-column: 1 / span 2;
+    }
+
+    .news-link,
+    .news-grid {
+      grid-column: 1 / -1;
     }
   }
 
@@ -1989,6 +2199,23 @@
   .testimonial-quote {
     width: 100%;
     font-style: normal;
+  }
+
+  /* Tablets (768px–1023px), as the Clients section: on three columns, the
+     heading takes the first two and the cards run below. */
+  @media (min-width: 48rem) and (max-width: 63.999rem) {
+    .testimonials {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .testimonials-heading {
+      grid-column: 1 / span 2;
+    }
+
+    .testimonials-grid {
+      grid-column: 1 / -1;
+    }
   }
 
   @media (min-width: 64rem) {
@@ -4100,7 +4327,7 @@
    Link groups: phones put Navigate and Social side by side with For
    Inquiries and Location below; from 640px Navigate, Social and For
    Inquiries share a row with Location below; from 1024px they follow
-   Figma's 12 columns (1–2, 3–4, 5–6 and 10–12), with "Let's Talk" beside
+   Figma's 12 columns (1–2, 3–4, 5–6 and 10–12), with "Consult Us" beside
    the heading at the right edge.
 
    Last row: the legal links are always the very bottom, centred. On phones
@@ -4233,6 +4460,23 @@
 
     .footer-contact {
       grid-column: span 2;
+    }
+  }
+
+  /* Tablets (768px–1023px), as the Clients section: on three columns, the
+     heading takes the first two and "Consult Us" its own row below. */
+  @media (min-width: 48rem) and (max-width: 63.999rem) {
+    .footer-top {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--layout-col-gap);
+    }
+
+    .footer-title {
+      grid-column: 1 / span 2;
+    }
+
+    .footer-cta {
+      grid-column: 1 / -1;
     }
   }
 

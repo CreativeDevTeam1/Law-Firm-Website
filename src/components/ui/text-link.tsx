@@ -37,7 +37,7 @@ type TextLinkProps = ComponentProps<typeof Link> & {
 // The site's text link, in two variants that share one look at any size:
 //
 //   <TextLink href="/about">About</TextLink>
-//   <TextLink href="/contact" icon="arrow-up-right">Let's Talk</TextLink>
+//   <TextLink href="/contact" icon="arrow-up-right">Consult Us</TextLink>
 //   <TextLink href="/about" size="medium" icon="arrow-right" reveal>More about the firm</TextLink>
 //
 // The icon scales with the text size.

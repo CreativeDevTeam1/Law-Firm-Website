@@ -29,7 +29,7 @@ import {
 
 type Sent = { name: string; reference: string };
 
-// The Client intake page, where every "Let's Talk" leads — no Figma frame;
+// The Client intake page, where every "Consult Us" leads — no Figma frame;
 // designed from the old intake form's fields and the site's patterns. The
 // Page header, then one form in numbered sections, each under a divider
 // that draws in (as How we hire). It opens with the client type. Company
@@ -125,14 +125,15 @@ export default function ClientIntakeForm() {
         <IntakeSent {...sent} />
       ) : (
         <div className="page-header intake-header">
-          <SectionHeading as="h1" id="intake-title" label="(Client intake)" className="page-heading intake-heading">
-            Tell us about yourself and your matter. A partner reads every
-            request in confidence and replies within two working days.
+          <SectionHeading as="h1" id="intake-title" label="(Consultation Request)" className="page-heading intake-heading">
+            Tell us how we can assist with your legal matter
           </SectionHeading>
           <LineReveal className="page-intro body" delay={0.1}>
-            The form takes about ten minutes. What you share here stays between
-            you and the firm, and is used only to assess your matter and check
-            for conflicts of interest before we speak.
+            Share a few details about your matter and preferred consultation
+            arrangements. Our team will review your request in confidence,
+            complete the necessary conflict checks, and contact you regarding
+            the appropriate next step. Submitting this form does not confirm an
+            appointment or establish a lawyer-client relationship.
           </LineReveal>
         </div>
       )}
@@ -300,7 +301,7 @@ export default function ClientIntakeForm() {
                   itself make the firm my lawyers.
                 </span>
               </label>
-              <FormSubmit>Submit request</FormSubmit>
+              <FormSubmit>Send consultation request</FormSubmit>
             </div>
           </div>
         </form>

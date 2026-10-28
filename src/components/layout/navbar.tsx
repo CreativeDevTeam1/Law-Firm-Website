@@ -262,7 +262,7 @@ export default function Navbar() {
         </nav>
 
         <TextLink href="/client-intake" icon="arrow-up-right" className="navbar-cta">
-          Let&apos;s Talk
+          Consult Us
         </TextLink>
 
         {/* "Menu" and "Close" are stacked; opening slides "Close" up into place. */}
@@ -278,7 +278,12 @@ export default function Navbar() {
             <span>Menu</span>
             <span>Close</span>
           </span>
-          <span className="navbar-icon navbar-icon-menu" aria-hidden="true" />
+          {/* Three lines (as menu.svg) that turn into an X while open. */}
+          <span className="navbar-menu-icon" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
         </button>
       </header>
 
