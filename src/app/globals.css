@@ -177,23 +177,25 @@
   }
 
   /* Arabic text (lang="ar"; the Client intake in Arabic, and its Arabic
-     name fields). Suisse Intl has no Arabic, so it's set in IBM Plex Sans
-     Arabic (loaded by the page that uses it as --font-plex-arabic), with
-     Suisse for any Latin it can't set. Arabic letters join, so it takes no
-     tracking; and its marks sit above and below the letters, so it needs
-     more leading than the Figma styles give Latin, or the line reveal's
-     masks would clip them. Latin inside it (lang="en": an email, a phone
-     number) goes back to Suisse. */
+     name fields). Suisse Intl has no Arabic, so headings are set in Markazi
+     Text and everything else in IBM Plex Sans Arabic (loaded by the page
+     that uses them as --font-markazi and --font-plex-arabic), with Suisse
+     for any Latin they can't set. Header 4 is a small label, so it stays in
+     Plex. Arabic letters join, so it takes no tracking; and its marks sit
+     above and below the letters, so it needs more leading than the Figma
+     styles give Latin, or the line reveal's masks would clip them. Latin
+     inside it (lang="en": an email, a phone number) goes back to Suisse. */
   [lang="ar"] {
     --font-family-arabic: var(--font-plex-arabic, Arial), var(--font-suisse-intl), Arial, sans-serif;
+    --font-family-arabic-heading: var(--font-markazi, Arial), var(--font-suisse-intl), Arial, sans-serif;
 
-    --display-header-font-family: var(--font-family-arabic);
-    --display-header-2-font-family: var(--font-family-arabic);
-    --header-1-font-family: var(--font-family-arabic);
-    --header-2-semibold-font-family: var(--font-family-arabic);
-    --header-2-medium-font-family: var(--font-family-arabic);
-    --header-3-semibold-font-family: var(--font-family-arabic);
-    --header-3-medium-font-family: var(--font-family-arabic);
+    --display-header-font-family: var(--font-family-arabic-heading);
+    --display-header-2-font-family: var(--font-family-arabic-heading);
+    --header-1-font-family: var(--font-family-arabic-heading);
+    --header-2-semibold-font-family: var(--font-family-arabic-heading);
+    --header-2-medium-font-family: var(--font-family-arabic-heading);
+    --header-3-semibold-font-family: var(--font-family-arabic-heading);
+    --header-3-medium-font-family: var(--font-family-arabic-heading);
     --header-4-font-family: var(--font-family-arabic);
     --body-big-font-family: var(--font-family-arabic);
     --body-font-family: var(--font-family-arabic);
