@@ -6,6 +6,7 @@ import PageTransition from "@/components/layout/page-transition";
 import SmoothScroll from "@/components/layout/smooth-scroll";
 import { getSiteSettings } from "@/content/queries";
 import { SanityLive } from "@/sanity/live";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 // Only the weights the design system uses (--font-weight-book/medium/semibold).
@@ -54,6 +55,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         </SmoothScroll>
         {/* Refreshes the cached content when it's published in Sanity. */}
         <SanityLive includeDrafts={false} />
+        {/* Reports real visitors' page speed to Vercel Speed Insights. */}
+        <SpeedInsights />
       </body>
     </html>
   );
