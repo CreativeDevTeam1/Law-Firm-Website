@@ -175,6 +175,74 @@
     --cta-small-line-height: var(--line-height-100);
     --cta-small-letter-spacing: var(--letter-spacing-minus-4);
   }
+
+  /* Arabic text (lang="ar"; the Client intake in Arabic, and its Arabic
+     name fields). Suisse Intl has no Arabic, so it's set in IBM Plex Sans
+     Arabic (loaded by the page that uses it as --font-plex-arabic), with
+     Suisse for any Latin it can't set. Arabic letters join, so it takes no
+     tracking; and its marks sit above and below the letters, so it needs
+     more leading than the Figma styles give Latin, or the line reveal's
+     masks would clip them. Latin inside it (lang="en": an email, a phone
+     number) goes back to Suisse. */
+  [lang="ar"] {
+    --font-family-arabic: var(--font-plex-arabic, Arial), var(--font-suisse-intl), Arial, sans-serif;
+
+    --display-header-font-family: var(--font-family-arabic);
+    --display-header-2-font-family: var(--font-family-arabic);
+    --header-1-font-family: var(--font-family-arabic);
+    --header-2-semibold-font-family: var(--font-family-arabic);
+    --header-2-medium-font-family: var(--font-family-arabic);
+    --header-3-semibold-font-family: var(--font-family-arabic);
+    --header-3-medium-font-family: var(--font-family-arabic);
+    --header-4-font-family: var(--font-family-arabic);
+    --body-big-font-family: var(--font-family-arabic);
+    --body-font-family: var(--font-family-arabic);
+    --cta-big-font-family: var(--font-family-arabic);
+    --cta-medium-font-family: var(--font-family-arabic);
+    --cta-small-font-family: var(--font-family-arabic);
+
+    --display-header-letter-spacing: 0;
+    --display-header-2-letter-spacing: 0;
+    --header-1-letter-spacing: 0;
+    --header-2-semibold-letter-spacing: 0;
+    --header-2-medium-letter-spacing: 0;
+    --header-3-semibold-letter-spacing: 0;
+    --header-3-medium-letter-spacing: 0;
+    --header-4-letter-spacing: 0;
+    --cta-big-letter-spacing: 0;
+    --cta-medium-letter-spacing: 0;
+    --cta-small-letter-spacing: 0;
+
+    --display-header-line-height: 1.25;
+    --display-header-2-line-height: 1.25;
+    --header-1-line-height: 1.35;
+    --header-2-semibold-line-height: 1.4;
+    --header-2-medium-line-height: 1.4;
+    --header-3-semibold-line-height: 1.4;
+    --header-3-medium-line-height: 1.4;
+    --header-4-line-height: 1.7;
+    --body-big-line-height: 1.6;
+    --body-line-height: 1.75;
+    --cta-big-line-height: 1.3;
+    --cta-medium-line-height: 1.3;
+    --cta-small-line-height: 1.3;
+  }
+
+  [lang="en"] {
+    --display-header-font-family: var(--font-family-primary);
+    --display-header-2-font-family: var(--font-family-primary);
+    --header-1-font-family: var(--font-family-primary);
+    --header-2-semibold-font-family: var(--font-family-primary);
+    --header-2-medium-font-family: var(--font-family-primary);
+    --header-3-semibold-font-family: var(--font-family-primary);
+    --header-3-medium-font-family: var(--font-family-primary);
+    --header-4-font-family: var(--font-family-primary);
+    --body-big-font-family: var(--font-family-primary);
+    --body-font-family: var(--font-family-primary);
+    --cta-big-font-family: var(--font-family-primary);
+    --cta-medium-font-family: var(--font-family-primary);
+    --cta-small-font-family: var(--font-family-primary);
+  }
 }
 
 /* ==========================================================================
@@ -528,6 +596,16 @@
     --link-underline-duration: 0.75s;
     --link-underline-ease: cubic-bezier(0.65, 0.05, 0, 1); /* slow start, fast middle, soft end */
     --link-underline-swap-delay: 0.3s;
+
+    /* The side a line draws in from and out to: mirrored in right-to-left
+       text (the Arabic Client intake), so lines run the way it reads. */
+    --inline-start: left;
+    --inline-end: right;
+  }
+
+  [dir="rtl"] {
+    --inline-start: right;
+    --inline-end: left;
   }
 
   .link-underline,
@@ -553,12 +631,12 @@
   .link-underline::before,
   .link-underline-swap::after {
     transform: scaleX(0) rotate(0.001deg);
-    transform-origin: right center;
+    transform-origin: var(--inline-end) center;
   }
 
   .link-underline-swap::before {
     transform: scaleX(1) rotate(0.001deg);
-    transform-origin: left center;
+    transform-origin: var(--inline-start) center;
     transition-delay: var(--link-underline-swap-delay);
   }
 
@@ -569,13 +647,13 @@
     .link-underline-swap:hover::after,
     a:hover .link-underline-swap::after {
       transform: scaleX(1) rotate(0.001deg);
-      transform-origin: left center;
+      transform-origin: var(--inline-start) center;
     }
 
     .link-underline-swap:hover::before,
     a:hover .link-underline-swap::before {
       transform: scaleX(0) rotate(0.001deg);
-      transform-origin: right center;
+      transform-origin: var(--inline-end) center;
       transition-delay: 0s;
     }
 
@@ -590,13 +668,13 @@
   .link-underline-swap:focus-visible::after,
   a:focus-visible .link-underline-swap::after {
     transform: scaleX(1) rotate(0.001deg);
-    transform-origin: left center;
+    transform-origin: var(--inline-start) center;
   }
 
   .link-underline-swap:focus-visible::before,
   a:focus-visible .link-underline-swap::before {
     transform: scaleX(0) rotate(0.001deg);
-    transform-origin: right center;
+    transform-origin: var(--inline-end) center;
     transition-delay: 0s;
   }
 
@@ -631,6 +709,12 @@
 
   .link-arrow > * {
     display: block;
+  }
+
+  /* In right-to-left text a right arrow points left, and its motion runs
+     left too. */
+  [dir="rtl"] .link-arrow-right {
+    scale: -1 1;
   }
 
   @keyframes link-arrow-through {
@@ -756,7 +840,7 @@
 
     .text-link-reveal:not(.text-link-revealed)::before {
       transform: scaleX(0) rotate(0.001deg);
-      transform-origin: left center;
+      transform-origin: var(--inline-start) center;
     }
 
     .text-link-reveal:not(.text-link-revealed) .link-arrow > * {
@@ -3470,13 +3554,13 @@
 
     .form-file:hover .form-file-button::before {
       transform: scaleX(0) rotate(0.001deg);
-      transform-origin: right center;
+      transform-origin: var(--inline-end) center;
       transition-delay: 0s;
     }
 
     .form-file:hover .form-file-button::after {
       transform: scaleX(1) rotate(0.001deg);
-      transform-origin: left center;
+      transform-origin: var(--inline-start) center;
       transition-delay: var(--link-underline-swap-delay);
     }
   }
@@ -3549,6 +3633,87 @@
     --section-heading-indent: calc(5.45 * var(--cta-medium-font-size) + 0.25em);
   }
 
+  /* Language switch: "English" and "العربية" at the header's end, just
+     above the heading. The page's language is dark and underlined; the
+     other is grey and draws its line in on hover. A dot marks العربية for
+     a browser set to Arabic. */
+  .intake-lang {
+    display: flex;
+    justify-self: end;
+    column-gap: var(--number-24);
+    margin-bottom: calc(var(--number-24) - var(--page-intro-gap));
+  }
+
+  .intake-lang-option {
+    padding-inline: 0;
+    border: 0;
+    background: none;
+    color: var(--color-neutral-500);
+    cursor: pointer;
+    transition: color 0.4s;
+  }
+
+  .intake-lang-option[aria-pressed="true"] {
+    color: var(--color-neutral-950);
+    cursor: default;
+  }
+
+  .intake-lang-option[aria-pressed="true"]::before {
+    transform: scaleX(1) rotate(0.001deg);
+  }
+
+  .intake-lang-option[data-suggested]::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    inset-inline-end: -0.6em;
+    width: 0.375em;
+    height: 0.375em;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  @media (hover: hover) {
+    .intake-lang-option:hover {
+      color: var(--color-neutral-950);
+    }
+  }
+
+  .intake-lang-option:focus-visible {
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: 2px;
+  }
+
+  /* In Arabic, fields for Latin text (left to right) still line up with
+     their labels on the right. */
+  .intake[dir="rtl"] .form-input[dir="ltr"] {
+    text-align: right;
+  }
+
+  /* On switching language the form fades back in. Each language has its
+     own (identical) keyframes, so the change of name replays it. */
+  @keyframes intake-lang-en {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes intake-lang-ar {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .intake[lang="en"] .intake-form {
+      animation: intake-lang-en 0.8s var(--link-underline-ease) backwards;
+    }
+
+    .intake[lang="ar"] .intake-form {
+      animation: intake-lang-ar 0.8s var(--link-underline-ease) backwards;
+    }
+  }
+
   .intake-form {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -3571,7 +3736,7 @@
     height: 1px;
     margin-bottom: calc(var(--hiring-step-padding-top) - var(--intake-step-gap));
     background: var(--color-neutral-250);
-    transform-origin: left center;
+    transform-origin: var(--inline-start) center;
   }
 
   .intake-step-head {
@@ -3653,8 +3818,8 @@
 
   .intake-option-tick {
     position: absolute;
-    top: var(--intake-option-padding);
-    right: var(--intake-option-padding);
+    inset-block-start: var(--intake-option-padding);
+    inset-inline-end: var(--intake-option-padding);
     border-color: var(--color-neutral-250);
     border-radius: 50%;
   }
@@ -3810,7 +3975,8 @@
 
     .intake-header,
     .intake-form,
-    .intake-sent {
+    .intake-sent,
+    .intake-lang {
       grid-column: 1 / -1;
     }
 
@@ -3838,7 +4004,7 @@
       column-gap: var(--number-8);
       color: var(--color-neutral-500);
       text-decoration: none;
-      transition: color 0.4s, padding-left 0.6s var(--link-underline-ease);
+      transition: color 0.4s, padding-inline-start 0.6s var(--link-underline-ease);
     }
 
     /* The short line before the section you're in. */
@@ -3846,17 +4012,17 @@
       content: "";
       position: absolute;
       top: 50%;
-      left: 0;
+      inset-inline-start: 0;
       width: var(--number-12);
       height: 1px;
       background: currentColor;
       transform: scaleX(0);
-      transform-origin: left center;
+      transform-origin: var(--inline-start) center;
       transition: transform 0.6s var(--link-underline-ease);
     }
 
     .intake-index-link[aria-current] {
-      padding-left: var(--number-20);
+      padding-inline-start: var(--number-20);
       color: var(--color-neutral-950);
     }
 
@@ -3904,7 +4070,7 @@
       inset: 0;
       background: var(--color-neutral-950);
       transform: scaleX(var(--intake-progress));
-      transform-origin: left center;
+      transform-origin: var(--inline-start) center;
       transition: transform 0.8s var(--link-underline-ease);
     }
 

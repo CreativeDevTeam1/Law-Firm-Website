@@ -5,7 +5,9 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
+  type FocusEvent,
   type FormEvent,
   type MouseEvent,
   type ReactNode,
@@ -16,16 +18,8 @@ import LineReveal from "@/components/ui/line-reveal";
 import SectionHeading from "@/components/ui/section-heading";
 import TextLink from "@/components/ui/text-link";
 import { useDividerReveal } from "@/hooks/use-divider-reveal";
-import {
-  CLIENT_TYPES,
-  ENGAGEMENTS,
-  INTAKE_NEXT_STEPS,
-  INTAKE_SECTIONS,
-  PAYMENT_METHODS,
-  PRACTICE_AREAS,
-  type IntakeOption,
-  type IntakeSectionId,
-} from "@/lib/intake";
+import { GLOSSARY, format, plural, type Lang } from "@/lib/glossary";
+import { INTAKE_SECTION_IDS, toWesternDigits, type IntakeSectionId, type IntakeText } from "@/lib/intake";
 
 type Sent = { name: string; reference: string };
 
@@ -40,45 +34,90 @@ type Sent = { name: string; reference: string };
 // fields are filled. On phones the index is left out and the sections
 // stack. Choices are option cards that fill dark when chosen. Once sent, a
 // thank-you with a reference and the next steps takes its place.
-export default function ClientIntakeForm() {
+//
+// The page reads in English or Arabic, laid out right to left, from a
+// switch in the header (?lang=ar opens it in Arabic). Switching keeps
+// everything typed and chosen; the headings redraw and the form fades in
+// again. In Arabic the English name is optional, as the firm can write it
+// out. Fields for Latin text (email, phone, ID numbers, English names) stay
+// left to right in either language; free text follows what's typed. All
+// the wording is in src/glossary (see glossary.ts).
+export default function ClientIntakeForm({ initialLang }: { initialLang: Lang }) {
   const formRef = useRef<HTMLFormElement>(null);
   const stepsRef = useRef<HTMLDivElement>(null);
   const indexRef = useRef<HTMLElement>(null);
   const lenis = useLenis();
 
-  const [active, setActive] = useState<IntakeSectionId>(INTAKE_SECTIONS[0].id);
+  const [lang, setLang] = useState(initialLang);
+  const [active, setActive] = useState<IntakeSectionId>(INTAKE_SECTION_IDS[0]);
   const [done, setDone] = useState<IntakeSectionId[]>([]);
   const [isIndividual, setIsIndividual] = useState(false);
   const [sent, setSent] = useState<Sent | null>(null);
 
+  const t = GLOSSARY[lang].intake;
+  const isArabic = lang === "ar";
+
   // Company details are needed unless the client said they're an individual.
   const companyRequired = !isIndividual;
-  const number = (id: IntakeSectionId) =>
-    String(INTAKE_SECTIONS.findIndex((section) => section.id === id) + 1).padStart(2, "0");
+  const number = (id: IntakeSectionId) => String(INTAKE_SECTION_IDS.indexOf(id) + 1).padStart(2, "0");
 
   useDividerReveal(stepsRef, ".intake-step-divider");
 
+  // The address keeps the language, so a reload or a shared link opens the
+  // page as it was; replaceState leaves the page (and the form) as it is.
+  const switchLang = (next: Lang) => {
+    const url = new URL(window.location.href);
+    if (next === "ar") url.searchParams.set("lang", "ar");
+    else url.searchParams.delete("lang");
+    window.history.replaceState(window.history.state, "", url);
+    document.title = GLOSSARY[next].intake.pageTitle;
+    setLang(next);
+  };
+
   // A section is done once every field in it is valid. Practice areas need
   // at least one chosen, which the browser can't check for checkboxes, so
-  // the first one carries the message.
+  // the first one carries the message. Any message set below is cleared
+  // first, so the field is checked afresh.
   const updateDone = useCallback(() => {
     const form = formRef.current;
     if (!form) return;
 
+    form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea").forEach((field) => {
+      field.setCustomValidity("");
+    });
     const areas = [...form.querySelectorAll<HTMLInputElement>('input[name="practice"]')];
-    areas[0]?.setCustomValidity(areas.some((area) => area.checked) ? "" : "Choose at least one practice area.");
+    areas[0]?.setCustomValidity(areas.some((area) => area.checked) ? "" : t.errors.practice);
 
     setDone(
-      INTAKE_SECTIONS.filter(({ id }) => {
+      INTAKE_SECTION_IDS.filter((id) => {
         const fields = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(`#${id} :is(input, textarea)`);
         return [...fields].every((field) => field.validity.valid);
-      }).map(({ id }) => id),
+      }),
     );
-  }, []);
+  }, [t]);
 
   // Company information's fields stop or start being required with the
-  // client type.
+  // client type, and the English name with the language.
   useEffect(updateDone, [updateDone, isIndividual]);
+
+  // The browser writes its messages in its own language, not the page's, so
+  // each field that fails gets the page's own, as the browser asks for them.
+  // ("invalid" doesn't bubble, hence the capture.)
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+
+    const { required, choose, email, consent } = t.errors;
+    const explain = (event: Event) => {
+      const field = event.target as HTMLInputElement | HTMLTextAreaElement;
+      const message =
+        field.type === "checkbox" ? consent : field.type === "radio" ? choose : field.validity.typeMismatch ? email : required;
+      if (!field.validity.customError) field.setCustomValidity(message);
+    };
+
+    form.addEventListener("invalid", explain, true);
+    return () => form.removeEventListener("invalid", explain, true);
+  }, [t, sent]);
 
   // The section crossing the middle of the screen is the one you're in.
   useEffect(() => {
@@ -93,7 +132,7 @@ export default function ClientIntakeForm() {
       },
       { rootMargin: "-50% 0px -50% 0px" },
     );
-    INTAKE_SECTIONS.forEach(({ id }) => {
+    INTAKE_SECTION_IDS.forEach((id) => {
       const section = form.querySelector(`#${id}`);
       if (section) observer.observe(section);
     });
@@ -108,43 +147,89 @@ export default function ClientIntakeForm() {
     lenis.scrollTo(`#${id}`, { offset: -parseFloat(getComputedStyle(indexRef.current).top) });
   };
 
-  // TODO: nothing is sent yet. Post the form data (documents included) to
-  // the firm once there's somewhere to send it — and keep the ID numbers
-  // out of plain email.
+  // Numbers typed with an Arabic keyboard (٠١٢…) become 0–9 as the client
+  // leaves the field, so the firm can search and dial them.
+  const westernDigits = (event: FocusEvent<HTMLFormElement>) => {
+    const field = event.target;
+    if (field instanceof HTMLInputElement && field.dataset.digits !== undefined) {
+      field.value = toWesternDigits(field.value);
+    }
+  };
+
+  // TODO: nothing is sent yet. Post the form data (documents included, and
+  // the "lang" field, so the firm replies in the client's language) to the
+  // firm once there's somewhere to send it — and keep the ID numbers out of
+  // plain email.
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const name = String(new FormData(event.currentTarget).get("name-en")).trim().split(/\s+/)[0];
+    const data = new FormData(event.currentTarget);
+    const name = String(data.get(isArabic ? "name-ar" : "name-en")).trim().split(/\s+/)[0];
     const reference = `SE-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     setSent({ name, reference });
     lenis?.scrollTo(0, { immediate: true });
   };
 
+  const fieldText = { idPrefix: "intake", optionalText: t.optional };
+  // Latin text: left to right, in the Latin typeface, whatever the page's language.
+  const latin = { dir: "ltr", lang: "en" } as const;
+  const arabic = { dir: "rtl", lang: "ar" } as const;
+  // The two names swap places with the language; keyed, so each keeps
+  // what's typed in it as it moves.
+  const nameEn = (
+    <FormField
+      key="name-en"
+      {...fieldText}
+      {...latin}
+      label={t.fields.nameEn}
+      name="name-en"
+      autoComplete="name"
+      required={!isArabic}
+      optional={isArabic}
+    />
+  );
+  const nameAr = (
+    <FormField key="name-ar" {...fieldText} {...arabic} label={t.fields.nameAr} name="name-ar" required />
+  );
+
   return (
-    <section className="intake" aria-labelledby="intake-title">
+    <section className="intake" aria-labelledby="intake-title" lang={lang} dir={isArabic ? "rtl" : "ltr"}>
       {sent ? (
-        <IntakeSent {...sent} />
+        <IntakeSent {...sent} lang={lang} t={t} onSwitch={switchLang} />
       ) : (
         <div className="page-header intake-header">
-          <SectionHeading as="h1" id="intake-title" label="(Consult Us)" className="page-heading intake-heading">
-            Tell us how we can assist with your legal matter, and we will
-            connect you with the right lawyer for your case.
+          <LangSwitch lang={lang} t={t} onSwitch={switchLang} />
+          {/* Keyed by language, so the headings split and reveal afresh. */}
+          <SectionHeading
+            key={`heading-${lang}`}
+            as="h1"
+            id="intake-title"
+            label={t.label}
+            className="page-heading intake-heading"
+          >
+            {t.heading}
           </SectionHeading>
-          <LineReveal className="page-intro body" delay={0.1}>
-            Share a few details about your matter and preferred consultation
-            arrangements. Our team will review your request in confidence,
-            complete the necessary conflict checks, and contact you regarding
-            the appropriate next step. Submitting this form does not confirm an
-            appointment or establish a lawyer-client relationship.
+          <LineReveal key={`intro-${lang}`} className="page-intro body" delay={0.1}>
+            {t.intro}
           </LineReveal>
         </div>
       )}
 
       {!sent && (
-        <form className="intake-form" ref={formRef} onSubmit={submit} onInput={updateDone} onChange={updateDone}>
-          <nav className="intake-index" ref={indexRef} aria-label="Form sections">
-            <p className="intake-index-label cta-small">(Your request)</p>
+        <form
+          className="intake-form"
+          ref={formRef}
+          onSubmit={submit}
+          onInput={updateDone}
+          onChange={updateDone}
+          onBlur={westernDigits}
+        >
+          <input type="hidden" name="lang" value={lang} />
+
+          <nav className="intake-index" ref={indexRef} aria-label={t.indexLabel}>
+            <p className="intake-index-label cta-small">{t.index}</p>
             <ol className="intake-index-list">
-              {INTAKE_SECTIONS.map(({ id, title }) => {
+              {INTAKE_SECTION_IDS.map((id) => {
+                const { title } = t.sections[id];
                 const isDone = done.includes(id);
                 return (
                   <li key={id}>
@@ -152,7 +237,7 @@ export default function ClientIntakeForm() {
                       href={`#${id}`}
                       className="intake-index-link body"
                       aria-current={active === id ? "step" : undefined}
-                      aria-label={isDone ? `${title}, complete` : title}
+                      aria-label={isDone ? format(t.complete, { title }) : title}
                       data-done={isDone || undefined}
                       onClick={(event) => goTo(event, id)}
                     >
@@ -167,108 +252,124 @@ export default function ClientIntakeForm() {
             <div className="intake-progress">
               <span
                 className="intake-progress-bar"
-                style={{ "--intake-progress": done.length / INTAKE_SECTIONS.length } as CSSProperties}
+                style={{ "--intake-progress": done.length / INTAKE_SECTION_IDS.length } as CSSProperties}
                 aria-hidden="true"
               />
               <p className="intake-progress-text body">
-                {done.length} of {INTAKE_SECTIONS.length} complete
+                {format(t.progress, { done: done.length, all: INTAKE_SECTION_IDS.length })}
               </p>
             </div>
           </nav>
 
           <div className="intake-steps" ref={stepsRef}>
-            <IntakeStep id="intake-client" number={number("intake-client")}>
+            <IntakeStep id="intake-client" number={number("intake-client")} t={t}>
               <OptionCards
                 name="client-type"
                 labelledBy="intake-client-title"
-                options={CLIENT_TYPES}
+                options={t.clientTypes}
                 onChange={(value) => setIsIndividual(value === "individual")}
               />
             </IntakeStep>
 
-            <IntakeStep id="intake-personal" number={number("intake-personal")}>
+            <IntakeStep id="intake-personal" number={number("intake-personal")} t={t}>
               <div className="form-fields">
-                <FormField idPrefix="intake" label="Full name in English" name="name-en" autoComplete="name" required />
-                <FormField idPrefix="intake" label="Full name in Arabic" name="name-ar" dir="rtl" lang="ar" required />
-                <FormField idPrefix="intake" label="Email" name="email" type="email" autoComplete="email" required />
-                <FormField idPrefix="intake" label="Phone" name="phone" type="tel" autoComplete="tel" required />
-                <FormField idPrefix="intake" label="National ID / Passport no." name="id-number" required />
-                <FormField idPrefix="intake" label="Nationality" name="nationality" required />
-                <FormField idPrefix="intake" label="Date of birth" name="birth-date" type="date" optional />
-                <FormField idPrefix="intake" label="Occupation" name="occupation" optional />
+                {/* The name in the page's language comes first. */}
+                {isArabic ? [nameAr, nameEn] : [nameEn, nameAr]}
+                <FormField {...fieldText} {...latin} label={t.fields.email} name="email" type="email" autoComplete="email" required />
+                <FormField
+                  {...fieldText}
+                  {...latin}
+                  label={t.fields.phone}
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  data-digits
+                  required
+                />
+                <FormField {...fieldText} {...latin} label={t.fields.idNumber} name="id-number" data-digits required />
+                <FormField {...fieldText} dir="auto" label={t.fields.nationality} name="nationality" required />
+                <FormField {...fieldText} {...latin} label={t.fields.birthDate} name="birth-date" type="date" optional />
+                <FormField {...fieldText} dir="auto" label={t.fields.occupation} name="occupation" optional />
               </div>
             </IntakeStep>
 
-            <IntakeStep id="intake-company" number={number("intake-company")}>
+            <IntakeStep id="intake-company" number={number("intake-company")} t={t}>
               <div className="form-fields">
                 <FormField
-                  idPrefix="intake"
-                  label="Company name in English"
+                  {...fieldText}
+                  {...latin}
+                  label={t.fields.companyEn}
                   name="company-en"
                   required={companyRequired}
                   optional={!companyRequired}
                 />
+                <FormField {...fieldText} {...arabic} label={t.fields.companyAr} name="company-ar" optional />
                 <FormField
-                  idPrefix="intake"
-                  label="Company name in Arabic"
-                  name="company-ar"
-                  dir="rtl"
-                  lang="ar"
-                  optional
-                />
-                <FormField
-                  idPrefix="intake"
-                  label="Business activity"
+                  {...fieldText}
+                  dir="auto"
+                  label={t.fields.businessActivity}
                   name="business-activity"
                   required={companyRequired}
                   optional={!companyRequired}
                 />
                 <FormField
-                  idPrefix="intake"
-                  label="Your position"
+                  {...fieldText}
+                  dir="auto"
+                  label={t.fields.position}
                   name="position"
                   required={companyRequired}
                   optional={!companyRequired}
                 />
                 <FormField
-                  idPrefix="intake"
-                  label="Commercial registry no."
+                  {...fieldText}
+                  {...latin}
+                  label={t.fields.registryNumber}
                   name="registry-number"
+                  data-digits
                   required={companyRequired}
                   optional={!companyRequired}
                 />
-                <FormField idPrefix="intake" label="Tax ID no." name="tax-id" optional />
+                <FormField {...fieldText} {...latin} label={t.fields.taxId} name="tax-id" data-digits optional />
                 <FormField
-                  idPrefix="intake"
-                  label="Company address"
+                  {...fieldText}
+                  dir="auto"
+                  label={t.fields.companyAddress}
                   name="company-address"
                   required={companyRequired}
                   optional={!companyRequired}
                   wide
                 />
-                <FormField idPrefix="intake" label="Primary contact person" name="primary-contact" optional wide />
+                <FormField
+                  {...fieldText}
+                  dir="auto"
+                  label={t.fields.primaryContact}
+                  name="primary-contact"
+                  optional
+                  wide
+                />
               </div>
             </IntakeStep>
 
-            <IntakeStep id="intake-engagement" number={number("intake-engagement")}>
-              <OptionCards name="engagement" labelledBy="intake-engagement-title" options={ENGAGEMENTS} />
+            <IntakeStep id="intake-engagement" number={number("intake-engagement")} t={t}>
+              <OptionCards name="engagement" labelledBy="intake-engagement-title" options={t.engagements} />
             </IntakeStep>
 
-            <IntakeStep id="intake-practice" number={number("intake-practice")}>
+            <IntakeStep id="intake-practice" number={number("intake-practice")} t={t}>
               <OptionCards
                 name="practice"
                 labelledBy="intake-practice-title"
-                options={PRACTICE_AREAS}
+                options={t.practiceAreas}
                 multiple
                 compact
               />
             </IntakeStep>
 
-            <IntakeStep id="intake-matter" number={number("intake-matter")}>
+            <IntakeStep id="intake-matter" number={number("intake-matter")} t={t}>
               <div className="form-fields">
                 <FormField
-                  idPrefix="intake"
-                  label="Brief about the matter"
+                  {...fieldText}
+                  dir="auto"
+                  label={t.fields.matter}
                   name="matter"
                   rows={4}
                   multiline
@@ -276,33 +377,30 @@ export default function ClientIntakeForm() {
                   wide
                 />
                 <FormFile
-                  idPrefix="intake"
-                  label="Documents"
+                  {...fieldText}
+                  label={t.fields.documents}
                   name="documents"
                   className="intake-documents"
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                  hint="PDF, Word or images, up to 10MB in all"
+                  hint={t.documentsHint}
+                  text={{ ...t.file, files: (count) => plural(lang, t.file.files, count) }}
                   multiple
                   optional
                 />
               </div>
             </IntakeStep>
 
-            <IntakeStep id="intake-payment" number={number("intake-payment")}>
-              <OptionCards name="payment" labelledBy="intake-payment-title" options={PAYMENT_METHODS} />
+            <IntakeStep id="intake-payment" number={number("intake-payment")} t={t}>
+              <OptionCards name="payment" labelledBy="intake-payment-title" options={t.paymentMethods} />
             </IntakeStep>
 
             <div className="intake-submit">
               <label className="intake-consent">
                 <input className="intake-consent-input" type="checkbox" name="consent" required />
                 <span className="intake-consent-box" aria-hidden="true" />
-                <span className="intake-consent-text body">
-                  I confirm the details above are accurate. I understand the firm
-                  keeps them confidential, and that sending this form doesn’t by
-                  itself make the firm my lawyers.
-                </span>
+                <span className="intake-consent-text body">{t.consent}</span>
               </label>
-              <FormSubmit>Send consultation request</FormSubmit>
+              <FormSubmit>{t.submit}</FormSubmit>
             </div>
           </div>
         </form>
@@ -311,12 +409,50 @@ export default function ClientIntakeForm() {
   );
 }
 
-type IntakeStepProps = { id: IntakeSectionId; number: string; children: ReactNode };
+// Whether the visitor's browser asks for Arabic. Read only in the browser;
+// the server (and the first render) assume not.
+const subscribeNever = () => () => {};
+const prefersArabic = () => navigator.languages.some((language) => language.toLowerCase().startsWith("ar"));
+
+type LangSwitchProps = { lang: Lang; t: IntakeText; onSwitch: (lang: Lang) => void };
+
+// "English" and "العربية", each in its own script, so anyone can find
+// theirs. The page's language is dark; the other is grey with the link's
+// hover line. A browser set to Arabic marks العربية with a dot until the
+// visitor has switched.
+function LangSwitch({ lang, t, onSwitch }: LangSwitchProps) {
+  const suggestArabic = useSyncExternalStore(subscribeNever, prefersArabic, () => false);
+
+  const options = [
+    { value: "en", label: "English" },
+    { value: "ar", label: "العربية" },
+  ] as const;
+
+  return (
+    <div className="intake-lang" role="group" aria-label={t.languages}>
+      {options.map(({ value, label }) => (
+        <button
+          key={value}
+          type="button"
+          lang={value}
+          className="intake-lang-option link-underline cta-small"
+          aria-pressed={lang === value}
+          data-suggested={(value === "ar" && suggestArabic && lang === "en") || undefined}
+          onClick={() => lang !== value && onSwitch(value)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+type IntakeStepProps = { id: IntakeSectionId; number: string; t: IntakeText; children: ReactNode };
 
 // One numbered section: its divider, "01. Client type" and a line on what
 // it's for, then its fields.
-function IntakeStep({ id, number, children }: IntakeStepProps) {
-  const { title, text } = INTAKE_SECTIONS.find((section) => section.id === id)!;
+function IntakeStep({ id, number, t, children }: IntakeStepProps) {
+  const { title, text } = t.sections[id];
 
   return (
     <section className="intake-step" id={id} aria-labelledby={`${id}-title`}>
@@ -332,10 +468,13 @@ function IntakeStep({ id, number, children }: IntakeStepProps) {
   );
 }
 
+// Each choice's value (what the form sends) and its wording.
+type Options = Record<string, { title: string; description?: string }>;
+
 type OptionCardsProps = {
   name: string;
   labelledBy: string;
-  options: IntakeOption[];
+  options: Options;
   /** Checkboxes (any number) instead of radio buttons (one, required). */
   multiple?: boolean;
   /** Two across on phones instead of one, for short options. */
@@ -348,7 +487,14 @@ type OptionCardsProps = {
 // The cards keep their own choice, so clicking a chosen card again clears
 // it, which radio buttons don't do on their own. Each click (a keypress on
 // a focused card counts as one) adds or removes that card.
-function OptionCards({ name, labelledBy, options, multiple = false, compact = false, onChange }: OptionCardsProps) {
+function OptionCards({
+  name,
+  labelledBy,
+  options,
+  multiple = false,
+  compact = false,
+  onChange,
+}: OptionCardsProps) {
   const groupRef = useRef<HTMLDivElement>(null);
   const [chosen, setChosen] = useState<string[]>([]);
 
@@ -375,49 +521,57 @@ function OptionCards({ name, labelledBy, options, multiple = false, compact = fa
       role={multiple ? "group" : "radiogroup"}
       aria-labelledby={labelledBy}
       aria-required={multiple ? undefined : true}
-      style={{ "--intake-option-count": options.length } as CSSProperties}
+      style={{ "--intake-option-count": Object.keys(options).length } as CSSProperties}
     >
-      {options.map((option) => (
-        <label className="intake-option" key={option.value}>
+      {Object.entries(options).map(([value, { title, description }]) => (
+        <label className="intake-option" key={value}>
           <input
             className="intake-option-input"
             type={multiple ? "checkbox" : "radio"}
             name={name}
-            value={option.value}
+            value={value}
             required={!multiple}
-            checked={chosen.includes(option.value)}
-            onClick={() => toggle(option.value)}
+            checked={chosen.includes(value)}
+            onClick={() => toggle(value)}
             // The click above does the work; a radio's own change is ignored.
             onChange={() => {}}
           />
           <span className="intake-option-tick" aria-hidden="true" />
-          <span className="intake-option-title header-3-semibold">{option.title}</span>
-          {option.description && <span className="intake-option-text body">{option.description}</span>}
+          <span className="intake-option-title header-3-semibold">{title}</span>
+          {description && <span className="intake-option-text body">{description}</span>}
         </label>
       ))}
     </div>
   );
 }
 
+type IntakeSentProps = Sent & LangSwitchProps;
+
 // After sending, in the page header's place: a thank-you with "(Request
 // received)" set into it, the reference, and what happens next, as How we
 // hire's numbered steps.
-function IntakeSent({ name, reference }: Sent) {
+function IntakeSent({ name, reference, lang, t, onSwitch }: IntakeSentProps) {
   return (
     <div className="intake-sent" role="status">
       <div className="page-header">
-        <SectionHeading as="h1" id="intake-title" label="(Request received)" className="page-heading intake-sent-heading">
-          Thank you, {name}. Your request is with us, and a partner will be in
-          touch within two working days.
+        <LangSwitch lang={lang} t={t} onSwitch={onSwitch} />
+        <SectionHeading
+          key={`sent-heading-${lang}`}
+          as="h1"
+          id="intake-title"
+          label={t.sentLabel}
+          className="page-heading intake-sent-heading"
+        >
+          {format(t.sentHeading, { name })}
         </SectionHeading>
-        <LineReveal className="page-intro body" delay={0.1}>
-          {`Your reference is ${reference}. Keep it to hand if you call or write to us about this matter.`}
+        <LineReveal key={`sent-intro-${lang}`} className="page-intro body" delay={0.1}>
+          {format(t.reference, { reference })}
         </LineReveal>
       </div>
 
       <ol className="intake-next">
-        {INTAKE_NEXT_STEPS.map((step, i) => (
-          <li className="intake-next-step" key={step.title}>
+        {t.nextSteps.map((step, i) => (
+          <li className="intake-next-step" key={i}>
             <span className="intake-next-number header-2-semibold">{`${String(i + 1).padStart(2, "0")}.`}</span>
             <div className="intake-next-content">
               <h2 className="header-3-semibold">{step.title}</h2>
@@ -428,7 +582,7 @@ function IntakeSent({ name, reference }: Sent) {
       </ol>
 
       <TextLink href="/" size="medium" icon="arrow-right" className="intake-sent-link">
-        Back to home
+        {t.backHome}
       </TextLink>
     </div>
   );

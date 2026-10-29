@@ -1,0 +1,119 @@
+{
+  "intake": {
+    "pageTitle": "Request a consultation",
+    "languages": "Language",
+    "label": "(Consult Us)",
+    "heading": "Tell us how we can assist with your legal matter, and we will connect you with the right lawyer for your case.",
+    "intro": "Share a few details about your matter and preferred consultation arrangements. Our team will review your request in confidence, complete the necessary conflict checks, and contact you regarding the appropriate next step. Submitting this form does not confirm an appointment or establish a lawyer-client relationship.",
+    "index": "(Your request)",
+    "indexLabel": "Form sections",
+    "complete": "{title}, complete",
+    "progress": "{done} of {all} complete",
+    "sections": {
+      "intake-client": {
+        "title": "Client type",
+        "text": "Whether you’re coming to us yourself or for a business."
+      },
+      "intake-personal": {
+        "title": "Personal information",
+        "text": "As on your national ID or passport, so we can run a conflict check before we speak."
+      },
+      "intake-company": {
+        "title": "Company information",
+        "text": "The business you represent, as on its commercial registry. Optional if you’re coming to us yourself."
+      },
+      "intake-engagement": {
+        "title": "Type of engagement",
+        "text": "How you’d like to work with us. We can change this together later."
+      },
+      "intake-practice": {
+        "title": "Practice area",
+        "text": "Choose every area your matter touches."
+      },
+      "intake-matter": {
+        "title": "About the matter",
+        "text": "What happened, who is involved and any dates or deadlines. Attach documents if you have them."
+      },
+      "intake-payment": {
+        "title": "Fees & payment",
+        "text": "How you’d prefer to pay. Fees are agreed in your engagement letter."
+      }
+    },
+    "clientTypes": {
+      "individual": { "title": "Individual", "description": "For a personal matter." },
+      "company": { "title": "Company", "description": "For a business you represent." }
+    },
+    "engagements": {
+      "single-case": { "title": "Single case", "description": "One legal matter." },
+      "retainer": { "title": "Retainer", "description": "Ongoing legal support." },
+      "consultation": { "title": "Consultation", "description": "One-time legal advice." }
+    },
+    "practiceAreas": {
+      "litigation": { "title": "Litigation" },
+      "arbitration": { "title": "Arbitration" },
+      "companies": { "title": "Companies" },
+      "contracts": { "title": "Contracts" }
+    },
+    "paymentMethods": {
+      "cash": { "title": "Cash", "description": "Paid at our office." },
+      "bank-transfer": { "title": "Bank transfer", "description": "Paid against an invoice." },
+      "cheque": { "title": "Cheque", "description": "Made out to the firm." }
+    },
+    "optional": "optional",
+    "fields": {
+      "nameEn": "Full name in English",
+      "nameAr": "Full name in Arabic",
+      "email": "Email",
+      "phone": "Phone",
+      "idNumber": "National ID / Passport no.",
+      "nationality": "Nationality",
+      "birthDate": "Date of birth",
+      "occupation": "Occupation",
+      "companyEn": "Company name in English",
+      "companyAr": "Company name in Arabic",
+      "businessActivity": "Business activity",
+      "position": "Your position",
+      "registryNumber": "Commercial registry no.",
+      "taxId": "Tax ID no.",
+      "companyAddress": "Company address",
+      "primaryContact": "Primary contact person",
+      "matter": "Brief about the matter",
+      "documents": "Documents"
+    },
+    "documentsHint": "PDF, Word or images, up to 10MB in all",
+    "file": {
+      "dropOne": "Drop a file here",
+      "dropMany": "Drop files here",
+      "files": { "one": "{count} file", "other": "{count} files" },
+      "browse": "Browse",
+      "replace": "Replace"
+    },
+    "consent": "I confirm the details above are accurate. I understand the firm keeps them confidential, and that sending this form doesn’t by itself make the firm my lawyers.",
+    "submit": "Send consultation request",
+    "errors": {
+      "practice": "Choose at least one practice area.",
+      "required": "Please fill in this field.",
+      "choose": "Please choose one of the options.",
+      "email": "Please enter a valid email address.",
+      "consent": "Please tick this box to continue."
+    },
+    "sentLabel": "(Request received)",
+    "sentHeading": "Thank you, {name}. Your request is with us, and a partner will be in touch within two working days.",
+    "reference": "Your reference is {reference}. Keep it to hand if you call or write to us about this matter.",
+    "nextSteps": [
+      {
+        "title": "Review",
+        "text": "A partner reads your request and checks it for conflicts of interest."
+      },
+      {
+        "title": "Call",
+        "text": "We call you within two working days to talk the matter through."
+      },
+      {
+        "title": "Engagement letter",
+        "text": "If we take the matter on, you receive a letter setting out its scope and fees."
+      }
+    ],
+    "backHome": "Back to home"
+  }
+}

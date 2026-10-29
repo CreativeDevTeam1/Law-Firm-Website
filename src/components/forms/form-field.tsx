@@ -15,6 +15,8 @@ type FieldBase = {
   name: string;
   /** Says "(optional)" after the label. */
   optional?: boolean;
+  /** The word in "(optional)", for a form in another language. */
+  optionalText?: string;
   /** Takes the whole row where fields sit two across. */
   wide?: boolean;
   /** Prefix for the field's id, so two forms can't clash. Default "field". */
@@ -33,6 +35,7 @@ export function FormField({
   label,
   name,
   optional = false,
+  optionalText,
   wide = false,
   idPrefix = "field",
   className = "",
@@ -45,7 +48,7 @@ export function FormField({
 
   return (
     <div className={fieldClasses(wide, className)}>
-      <FieldLabel htmlFor={id} label={label} optional={optional} />
+      <FieldLabel htmlFor={id} label={label} optional={optional} optionalText={optionalText} />
       {multiline ? (
         <textarea
           className="form-input form-textarea body"
@@ -54,6 +57,8 @@ export function FormField({
           rows={rows}
           required={props.required}
           placeholder={props.placeholder}
+          dir={props.dir}
+          lang={props.lang}
         />
       ) : (
         <input className="form-input body" id={id} name={name} type={type} {...props} />
@@ -62,11 +67,29 @@ export function FormField({
   );
 }
 
+// The upload's own wording, for a form in another language.
+export type FormFileText = {
+  dropOne: string;
+  dropMany: string;
+  files: (count: number) => string;
+  browse: string;
+  replace: string;
+};
+
+const FORM_FILE_TEXT: FormFileText = {
+  dropOne: "Drop a file here",
+  dropMany: "Drop files here",
+  files: (count) => `${count} files`,
+  browse: "Browse",
+  replace: "Replace",
+};
+
 type FormFileProps = FieldBase & {
   accept?: string;
   hint?: string;
   multiple?: boolean;
   required?: boolean;
+  text?: FormFileText;
 };
 
 // A box to drop files on or click: the real file input covers it, unseen,
@@ -78,6 +101,7 @@ export function FormFile({
   label,
   name,
   optional = false,
+  optionalText,
   wide = true,
   idPrefix = "field",
   className = "",
@@ -85,19 +109,21 @@ export function FormFile({
   hint,
   multiple = false,
   required = false,
+  text = FORM_FILE_TEXT,
 }: FormFileProps) {
   const [files, setFiles] = useState<string[]>([]);
   const [dragging, setDragging] = useState(false);
   const id = `${idPrefix}-${name}`;
 
-  const prompt = multiple ? "Drop files here" : "Drop a file here";
-  const chosen = files.length === 0 ? prompt : files.length === 1 ? files[0] : `${files.length} files: ${files.join(", ")}`;
+  const prompt = multiple ? text.dropMany : text.dropOne;
+  const chosen =
+    files.length === 0 ? prompt : files.length === 1 ? files[0] : `${text.files(files.length)}: ${files.join(", ")}`;
 
   return (
     <div className={fieldClasses(wide, className)}>
       <span className="form-label body" id={`${id}-label`}>
         {label}
-        {optional && <span className="form-optional"> (optional)</span>}
+        <OptionalNote optional={optional} text={optionalText} />
       </span>
       <label className="form-file" data-dragging={dragging || undefined} data-chosen={files.length > 0 || undefined}>
         <input
@@ -131,20 +157,26 @@ export function FormFile({
           )}
         </span>
         <span className="form-file-button text-link link-underline-swap cta-small" aria-hidden="true">
-          {files.length ? "Replace" : "Browse"}
+          {files.length ? text.replace : text.browse}
         </span>
       </label>
     </div>
   );
 }
 
-function FieldLabel({ htmlFor, label, optional }: { htmlFor: string; label: string; optional: boolean }) {
+type FieldLabelProps = { htmlFor: string; label: string; optional: boolean; optionalText?: string };
+
+function FieldLabel({ htmlFor, label, optional, optionalText }: FieldLabelProps) {
   return (
     <label className="form-label body" htmlFor={htmlFor}>
       {label}
-      {optional && <span className="form-optional"> (optional)</span>}
+      <OptionalNote optional={optional} text={optionalText} />
     </label>
   );
+}
+
+function OptionalNote({ optional, text = "optional" }: { optional: boolean; text?: string }) {
+  return optional && <span className="form-optional">{` (${text})`}</span>;
 }
 
 const fieldClasses = (wide: boolean, className: string) =>
