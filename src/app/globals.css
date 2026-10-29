@@ -3635,10 +3635,10 @@
     --section-heading-indent: calc(5.45 * var(--cta-medium-font-size) + 0.25em);
   }
 
-  /* The Arabic heading is shorter than the English, so it's narrowed to
-     break over three lines rather than two. */
-  .intake[dir="rtl"] .intake-heading {
-    max-inline-size: 66%;
+  /* The Arabic heading is shorter than the English, so it's set larger to
+     fill three lines rather than two. */
+  .intake[dir="rtl"] .intake-heading .header-1 {
+    font-size: calc(1.4 * var(--header-1-font-size));
   }
 
   /* Language switch: "English" and "العربية" at the header's end, just
