@@ -3635,6 +3635,12 @@
     --section-heading-indent: calc(5.45 * var(--cta-medium-font-size) + 0.25em);
   }
 
+  /* The Arabic heading is shorter than the English, so it's narrowed to
+     break over three lines rather than two. */
+  .intake[dir="rtl"] .intake-heading {
+    max-inline-size: 66%;
+  }
+
   /* Language switch: "English" and "العربية" at the header's end, just
      above the heading. The page's language is dark and underlined; the
      other is grey and draws its line in on hover. A dot marks العربية for
