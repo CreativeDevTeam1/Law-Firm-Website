@@ -9,10 +9,16 @@ gsap.registerPlugin(ScrollTrigger);
 // Slides the elements matching `selector` inside `ref` up and fades them in
 // a few at a time as they scroll into view, as the cards do on the home
 // page. `rise` is how far they start below, as a percentage of their own
-// height. With reduced motion they're simply shown.
+// height, and `stagger` the seconds between one and the next. With reduced
+// motion they're simply shown.
 //
-//   useBatchReveal(groupsRef, ".careers-role", 60);
-export function useBatchReveal(ref: RefObject<HTMLElement | null>, selector: string, rise = 100) {
+//   useBatchReveal(gridRef, ".news-card");
+//   useBatchReveal(groupsRef, ".careers-role", { rise: 60, stagger: 0.08 });
+export function useBatchReveal(
+  ref: RefObject<HTMLElement | null>,
+  selector: string,
+  { rise = 100, stagger = 0.1 }: { rise?: number; stagger?: number } = {},
+) {
   useEffect(() => {
     const container = ref.current;
     if (!container) return;
@@ -28,7 +34,7 @@ export function useBatchReveal(ref: RefObject<HTMLElement | null>, selector: str
           gsap.fromTo(
             batch,
             { yPercent: rise, autoAlpha: 0 },
-            { yPercent: 0, autoAlpha: 1, duration: 1.2, ease: "power3.out", stagger: 0.08 },
+            { yPercent: 0, autoAlpha: 1, duration: 1.2, ease: "power3.out", stagger },
           ),
       });
 
@@ -36,5 +42,5 @@ export function useBatchReveal(ref: RefObject<HTMLElement | null>, selector: str
     });
 
     return () => mm.revert();
-  }, [ref, selector, rise]);
+  }, [ref, selector, rise, stagger]);
 }

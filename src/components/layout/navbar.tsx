@@ -8,17 +8,16 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import MobileMenu from "@/components/layout/mobile-menu";
 import TextLink from "@/components/ui/text-link";
+import type { Link as NavLink } from "@/content/types";
 import { whenIntroDone } from "@/lib/intro";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/team", label: "Team" },
-  { href: "/careers", label: "Careers" },
-  { href: "/news", label: "News & Insight" },
-];
+type NavbarProps = {
+  firmName: string;
+  links: NavLink[];
+  cta: NavLink;
+};
 
 // Whether a link's page is the one showing, or a page under it (a team
 // member's page counts as Team, an article as News & Insight).
@@ -37,7 +36,7 @@ const isCurrentSection = (href: string, pathname: string) =>
 // data-navbar-blend (half light, half photo) they're light and inverted
 // against what's behind them. Pages without a hero are dark until the
 // footer.
-export default function Navbar() {
+export default function Navbar({ firmName, links, cta }: NavbarProps) {
   const navbarRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLAnchorElement>(null);
   const pathname = usePathname();
@@ -249,7 +248,7 @@ export default function Navbar() {
         ref={logoRef}
         href="/"
         className="navbar-logo"
-        aria-label="Shady El-Barkoky Law Firm, home"
+        aria-label={`${firmName}, home`}
       >
         <span className="navbar-logo-full" />
         <span className="navbar-logo-short" />
@@ -258,7 +257,7 @@ export default function Navbar() {
       <header ref={navbarRef} className="navbar">
         <nav className="navbar-menu" aria-label="Main">
           <ul>
-            {LINKS.map((link) => (
+            {links.map((link) => (
               <li key={link.href}>
                 <TextLink href={link.href} aria-current={isCurrentSection(link.href, pathname) ? "page" : undefined}>
                   {link.label}
@@ -268,8 +267,8 @@ export default function Navbar() {
           </ul>
         </nav>
 
-        <TextLink href="/client-intake" icon="arrow-up-right" className="navbar-cta">
-          Consult Us
+        <TextLink href={cta.href} icon="arrow-up-right" className="navbar-cta">
+          {cta.label}
         </TextLink>
 
         {/* "Menu" and "Close" are stacked; opening slides "Close" up into place. */}
@@ -296,7 +295,8 @@ export default function Navbar() {
 
       <MobileMenu
         id="mobile-menu"
-        links={LINKS}
+        links={links}
+        cta={cta}
         pathname={pathname}
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}

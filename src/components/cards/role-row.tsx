@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { TextLinkLabel } from "@/components/ui/text-link";
-import type { Role } from "@/lib/careers";
+import type { Role } from "@/content/types";
 
 type RoleRowProps = {
   role: Role;

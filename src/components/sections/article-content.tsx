@@ -1,8 +1,9 @@
 import Image from "next/image";
-import LineReveal from "@/components/ui/line-reveal";
+import RichText from "@/components/ui/rich-text";
 import PersonaMarquee from "@/components/ui/persona-marquee";
 import SectionHeading from "@/components/ui/section-heading";
-import type { Article } from "@/lib/news";
+import type { Article } from "@/content/types";
+import { formatDate } from "@/lib/format";
 
 type ArticleContentProps = { article: Article };
 
@@ -20,8 +21,8 @@ export default function ArticleContent({ article }: ArticleContentProps) {
 
       <div className="article-photo">
         <Image
-          src={article.image}
-          alt=""
+          src={article.image.src}
+          alt={article.image.alt}
           fill
           sizes="(min-width: 64rem) 77vw, 100vw"
           loading="eager"
@@ -32,18 +33,14 @@ export default function ArticleContent({ article }: ArticleContentProps) {
       <SectionHeading
         as="h1"
         id="article-title"
-        label={`(${article.date})`}
+        label={formatDate(article.publishedAt)}
         className="article-headline"
       >
         {article.headline}
       </SectionHeading>
 
       <div className="article-body">
-        {article.body.map((paragraph, i) => (
-          <LineReveal className="body-big" key={i}>
-            {paragraph}
-          </LineReveal>
-        ))}
+        <RichText value={article.body} />
       </div>
     </article>
   );

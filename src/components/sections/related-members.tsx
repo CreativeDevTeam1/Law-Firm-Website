@@ -1,6 +1,6 @@
 import RelatedCarousel from "@/components/ui/related-carousel";
 import TeamsCard from "@/components/cards/teams-card";
-import type { TeamMember } from "@/lib/team";
+import type { TeamMember } from "@/content/types";
 
 type RelatedMembersProps = { members: TeamMember[] };
 
@@ -11,13 +11,7 @@ export default function RelatedMembers({ members }: RelatedMembersProps) {
     <RelatedCarousel id="related-members" label="(Related Members)" itemName="member">
       {members.map((member) => (
         <li className="related-item" key={member.slug}>
-          <TeamsCard
-            name={member.name}
-            role={member.role}
-            photo={member.photo}
-            photoPosition={member.photoPosition}
-            href={`/team/${member.slug}`}
-          />
+          <TeamsCard member={member} />
         </li>
       ))}
     </RelatedCarousel>

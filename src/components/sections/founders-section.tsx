@@ -4,18 +4,13 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LineReveal from "@/components/ui/line-reveal";
-import TeamsCard, { type TeamsCardProps } from "@/components/cards/teams-card";
+import TeamsCard from "@/components/cards/teams-card";
 import TextLink from "@/components/ui/text-link";
+import type { HomePage } from "@/content/types";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Fictional working names and roles until the verified partner profiles arrive.
-const FOUNDERS: TeamsCardProps[] = [
-  { name: "Karim El-Masry", role: "Managing Partner", photo: "/images/home-page/founders/partner-cinematic-1.png", href: "/team" },
-  { name: "Nouran Khalil", role: "Partner, Corporate & Commercial", photo: "/images/home-page/founders/partner-cinematic-2.png", href: "/team" },
-  { name: "Ahmed Nassar", role: "Partner, Dispute Resolution", photo: "/images/home-page/founders/partner-cinematic-3.png", href: "/team" },
-  { name: "Salma Farouk", role: "Partner, Investment & Regulatory", photo: "/images/home-page/founders/partner-cinematic-4.png", href: "/team" },
-];
+type FoundersSectionProps = { partners: HomePage["partners"] };
 
 // Home page "Partners Behind the Firm" — Figma "founders-section".
 //
@@ -26,7 +21,7 @@ const FOUNDERS: TeamsCardProps[] = [
 // is held by invisible copies of the cards (.founders-targets), so each card
 // knows exactly where to land. On phones, and without motion, the cards are
 // a plain grid.
-export default function FoundersSection() {
+export default function FoundersSection({ partners: { titleLines, link, members } }: FoundersSectionProps) {
   const stackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -113,29 +108,31 @@ export default function FoundersSection() {
     <section className="founders" aria-labelledby="founders-title">
       <div className="founders-stack" ref={stackRef}>
         <div className="founders-head">
+          {/* Each line is set in from the left by its own amount (founders-title-1, -2, -3). */}
           <h2 id="founders-title" className="founders-title display-header">
-            <LineReveal as="span" className="founders-title-line founders-title-1">
-              Partners
-            </LineReveal>
-            <LineReveal as="span" className="founders-title-line founders-title-2" delay={0.08}>
-              Behind
-            </LineReveal>
-            <LineReveal as="span" className="founders-title-line founders-title-3" delay={0.16}>
-              the Firm
-            </LineReveal>
+            {titleLines.map((line, i) => (
+              <LineReveal
+                as="span"
+                className={`founders-title-line founders-title-${i + 1}`}
+                delay={0.08 * i}
+                key={i}
+              >
+                {line}
+              </LineReveal>
+            ))}
           </h2>
           <div className="founders-link">
-            <TextLink href="/team" size="medium" icon="arrow-right" reveal>
-              See the full team
+            <TextLink href={link.href} size="medium" icon="arrow-right" reveal>
+              {link.label}
             </TextLink>
           </div>
         </div>
 
         <div className="founders-cards">
-          {FOUNDERS.map((founder, i) => (
-            <div className="founders-slot" key={i}>
+          {members.map((member) => (
+            <div className="founders-slot" key={member.slug}>
               <div className="founders-frame">
-                <TeamsCard {...founder} />
+                <TeamsCard member={member} />
               </div>
             </div>
           ))}
@@ -145,9 +142,9 @@ export default function FoundersSection() {
       {/* Where the cards land (see above). Hidden copies, so they take up
           exactly the cards' size. */}
       <div className="founders-targets" aria-hidden="true" inert>
-        {FOUNDERS.map((founder, i) => (
-          <div className="founders-target" key={i}>
-            <TeamsCard {...founder} />
+        {members.map((member) => (
+          <div className="founders-target" key={member.slug}>
+            <TeamsCard member={member} />
           </div>
         ))}
       </div>

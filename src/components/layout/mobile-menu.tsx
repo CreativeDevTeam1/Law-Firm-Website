@@ -4,10 +4,13 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { gsap } from "gsap";
 import TextLink from "@/components/ui/text-link";
+import type { Link as NavLink } from "@/content/types";
 
 type MobileMenuProps = {
   id: string;
-  links: readonly { href: string; label: string }[];
+  links: NavLink[];
+  /** The call to action under the links. */
+  cta: NavLink;
   pathname: string;
   isOpen: boolean;
   onClose: () => void;
@@ -22,7 +25,7 @@ type MobileMenuProps = {
 //
 // A link to another page leaves the menu open: the page transition's
 // curtain covers it, and the new page brings a fresh, closed navbar.
-export default function MobileMenu({ id, links, pathname, isOpen, onClose }: MobileMenuProps) {
+export default function MobileMenu({ id, links, cta, pathname, isOpen, onClose }: MobileMenuProps) {
   const menuRef = useRef<HTMLElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const isFirstRun = useRef(true);
@@ -98,13 +101,8 @@ export default function MobileMenu({ id, links, pathname, isOpen, onClose }: Mob
 
         <div className="mobile-menu-item mobile-menu-cta">
           <div className="mobile-menu-item-inner">
-            <TextLink
-              href="/client-intake"
-              size="medium"
-              icon="arrow-up-right"
-              onClick={closeIfCurrent("/client-intake")}
-            >
-              Consult Us
+            <TextLink href={cta.href} size="medium" icon="arrow-up-right" onClick={closeIfCurrent(cta.href)}>
+              {cta.label}
             </TextLink>
           </div>
         </div>

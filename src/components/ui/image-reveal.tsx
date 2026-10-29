@@ -4,17 +4,11 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { ImageAsset } from "@/content/types";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type ImageRevealProps = {
-  src: string;
-  /** Alt text for the image. Leave empty when it's only decorative. */
-  alt?: string;
-  /** Crop of the image (CSS object-position), e.g. "35% 50%". Default centred. */
-  position?: string;
-  className?: string;
-};
+type ImageRevealProps = { image: ImageAsset; className?: string };
 
 // An image that opens up as it scrolls in — Figma "img-wrapper" (About
 // page). From 1024px the section is a screen tall: the image starts at
@@ -25,8 +19,8 @@ type ImageRevealProps = {
 // view. Either way it's only clipped smaller, so the page never changes
 // height while it grows.
 //
-//   <ImageReveal src="/images/…" alt="…" position="35% 50%" />
-export default function ImageReveal({ src, alt = "", position, className = "" }: ImageRevealProps) {
+//   <ImageReveal image={{ src: "/images/…", alt: "…", position: "35% 50%" }} />
+export default function ImageReveal({ image, className = "" }: ImageRevealProps) {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -63,11 +57,11 @@ export default function ImageReveal({ src, alt = "", position, className = "" }:
     <section className={`image-reveal ${className}`.trim()} ref={sectionRef} data-navbar-light>
       <div className="image-reveal-media">
         <Image
-          src={src}
-          alt={alt}
+          src={image.src}
+          alt={image.alt}
           fill
           sizes="200vw"
-          style={position ? { objectPosition: position } : undefined}
+          style={image.position ? { objectPosition: image.position } : undefined}
         />
       </div>
     </section>

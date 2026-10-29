@@ -6,16 +6,12 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LineReveal from "@/components/ui/line-reveal";
 import TextLink from "@/components/ui/text-link";
+import type { HomePage } from "@/content/types";
+import { useBatchReveal } from "@/hooks/use-batch-reveal";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type Client = { name: string; logo: string };
-
-// Every client logo. The grid shows the first CARD_COUNT and swaps the rest
-// in over time, so add logos here to have more clients rotate through.
-const CLIENTS: Client[] = [
-  { name: "Al Ahly SC", logo: "/images/home-page/clients/logo-wrapper.svg" },
-];
+type ClientsSectionProps = { clients: HomePage["clients"] };
 
 const CARD_COUNT = 8;
 
@@ -24,36 +20,24 @@ const SWAP_INTERVAL = 4;
 /** How many cards change logo in each round. */
 const SWAP_COUNT = 4;
 
-export default function ClientsSection() {
+// Home page "(Our Clients)": a grid of CARD_COUNT logo cards. Once a row's
+// top edge comes onto the screen, its cards slide up by their own height and
+// fade in, one after another (as on sunnybonnell.com). Every few seconds
+// some cards then fade their logo out and back in as a different client,
+// so with more clients than cards they all rotate through.
+export default function ClientsSection({ clients: { heading, link, clients } }: ClientsSectionProps) {
   const gridRef = useRef<HTMLUListElement>(null);
+  useBatchReveal(gridRef, ".clients-card");
 
   useEffect(() => {
     const grid = gridRef.current;
-    if (!grid) return;
+    if (!grid || clients.length === 0) return;
 
-    const cards = gsap.utils.toArray<HTMLElement>(".clients-card", grid);
+    const logos = gsap.utils.toArray<HTMLElement>(".clients-card", grid).map((card) => card.querySelector("img")!);
     const mm = gsap.matchMedia();
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
-      // Once a row's top edge comes onto the screen, its cards slide up by
-      // their own height and fade in, one after another (as on
-      // sunnybonnell.com). The cards stay put until then, so the triggers
-      // are measured from where they really sit.
-      const reveal = ScrollTrigger.batch(cards, {
-        start: "top bottom",
-        once: true,
-        onEnter: (batch) =>
-          gsap.fromTo(
-            batch,
-            { yPercent: 100, autoAlpha: 0 },
-            { yPercent: 0, autoAlpha: 1, duration: 1.2, ease: "power3.out", stagger: 0.1 },
-          ),
-      });
-
-      // Every few seconds some cards fade their logo out and back in as a
-      // different client. Only runs while the grid is on screen.
-      const logos = cards.map((card) => card.querySelector("img")!);
-      const shown = Array.from({ length: CARD_COUNT }, (_, i) => i % CLIENTS.length);
+      const shown = Array.from({ length: CARD_COUNT }, (_, i) => i % clients.length);
 
       const swap = () => {
         const picked = gsap.utils.shuffle([...logos.keys()]).slice(0, SWAP_COUNT);
@@ -61,8 +45,8 @@ export default function ClientsSection() {
         picked.forEach((cardIndex) => {
           // Prefer a client that isn't on screen; with too few clients for
           // that, any other one (or the same one, if there's only one).
-          const hidden = [...CLIENTS.keys()].filter((i) => !shown.includes(i));
-          const others = [...CLIENTS.keys()].filter((i) => i !== shown[cardIndex]);
+          const hidden = [...clients.keys()].filter((i) => !shown.includes(i));
+          const others = [...clients.keys()].filter((i) => i !== shown[cardIndex]);
           const pool = hidden.length ? hidden : others.length ? others : [shown[cardIndex]];
           const next = gsap.utils.random(pool);
           shown[cardIndex] = next;
@@ -72,8 +56,8 @@ export default function ClientsSection() {
             .timeline()
             .to(img, { autoAlpha: 0, duration: 0.5 })
             .call(() => {
-              img.src = CLIENTS[next].logo;
-              img.alt = CLIENTS[next].name;
+              img.src = clients[next].logo.src;
+              img.alt = clients[next].logo.alt;
             })
             .to(img, { autoAlpha: 1, duration: 0.5 });
         });
@@ -86,6 +70,7 @@ export default function ClientsSection() {
         })
         .pause();
 
+      // Only runs while the grid is on screen.
       const visibility = ScrollTrigger.create({
         trigger: grid,
         start: "top bottom-=100",
@@ -94,47 +79,48 @@ export default function ClientsSection() {
       });
 
       return () => {
-        reveal.forEach((trigger) => trigger.kill());
         visibility.kill();
         loop.kill();
       };
     });
 
     return () => mm.revert();
-  }, []);
+  }, [clients]);
 
   return (
     <section className="clients" aria-labelledby="clients-title">
       <div className="clients-heading">
-        <LineReveal className="clients-label cta-medium">(Our Clients)</LineReveal>
+        <LineReveal className="clients-label cta-medium">({heading.label})</LineReveal>
         <LineReveal as="h2" id="clients-title" className="clients-title header-1">
-          Proudly Representing Clients Across Diverse Industries
+          {heading.title}
         </LineReveal>
       </div>
 
       <div className="clients-link">
-        <TextLink href="/client-intake" size="medium" icon="arrow-right" reveal>
-          Become one of our clients
+        <TextLink href={link.href} size="medium" icon="arrow-right" reveal>
+          {link.label}
         </TextLink>
       </div>
 
-      <ul className="clients-grid" ref={gridRef}>
-        {Array.from({ length: CARD_COUNT }, (_, i) => {
-          const client = CLIENTS[i % CLIENTS.length];
-          return (
-            <li className="clients-card" key={i}>
-              <Image
-                className="clients-logo"
-                src={client.logo}
-                alt={client.name}
-                width={144}
-                height={144}
-                unoptimized
-              />
-            </li>
-          );
-        })}
-      </ul>
+      {clients.length > 0 && (
+        <ul className="clients-grid" ref={gridRef}>
+          {Array.from({ length: CARD_COUNT }, (_, i) => {
+            const client = clients[i % clients.length];
+            return (
+              <li className="clients-card" key={i}>
+                <Image
+                  className="clients-logo"
+                  src={client.logo.src}
+                  alt={client.logo.alt}
+                  width={144}
+                  height={144}
+                  unoptimized
+                />
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }

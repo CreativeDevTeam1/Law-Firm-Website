@@ -1,6 +1,6 @@
 import NewsCard from "@/components/cards/news-card";
 import RelatedCarousel from "@/components/ui/related-carousel";
-import type { Article } from "@/lib/news";
+import type { Article } from "@/content/types";
 
 type RelatedArticlesProps = { articles: Article[] };
 
@@ -11,7 +11,7 @@ export default function RelatedArticles({ articles }: RelatedArticlesProps) {
     <RelatedCarousel id="related-articles" label="(Related Articles)" itemName="article">
       {articles.map((article) => (
         <li className="related-item" key={article.slug}>
-          <NewsCard date={article.date} title={article.title} image={article.image} href={`/news/${article.slug}`} />
+          <NewsCard article={article} />
         </li>
       ))}
     </RelatedCarousel>

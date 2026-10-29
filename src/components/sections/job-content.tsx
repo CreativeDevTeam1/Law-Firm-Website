@@ -1,8 +1,8 @@
 import JobApplication from "@/components/forms/job-application";
 import JobApplyLink from "@/components/ui/job-apply-link";
-import { ROLE_OFFER, roleGroup, type Role } from "@/lib/careers";
+import type { RolePage } from "@/content/types";
 
-type JobContentProps = { role: Role };
+type JobContentProps = Pick<RolePage, "role" | "groupName" | "offer">;
 
 // A role's page — no Figma frame; kept simple and static (no marquee or
 // scroll animations). "(Open position)" is set into the title's first line,
@@ -12,11 +12,9 @@ type JobContentProps = { role: Role };
 // divider with its label on the left: the label in columns 1–4 and the
 // text in columns 6–10 from 1024px, as the article and bio text. On phones
 // it all stacks. Last, the application form "Apply" scrolls down to.
-export default function JobContent({ role }: JobContentProps) {
-  const group = roleGroup(role);
-
+export default function JobContent({ role, groupName, offer }: JobContentProps) {
   const facts = [
-    { term: "Practice", value: group.name },
+    { term: "Practice", value: groupName },
     { term: "Experience", value: role.level },
     { term: "Location", value: role.location },
     { term: "Type", value: role.type },
@@ -25,7 +23,7 @@ export default function JobContent({ role }: JobContentProps) {
   const sections = [
     { label: "(What you’ll do)", items: role.responsibilities },
     { label: "(What you’ll bring)", items: role.requirements },
-    { label: "(What we offer)", items: ROLE_OFFER },
+    { label: "(What we offer)", items: offer },
   ];
 
   return (

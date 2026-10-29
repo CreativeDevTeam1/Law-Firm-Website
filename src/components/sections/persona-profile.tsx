@@ -1,7 +1,8 @@
 import Image from "next/image";
 import LineReveal from "@/components/ui/line-reveal";
 import PersonaMarquee from "@/components/ui/persona-marquee";
-import type { TeamMember } from "@/lib/team";
+import RichText from "@/components/ui/rich-text";
+import type { TeamMember } from "@/content/types";
 
 type PersonaProfileProps = { member: TeamMember };
 
@@ -22,8 +23,8 @@ export default function PersonaProfile({ member }: PersonaProfileProps) {
 
       <div className="persona-photo">
         <Image
-          src={member.photo}
-          alt={member.name}
+          src={member.photo.src}
+          alt={member.photo.alt}
           fill
           sizes="(min-width: 64rem) 77vw, 100vw"
           loading="eager"
@@ -62,11 +63,7 @@ export default function PersonaProfile({ member }: PersonaProfileProps) {
       </LineReveal>
 
       <div className="persona-bio">
-        {member.bio.map((paragraph, i) => (
-          <LineReveal className="body-big" key={i}>
-            {paragraph}
-          </LineReveal>
-        ))}
+        <RichText value={member.bio} />
       </div>
     </section>
   );

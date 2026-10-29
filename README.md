@@ -1,36 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shady El-Barkoky Law Firm website
 
-## Getting Started
-
-First, run the development server:
+Next.js 16 (App Router, Cache Components), GSAP and Lenis. All styles are in `src/app/globals.css`. Content comes from Sanity (project `6x6vo5xc`, dataset `production`), edited in the Studio beside this folder, `../studio-law-firm-website`.
 
 ```bash
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Content
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Every piece of copy, image and list on the site comes from Sanity through one content layer:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/content/types.ts` is the content model the components use, field for field with the Studio's schemas (`../studio-law-firm-website/schemaTypes`).
+- `src/sanity/queries.ts` holds the GROQ queries, each projecting a document into its type's shape (images as `{ src, alt, position }`, references as the documents themselves).
+- `src/content/queries.ts` has the only functions that read content (`getHomePage()`, `getTeamMemberPage(slug)`, …). Pages call them and pass the results down as props; components never fetch.
+- `src/sanity/live.ts` sets up `sanityFetch` and `<SanityLive />` (rendered in the root layout). Pages are prerendered and cached; when content is published, Sanity Live refreshes exactly the caches that used it, so changes appear without a rebuild or a webhook.
 
-## Learn More
+After changing a schema or a query, regenerate `sanity.types.ts` from the Studio folder:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run typegen
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Interface wording that isn't content (form labels, "Know more", the 404 page) stays in the components; the Client intake form's English and Arabic wording is in `src/glossary`.

@@ -1,40 +1,33 @@
 import LineReveal from "@/components/ui/line-reveal";
 import TextLink from "@/components/ui/text-link";
+import type { HomePage } from "@/content/types";
 
-export default function AboutSection() {
+type AboutSectionProps = { about: HomePage["about"] };
+
+// Home page "(About)": the heading with its label above it, a subtitle,
+// then the paragraphs and a link to the About page.
+export default function AboutSection({ about }: AboutSectionProps) {
   return (
     <section className="about" aria-labelledby="about-title">
       <div className="about-heading">
-        <LineReveal className="about-label cta-medium">(About)</LineReveal>
+        <LineReveal className="about-label cta-medium">({about.heading.label})</LineReveal>
         <LineReveal as="h2" id="about-title" className="about-title header-1">
-          An Egyptian law firm combining rigorous preparation, commercial
-          judgment, and committed representation across every stage of a
-          matter.
+          {about.heading.title}
         </LineReveal>
       </div>
 
       <LineReveal as="h3" className="about-subtitle header-3-medium">
-        Counsel shaped around the matter at hand.
+        {about.subtitle}
       </LineReveal>
 
       <div className="about-content">
-        <LineReveal className="about-text body">
-          Based in New Cairo, Shady El-Barkoky Law Firm advises businesses,
-          institutions, investors, and individuals across corporate,
-          commercial, dispute, and private-client matters. Each engagement
-          begins with a clear understanding of the legal position, the
-          client&apos;s objectives, and the wider context in which decisions are
-          made.
-        </LineReveal>
-        <LineReveal className="about-text body" delay={0.1}>
-          Working across disciplines allows the firm to address immediate
-          legal questions without losing sight of their practical and
-          commercial consequences. From preventive advice and negotiations to
-          complex proceedings, we deliver focused strategies designed to
-          protect our clients&apos; interests and support confident decisions.
-        </LineReveal>
-        <TextLink href="/about" size="medium" icon="arrow-right" reveal>
-          More about the firm
+        {about.paragraphs.map((paragraph, i) => (
+          <LineReveal className="about-text body" delay={0.1 * i} key={i}>
+            {paragraph}
+          </LineReveal>
+        ))}
+        <TextLink href={about.link.href} size="medium" icon="arrow-right" reveal>
+          {about.link.label}
         </TextLink>
       </div>
     </section>

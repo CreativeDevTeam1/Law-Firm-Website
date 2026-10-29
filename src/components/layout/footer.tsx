@@ -1,39 +1,19 @@
 "use client";
 
-import { useEffect, useRef, type MouseEvent } from "react";
+import { Fragment, useEffect, useRef, type MouseEvent } from "react";
 import { usePathname } from "next/navigation";
 import { useLenis } from "lenis/react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LineReveal from "@/components/ui/line-reveal";
 import TextLink from "@/components/ui/text-link";
+import type { Link, SiteSettings } from "@/content/types";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const NAVIGATE = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/careers", label: "Careers" },
-  { href: "/news", label: "News & Insight" },
-  { href: "/client-intake", label: "Contact" },
-];
-
-// The firm's profile links aren't known yet.
-const SOCIAL = [
-  { href: "#", label: "LinkedIn" },
-  { href: "#", label: "Instagram" },
-];
-
-const CONTACT = [
-  { href: "mailto:info@shadyelbarkoky.com", label: "Info@shadyelbarkoky.com" },
-  { href: "tel:+201066563089", label: "+20 1066563089" },
-];
-
-const LEGAL = [
-  { href: "/privacy-policy", label: "Privacy Policy" },
-  { href: "/terms-of-use", label: "Terms of Use" },
-  { href: "/faq", label: "FAQ" },
-];
+type FooterProps = {
+  settings: Pick<SiteSettings, "footerTitle" | "cta" | "footerNav" | "social" | "contact" | "address" | "legal">;
+};
 
 /** Seconds between one group's reveal and the next, and between links. */
 const GROUP_STAGGER = 0.08;
@@ -53,7 +33,7 @@ const LINK_STAGGER = 0.04;
 // As they come into view, the divider draws in from the left and the
 // texts slide up line by line, group after group. "Back to top" scrolls
 // smoothly back up. Visitors who prefer reduced motion get none of this.
-export default function Footer() {
+export default function Footer({ settings }: FooterProps) {
   const footerRef = useRef<HTMLElement>(null);
   const lenis = useLenis();
   const pathname = usePathname();
@@ -126,7 +106,7 @@ export default function Footer() {
   };
 
   // One group's links, revealed one after another after the group's title.
-  const links = (items: { href: string; label: string }[], group: number, external = false) => (
+  const links = (items: Link[], group: number, external = false) => (
     <ul className="footer-links">
       {items.map((link, i) => (
         <li key={link.label}>
@@ -148,11 +128,11 @@ export default function Footer() {
       <div className="footer-inner">
         <div className="footer-top">
           <LineReveal as="h2" className="footer-title header-1">
-            Your Trusted Legal Partner, Every Step of the Way
+            {settings.footerTitle}
           </LineReveal>
           <div className="footer-cta">
-            <TextLink href="/client-intake" size="big" icon="arrow-up-right" reveal revealDelay={0.15}>
-              Consult Us
+            <TextLink href={settings.cta.href} size="big" icon="arrow-up-right" reveal revealDelay={0.15}>
+              {settings.cta.label}
             </TextLink>
           </div>
         </div>
@@ -165,21 +145,21 @@ export default function Footer() {
               <LineReveal as="h3" id="footer-navigate" className="footer-group-title header-3-semibold">
                 Navigate
               </LineReveal>
-              {links(NAVIGATE, 0)}
+              {links(settings.footerNav, 0)}
             </nav>
 
             <div className="footer-group footer-social">
               <LineReveal as="h3" className="footer-group-title header-3-semibold" delay={GROUP_STAGGER}>
                 Social
               </LineReveal>
-              {links(SOCIAL, 1, true)}
+              {links(settings.social, 1, true)}
             </div>
 
             <div className="footer-group footer-contact">
               <LineReveal as="h3" className="footer-group-title header-3-semibold" delay={2 * GROUP_STAGGER}>
                 For Inquiries
               </LineReveal>
-              {links(CONTACT, 2)}
+              {links(settings.contact, 2)}
             </div>
 
             <div className="footer-group footer-location">
@@ -192,20 +172,19 @@ export default function Footer() {
                 delay={3 * GROUP_STAGGER + LINK_STAGGER}
                 stagger={LINK_STAGGER}
               >
-                Shady ElBarkoky Law Firm
-                <br />
-                4th Floor, 52 HQ Mall
-                <br />
-                North 90 Road, Fifth Settlement
-                <br />
-                New Cairo, Egypt
+                {settings.address.map((line, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && <br />}
+                    {line}
+                  </Fragment>
+                ))}
               </LineReveal>
             </div>
           </div>
 
           <div className="footer-bottom">
             <ul className="footer-legal">
-              {LEGAL.map((link, i) => (
+              {settings.legal.map((link, i) => (
                 <li key={link.href}>
                   <TextLink href={link.href} reveal revealDelay={i * LINK_STAGGER} revealStart="top bottom">
                     {link.label}

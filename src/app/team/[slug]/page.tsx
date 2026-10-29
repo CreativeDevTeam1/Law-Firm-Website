@@ -3,17 +3,17 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PersonaProfile from "@/components/sections/persona-profile";
 import RelatedMembers from "@/components/sections/related-members";
-import { getMember, relatedMembers, TEAM } from "@/lib/team";
+import { getTeamMemberPage, getTeamMemberSlugs } from "@/content/queries";
 
 // Every member's page is built ahead of time; any other slug is a 404
 // (dynamicParams isn't available with Cache Components, so it's checked here).
-export function generateStaticParams() {
-  return TEAM.map((member) => ({ slug: member.slug }));
+export async function generateStaticParams() {
+  return (await getTeamMemberSlugs()).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/team/[slug]">): Promise<Metadata> {
-  const member = getMember((await params).slug);
-  return member ? { title: `${member.name}, ${member.role}` } : {};
+  const page = await getTeamMemberPage((await params).slug);
+  return page ? { title: `${page.member.name}, ${page.member.role}` } : {};
 }
 
 // The slug is read inside Suspense, so the page's shell is the same for
@@ -31,13 +31,13 @@ export default function TeamMember({ params }: PageProps<"/team/[slug]">) {
 }
 
 async function Member({ params }: Pick<PageProps<"/team/[slug]">, "params">) {
-  const member = getMember((await params).slug);
-  if (!member) notFound();
+  const page = await getTeamMemberPage((await params).slug);
+  if (!page) notFound();
 
   return (
     <>
-      <PersonaProfile member={member} />
-      <RelatedMembers members={relatedMembers(member)} />
+      <PersonaProfile member={page.member} />
+      <RelatedMembers members={page.related} />
     </>
   );
 }

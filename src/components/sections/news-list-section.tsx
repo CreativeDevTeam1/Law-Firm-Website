@@ -1,69 +1,38 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef } from "react";
 import LineReveal from "@/components/ui/line-reveal";
 import NewsCard from "@/components/cards/news-card";
 import SectionHeading from "@/components/ui/section-heading";
-import { ARTICLES } from "@/lib/news";
+import type { NewsPage } from "@/content/types";
+import { useBatchReveal } from "@/hooks/use-batch-reveal";
 
-gsap.registerPlugin(ScrollTrigger);
+type NewsListSectionProps = { news: NewsPage };
 
 // News page — Figma "news-page" (its "team-section" frame). The heading
 // and paragraph are laid out like the Team page's (see Page header in
-// globals.css); Figma reuses the Team page's copy there, so the heading is
-// the home page's News one. Then every article as a card (news-card.tsx):
-// one column on small phones, two from 480px, three from 768px and four
-// from 1024px. The cards slide up and fade in a row at a time, as on the
-// home page.
-export default function NewsListSection() {
+// globals.css). Then every article as a card (news-card.tsx): one column
+// on small phones, two from 480px, three from 768px and four from 1024px.
+// The cards slide up and fade in a row at a time, as on the home page.
+export default function NewsListSection({ news: { heading, intro, articles } }: NewsListSectionProps) {
   const gridRef = useRef<HTMLUListElement>(null);
-
-  useEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
-
-    const cards = gsap.utils.toArray<HTMLElement>(".news-card", grid);
-    const mm = gsap.matchMedia();
-
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const reveal = ScrollTrigger.batch(cards, {
-        start: "top bottom",
-        once: true,
-        onEnter: (batch) =>
-          gsap.fromTo(
-            batch,
-            { yPercent: 100, autoAlpha: 0 },
-            { yPercent: 0, autoAlpha: 1, duration: 1.2, ease: "power3.out", stagger: 0.1 },
-          ),
-      });
-
-      return () => reveal.forEach((trigger) => trigger.kill());
-    });
-
-    return () => mm.revert();
-  }, []);
+  useBatchReveal(gridRef, ".news-card");
 
   return (
     <section className="news-list" aria-labelledby="news-list-title">
       <div className="page-header">
-        <SectionHeading id="news-list-title" label="(News & Articles)" className="page-heading news-list-heading">
-          Stay informed with our latest legal news and expert insights on the
-          changes shaping business and investment in Egypt.
+        <SectionHeading id="news-list-title" label={heading.label} className="page-heading news-list-heading">
+          {heading.title}
         </SectionHeading>
         <LineReveal className="page-intro body" delay={0.1}>
-          Built upon professionalism, integrity, and client-focused
-          representation, the firm serves individuals, corporations,
-          investors, entrepreneurs, and institutions seeking dependable legal
-          counsel in an increasingly complex legal and commercial environment.
+          {intro}
         </LineReveal>
       </div>
 
       <ul className="news-list-grid" ref={gridRef}>
-        {ARTICLES.map((article) => (
+        {articles.map((article) => (
           <li key={article.slug}>
-            <NewsCard date={article.date} title={article.title} image={article.image} href={`/news/${article.slug}`} />
+            <NewsCard article={article} />
           </li>
         ))}
       </ul>

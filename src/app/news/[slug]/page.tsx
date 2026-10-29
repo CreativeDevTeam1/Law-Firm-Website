@@ -3,17 +3,17 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ArticleContent from "@/components/sections/article-content";
 import RelatedArticles from "@/components/sections/related-articles";
-import { ARTICLES, getArticle, relatedArticles } from "@/lib/news";
+import { getArticlePage, getArticleSlugs } from "@/content/queries";
 
 // Every article's page is built ahead of time; any other slug is a 404
 // (dynamicParams isn't available with Cache Components, so it's checked here).
-export function generateStaticParams() {
-  return ARTICLES.map((article) => ({ slug: article.slug }));
+export async function generateStaticParams() {
+  return (await getArticleSlugs()).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/news/[slug]">): Promise<Metadata> {
-  const article = getArticle((await params).slug);
-  return article ? { title: article.title } : {};
+  const page = await getArticlePage((await params).slug);
+  return page ? { title: page.article.title } : {};
 }
 
 // As the team member pages: the slug is read inside Suspense, so the
@@ -31,13 +31,13 @@ export default function NewsArticle({ params }: PageProps<"/news/[slug]">) {
 }
 
 async function Entry({ params }: Pick<PageProps<"/news/[slug]">, "params">) {
-  const article = getArticle((await params).slug);
-  if (!article) notFound();
+  const page = await getArticlePage((await params).slug);
+  if (!page) notFound();
 
   return (
     <>
-      <ArticleContent article={article} />
-      <RelatedArticles articles={relatedArticles(article)} />
+      <ArticleContent article={page.article} />
+      <RelatedArticles articles={page.related} />
     </>
   );
 }

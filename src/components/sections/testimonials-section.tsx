@@ -3,42 +3,10 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import SectionHeading from "@/components/ui/section-heading";
-import TestimonialCard, { type TestimonialCardProps } from "@/components/cards/testimonial-card";
+import TestimonialCard from "@/components/cards/testimonial-card";
+import type { HomePage } from "@/content/types";
 
-type Testimonial = Pick<TestimonialCardProps, "name" | "role" | "quote" | "image">;
-
-// Clearly labelled sample testimonials used until verified client feedback
-// and approved attributions arrive.
-const TESTIMONIALS: Testimonial[] = [
-  {
-    name: "Karim Hassan",
-    role: "Managing Director",
-    quote:
-      "The team gave us clear, commercially grounded advice and remained focused on the issues that mattered most to our business.",
-    image: "/images/home-page/testimonials/client-clarity.png",
-  },
-  {
-    name: "Dalia Nassar",
-    role: "General Counsel",
-    quote:
-      "Their preparation was thorough, their communication was direct, and every recommendation was supported by careful legal analysis.",
-    image: "/images/home-page/testimonials/client-strategy.png",
-  },
-  {
-    name: "Omar El-Sayed",
-    role: "Investment Director",
-    quote:
-      "We valued the firm’s responsiveness and practical judgment throughout a complex matter involving several commercial considerations.",
-    image: "/images/home-page/testimonials/client-responsive.png",
-  },
-  {
-    name: "Mariam Fawzy",
-    role: "Founder & CEO",
-    quote:
-      "The advice was concise, strategic, and tailored to our objectives. We always understood our position and the available next steps.",
-    image: "/images/home-page/testimonials/client-partnership.png",
-  },
-];
+type TestimonialsSectionProps = { testimonials: HomePage["testimonials"] };
 
 /** Which way each row scrolls: -1 to the left, 1 to the right. */
 const ROW_DIRECTIONS = [-1, 1];
@@ -67,7 +35,7 @@ const MARQUEE = {
 // opposite directions, like sunnybonnell.com's heading marquee, and speed
 // up while the page is scrolled. Only the first set of the first row is
 // read out to screen readers; the rest repeat it.
-export default function TestimonialsSection() {
+export default function TestimonialsSection({ testimonials: { heading, testimonials } }: TestimonialsSectionProps) {
   const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -146,8 +114,8 @@ export default function TestimonialsSection() {
 
   return (
     <section className="testimonials" aria-labelledby="testimonials-title">
-      <SectionHeading id="testimonials-title" label="(Client Feedback)" className="testimonials-heading">
-        Trusted perspectives from the clients we represent
+      <SectionHeading id="testimonials-title" label={heading.label} className="testimonials-heading">
+        {heading.title}
       </SectionHeading>
 
       <div className="testimonials-grid" ref={gridRef}>
@@ -159,8 +127,8 @@ export default function TestimonialsSection() {
                 key={set}
                 aria-hidden={(row === 0 && set > 0) || undefined}
               >
-                {TESTIMONIALS.map((testimonial) => (
-                  <TestimonialCard key={testimonial.name} {...testimonial} />
+                {testimonials.map((testimonial) => (
+                  <TestimonialCard key={testimonial.name} testimonial={testimonial} />
                 ))}
               </div>
             ))}

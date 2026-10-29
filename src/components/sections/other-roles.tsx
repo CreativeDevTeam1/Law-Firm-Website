@@ -1,6 +1,6 @@
 import RoleRow from "@/components/cards/role-row";
 import TextLink from "@/components/ui/text-link";
-import type { Role } from "@/lib/careers";
+import type { Role } from "@/content/types";
 
 type OtherRolesProps = { roles: Role[] };
 

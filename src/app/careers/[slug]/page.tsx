@@ -3,17 +3,17 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import JobContent from "@/components/sections/job-content";
 import OtherRoles from "@/components/sections/other-roles";
-import { getRole, otherRoles, roleGroup, ROLES } from "@/lib/careers";
+import { getRolePage, getRoleSlugs } from "@/content/queries";
 
 // Every role's page is built ahead of time; any other slug is a 404
 // (dynamicParams isn't available with Cache Components, so it's checked here).
-export function generateStaticParams() {
-  return ROLES.map((role) => ({ slug: role.slug }));
+export async function generateStaticParams() {
+  return (await getRoleSlugs()).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/careers/[slug]">): Promise<Metadata> {
-  const role = getRole((await params).slug);
-  return role ? { title: `${role.title}, ${roleGroup(role).name}` } : {};
+  const page = await getRolePage((await params).slug);
+  return page ? { title: `${page.role.title}, ${page.groupName}` } : {};
 }
 
 // As the team member pages: the slug is read inside Suspense, so the
@@ -31,13 +31,13 @@ export default function CareersRole({ params }: PageProps<"/careers/[slug]">) {
 }
 
 async function Opening({ params }: Pick<PageProps<"/careers/[slug]">, "params">) {
-  const role = getRole((await params).slug);
-  if (!role) notFound();
+  const page = await getRolePage((await params).slug);
+  if (!page) notFound();
 
   return (
     <>
-      <JobContent role={role} />
-      <OtherRoles roles={otherRoles(role)} />
+      <JobContent role={page.role} groupName={page.groupName} offer={page.offer} />
+      <OtherRoles roles={page.otherRoles} />
     </>
   );
 }
