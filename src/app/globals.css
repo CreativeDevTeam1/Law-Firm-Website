@@ -4339,10 +4339,10 @@
    the name, role and social links sit in columns 2–4 beside the statement
    (columns 6–10), with the bio under the statement.
 
-   Past positions, for the members who show them, sit between the two: a
-   ledger as wide as the photo, its rows between hairlines like the
-   values-index, and its columns on the page's own grid so the organization
-   lines up with the statement and bio.
+   Past positions, for the members who show them, sit between the two, in
+   the same column: a ledger with its rows between hairlines like the
+   values-index, the position and organization stacked and the period at
+   the row's end.
 
    Related (members here, articles on an article's page): a divider, the
    label and a carousel of cards running to the screen edges, with the
@@ -4621,41 +4621,25 @@
       grid-row: 3;
     }
 
-    /* Ten columns, as the photo. Inside them: the position in the page's
-       columns 2–5, the organization from 6, in line with the statement and
-       bio, and the period at the end. */
+    /* In line with the statement and bio. */
     .persona-positions {
-      display: grid;
-      grid-column: 2 / span 10;
-      grid-template-columns: subgrid;
-    }
-
-    .persona-positions-label,
-    .persona-positions-list,
-    .persona-position {
-      grid-column: 1 / -1;
-    }
-
-    .persona-positions-list,
-    .persona-position {
-      display: grid;
-      grid-template-columns: subgrid;
+      grid-column: 6 / span 5;
     }
 
     .persona-position {
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: var(--layout-col-gap);
       align-items: baseline;
     }
 
-    .persona-position-title {
-      grid-column: 1 / span 4;
-    }
-
+    .persona-position-title,
     .persona-position-organization {
-      grid-column: 5 / span 4;
+      grid-column: 1;
     }
 
     .persona-position-period {
-      grid-column: 9 / span 2;
+      grid-column: 2;
+      grid-row: 1;
       text-align: end;
     }
 

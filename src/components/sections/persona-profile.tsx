@@ -10,9 +10,8 @@ type PersonaProfileProps = { member: TeamMember };
 // opened like wearemotto.com's founder pages with the firm's logo looping
 // across the screen (persona-marquee.tsx) and the photo rising over it.
 // Then their name, role and social links (columns 2–4 from 1024px), and the
-// statement beside them (columns 6–10). Their past positions, when switched
-// on, come next across the photo's width, then the bio under the statement;
-// on phones it all stacks.
+// statement beside them (columns 6–10), with their past positions, when
+// switched on, and the bio under it; on phones it all stacks.
 export default function PersonaProfile({ member }: PersonaProfileProps) {
   const socials = [
     { href: member.linkedin, label: "LinkedIn", icon: "linkedin" },
