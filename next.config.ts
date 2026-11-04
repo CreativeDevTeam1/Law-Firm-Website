@@ -4,7 +4,7 @@ import { sanity } from "next-sanity/live/cache-life";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
-  // Cached content is kept until Sanity says it changed (<SanityLive />),
+  // Cached content is kept until Sanity says it changed (<SanityLive /> and the webhook),
   // rather than refetched on a timer.
   cacheLife: { default: sanity },
   images: {

@@ -12,7 +12,7 @@ import type {
   TeamMemberPage,
   TeamPage,
 } from "@/content/types";
-import { sanityFetch } from "@/sanity/live";
+import { contentTag, sanityFetch } from "@/sanity/live";
 import {
   ABOUT_PAGE_QUERY,
   ARTICLE_PAGE_QUERY,
@@ -34,12 +34,13 @@ import {
 // content comes from.
 //
 // Each function is a 'use cache' boundary. sanityFetch tags the cache with
-// what the query read and <SanityLive /> (root layout) refreshes it when
-// that content is published, so the pages stay static yet up to date.
+// what the query read and it's refreshed when that content is published, by
+// <SanityLive /> (root layout) and the webhook route (src/app/api/revalidate),
+// so the pages stay static yet up to date.
 
 /** Runs a query on the published content and returns its result as `T`. */
 async function fetchContent<T>(query: string, params: Record<string, string> = {}): Promise<T> {
-  const { data } = await sanityFetch({ query, params, perspective: "published", stega: false });
+  const { data } = await sanityFetch({ query, params, perspective: "published", stega: false, tags: [contentTag] });
   return data as T;
 }
 

@@ -14,7 +14,7 @@ Every piece of copy, image and list on the site comes from Sanity through one co
 - `src/content/types.ts` is the content model the components use, field for field with the Studio's schemas (`../studio-law-firm-website/schemaTypes`).
 - `src/sanity/queries.ts` holds the GROQ queries, each projecting a document into its type's shape (images as `{ src, alt, position }`, references as the documents themselves).
 - `src/content/queries.ts` has the only functions that read content (`getHomePage()`, `getTeamMemberPage(slug)`, …). Pages call them and pass the results down as props; components never fetch.
-- `src/sanity/live.ts` sets up `sanityFetch` and `<SanityLive />` (rendered in the root layout). Pages are prerendered and cached; when content is published, Sanity Live refreshes exactly the caches that used it, so changes appear without a rebuild or a webhook.
+- `src/sanity/live.ts` sets up `sanityFetch` and `<SanityLive />` (rendered in the root layout). Pages are prerendered and cached; when content is published, Sanity Live refreshes exactly the caches that used it while someone has the site open, and a Sanity webhook calling `src/app/api/revalidate` refreshes all cached content whether or not anyone does, so changes appear without a rebuild.
 
 After changing a schema or a query, regenerate `sanity.types.ts` from the Studio folder:
 
