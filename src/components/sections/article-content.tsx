@@ -1,5 +1,5 @@
 import Image from "next/image";
-import RichText from "@/components/ui/rich-text";
+import LineReveal from "@/components/ui/line-reveal";
 import PersonaMarquee from "@/components/ui/persona-marquee";
 import SectionHeading from "@/components/ui/section-heading";
 import type { Article } from "@/content/types";
@@ -40,7 +40,11 @@ export default function ArticleContent({ article }: ArticleContentProps) {
       </SectionHeading>
 
       <div className="article-body">
-        <RichText value={article.body} />
+        {article.body.map((paragraph, i) => (
+          <LineReveal className="body-big" key={i}>
+            {paragraph}
+          </LineReveal>
+        ))}
       </div>
     </article>
   );

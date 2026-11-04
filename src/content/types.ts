@@ -1,5 +1,3 @@
-import type { PortableTextBlock } from "next-sanity";
-
 // The site's content model: every piece of copy, image and list the pages
 // show. Pages read it only through src/content/queries.ts, and pass it down
 // to the components as props, so no component holds content of its own.
@@ -43,9 +41,6 @@ export type IndexItem = {
 };
 
 export type Step = { title: string; description: string };
-
-/** Rich text from the CMS (Portable Text): paragraphs with bold, italics and links. */
-export type RichText = PortableTextBlock[];
 
 // Documents shared across the site
 
@@ -112,7 +107,8 @@ export type Article = {
   /** The full title at the top of the article's page. */
   headline: string;
   image: ImageAsset;
-  body: RichText;
+  /** One string per paragraph. */
+  body: string[];
 };
 
 export type Role = {

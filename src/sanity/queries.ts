@@ -38,7 +38,7 @@ const article = /* groq */ `{
   title,
   headline,
   "image": image${image},
-  body
+  "body": paragraphs
 }`;
 
 const role = /* groq */ `{
