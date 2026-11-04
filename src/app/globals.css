@@ -1230,6 +1230,16 @@
     body:has(.intro) [data-intro-target] {
       z-index: 1;
       clip-path: inset(50% 50% 50% 50%);
+      will-change: clip-path;
+    }
+
+    /* On their own layers while they move, so Safari needn't repaint them
+       every frame. */
+    body:has(.intro) [data-intro-image],
+    .intro-top,
+    .intro-bottom {
+      will-change: transform;
+      backface-visibility: hidden;
     }
   }
 
@@ -5088,48 +5098,47 @@
   }
 }
 
-/* Page transition (page-transition.tsx). The curtain's timings and eases are
-   copied from sunnybonnell.com's page transition (Taxi.js + GSAP), with a
-   short hold added while the screen is covered so the firm's name can be
-   read:
-   0–1s      the curtain wipes up over the old page, which dims to 70%;
-             the name rises in, line by line, behind the curtain's edge
-   1–1.5s    held; the name rests in the middle
-   1.5–2.5s  the curtain wipes off upwards and the name rises out; the new
-             page brightens back
-   GSAP eases as CSS: power1.inOut, power3.in, power3.inOut, power4.inOut,
-   power4.out. */
+/* Page transition (page-transition.tsx), timed there. Above everything, and
+   out of sight until a page change. The name is inside the panel, so the
+   panel's clip keeps it from showing before the panel does; each line's box
+   is the mask it rises through, as the loader's masked lines. */
 @layer components {
-  :root {
-    --page-curtain-cover: 1s;
-    --page-curtain-reveal: 1s;
-    --page-reveal-start: 1.5s; /* cover + hold */
-    --ease-power1-in-out: cubic-bezier(0.45, 0, 0.55, 1);
-    --ease-power3-in: cubic-bezier(0.32, 0, 0.67, 0);
-    --ease-power3-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-    --ease-power4-in-out: cubic-bezier(0.76, 0, 0.24, 1);
-    --ease-power4-out: cubic-bezier(0.25, 1, 0.5, 1);
-  }
-
-  /* See-through: it is captured so the curtain has a full-screen group to
-     draw on. The name only shows while a transition runs, so it appears in
-     the snapshots and never on the page itself. (Browsers without
-     :active-view-transition get the curtain without the name.) */
   .page-curtain {
     position: fixed;
+    inset: 0;
+    z-index: 1000;
+    visibility: hidden;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* The page below dims as the curtain covers it, as sunnybonnell's black
+     overlay at 30%, and brightens back as it lifts. */
+  .page-curtain-dim {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    opacity: 0;
+    will-change: opacity;
+  }
+
+  .page-curtain-panel {
+    position: absolute;
     inset: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    pointer-events: none;
+    background: var(--color-neutral-950);
     color: var(--color-neutral-100);
     text-align: center;
     text-transform: uppercase;
+    clip-path: inset(100% 0% 0% 0%);
+    will-change: clip-path;
   }
 
   /* Set as .intro-text, the opening loader's name. */
-  .page-curtain-text {
-    visibility: hidden;
+  .page-curtain-line {
+    overflow: hidden;
     font-family: var(--display-header-font-family), sans-serif;
     font-weight: var(--display-header-font-weight);
     font-size: var(--brand-name-font-size);
@@ -5137,169 +5146,9 @@
     letter-spacing: -0.05em;
   }
 
-  /* Each line is captured on its own, so it can rise through its own box
-     like the loader's masked lines. */
-  :root:active-view-transition .page-curtain-text {
-    visibility: visible;
-    view-transition-class: page-curtain-text;
-  }
-
-  :root:active-view-transition .page-curtain-text:nth-child(1) {
-    view-transition-name: page-curtain-text-1;
-  }
-
-  :root:active-view-transition .page-curtain-text:nth-child(2) {
-    view-transition-name: page-curtain-text-2;
-  }
-
-  :root:active-view-transition .page-curtain-text:nth-child(3) {
-    view-transition-name: page-curtain-text-3;
-  }
-
-  ::view-transition-group(.page-curtain) {
-    z-index: 1; /* above the page */
-    background: var(--color-neutral-950);
-    animation:
-      page-curtain-cover var(--page-curtain-cover) var(--ease-power3-in-out) both,
-      page-curtain-reveal var(--page-curtain-reveal) var(--ease-power4-in-out) var(--page-reveal-start) forwards;
-  }
-
-  ::view-transition-new(.page-curtain) {
-    animation: none;
-  }
-
-  /* The line's box is the mask, as in the loader. */
-  ::view-transition-group(.page-curtain-text) {
-    z-index: 2; /* above the curtain */
-    overflow: clip;
-    animation: none;
-  }
-
-  /* The previous page's copy of the name. */
-  ::view-transition-old(.page-curtain-text) {
-    display: none;
-  }
-
-  /* The loader's line rise (power4.out, 0.1s apart), shortened to 0.7s to
-     fit the curtain. The first line starts once the curtain has passed it. */
-  ::view-transition-new(.page-curtain-text) {
-    animation:
-      page-text-in 0.7s var(--ease-power4-out) var(--page-text-delay) both,
-      page-text-out 0.5s var(--ease-power3-in) var(--page-reveal-start) forwards;
-  }
-
-  ::view-transition-new(page-curtain-text-1) {
-    --page-text-delay: 0.55s;
-  }
-
-  ::view-transition-new(page-curtain-text-2) {
-    --page-text-delay: 0.65s;
-  }
-
-  ::view-transition-new(page-curtain-text-3) {
-    --page-text-delay: 0.75s;
-  }
-
-  /* The old page stays put and dims (sunnybonnell's black overlay at 30%),
-     and goes once the curtain covers the screen. */
-  ::view-transition-old(.page-old) {
-    animation:
-      page-dim 0.8s var(--ease-power3-in-out) forwards,
-      page-hide var(--page-reveal-start) steps(1, end) forwards;
-  }
-
-  /* The new page is hidden until the curtain starts to lift, then starts
-     dimmed and brightens as it goes. */
-  ::view-transition-new(.page-new) {
-    animation:
-      page-hold var(--page-reveal-start) steps(1, end) both,
-      page-brighten var(--page-curtain-reveal) var(--ease-power1-in-out) var(--page-reveal-start) both;
-  }
-
-  @keyframes page-curtain-cover {
-    from {
-      clip-path: inset(100% 0 0 0);
-    }
-    to {
-      clip-path: inset(0 0 0 0);
-    }
-  }
-
-  @keyframes page-curtain-reveal {
-    from {
-      clip-path: inset(0 0 0 0);
-    }
-    to {
-      clip-path: inset(0 0 100% 0);
-    }
-  }
-
-  @keyframes page-text-in {
-    from {
-      translate: 0 100%;
-    }
-    to {
-      translate: 0 0;
-    }
-  }
-
-  @keyframes page-text-out {
-    from {
-      translate: 0 0;
-    }
-    to {
-      translate: 0 -100%;
-    }
-  }
-
-  @keyframes page-dim {
-    to {
-      filter: brightness(0.7);
-    }
-  }
-
-  @keyframes page-hide {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
-  }
-
-  @keyframes page-hold {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes page-brighten {
-    from {
-      filter: brightness(0.7);
-    }
-    to {
-      filter: brightness(1);
-    }
-  }
-
-  /* Reduced motion: pages swap straight away. */
-  @media (prefers-reduced-motion: reduce) {
-    ::view-transition-group(*),
-    ::view-transition-old(*),
-    ::view-transition-new(*) {
-      animation: none !important;
-    }
-
-    ::view-transition-group(.page-curtain) {
-      background: none;
-    }
-
-    :root:active-view-transition .page-curtain-text {
-      visibility: hidden;
-    }
+  .page-curtain-text {
+    display: block;
+    will-change: transform;
   }
 }
 
