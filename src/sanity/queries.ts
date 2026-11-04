@@ -70,7 +70,8 @@ export const SITE_SETTINGS_QUERY = defineQuery(/* groq */ `*[_id == "siteSetting
   "social": social[]${link},
   "contact": contact[]${link},
   address,
-  "legal": legal[]${link}
+  addressUrl,
+  "legal": coalesce(legal[]${link}, [])
 }`);
 
 export const HOME_PAGE_QUERY = defineQuery(/* groq */ `*[_id == "homePage"][0]{

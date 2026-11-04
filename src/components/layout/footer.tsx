@@ -12,7 +12,7 @@ import type { Link, SiteSettings } from "@/content/types";
 gsap.registerPlugin(ScrollTrigger);
 
 type FooterProps = {
-  settings: Pick<SiteSettings, "footerTitle" | "cta" | "footerNav" | "social" | "contact" | "address" | "legal">;
+  settings: Pick<SiteSettings, "footerTitle" | "cta" | "footerNav" | "social" | "contact" | "address" | "addressUrl" | "legal">;
 };
 
 /** Seconds between one group's reveal and the next, and between links. */
@@ -123,6 +123,22 @@ export default function Footer({ settings }: FooterProps) {
     </ul>
   );
 
+  const address = (
+    <LineReveal
+      as="address"
+      className="footer-address header-4"
+      delay={3 * GROUP_STAGGER + LINK_STAGGER}
+      stagger={LINK_STAGGER}
+    >
+      {settings.address.map((line, i) => (
+        <Fragment key={i}>
+          {i > 0 && <br />}
+          {line}
+        </Fragment>
+      ))}
+    </LineReveal>
+  );
+
   return (
     <footer className="footer" ref={footerRef}>
       <div className="footer-inner">
@@ -166,32 +182,28 @@ export default function Footer({ settings }: FooterProps) {
               <LineReveal as="h3" className="footer-group-title header-3-semibold" delay={3 * GROUP_STAGGER}>
                 Location
               </LineReveal>
-              <LineReveal
-                as="address"
-                className="footer-address header-4"
-                delay={3 * GROUP_STAGGER + LINK_STAGGER}
-                stagger={LINK_STAGGER}
-              >
-                {settings.address.map((line, i) => (
-                  <Fragment key={i}>
-                    {i > 0 && <br />}
-                    {line}
-                  </Fragment>
-                ))}
-              </LineReveal>
+              {settings.addressUrl ? (
+                <a className="footer-address-link" href={settings.addressUrl} target="_blank" rel="noopener noreferrer">
+                  {address}
+                </a>
+              ) : (
+                address
+              )}
             </div>
           </div>
 
           <div className="footer-bottom">
-            <ul className="footer-legal">
-              {settings.legal.map((link, i) => (
-                <li key={link.href}>
-                  <TextLink href={link.href} reveal revealDelay={i * LINK_STAGGER} revealStart="top bottom">
-                    {link.label}
-                  </TextLink>
-                </li>
-              ))}
-            </ul>
+            {settings.legal.length > 0 && (
+              <ul className="footer-legal">
+                {settings.legal.map((link, i) => (
+                  <li key={link.href}>
+                    <TextLink href={link.href} reveal revealDelay={i * LINK_STAGGER} revealStart="top bottom">
+                      {link.label}
+                    </TextLink>
+                  </li>
+                ))}
+              </ul>
+            )}
             <TextLink
               href="#top"
               icon="arrow-up"

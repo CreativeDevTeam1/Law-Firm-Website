@@ -4946,6 +4946,34 @@
     color: var(--color-neutral-500);
   }
 
+  /* The address as a link to its map: in the links' colour and underlined,
+     so it reads as one. The lines get the underline themselves, as the line
+     reveal moves each on its own. */
+  .footer-address-link {
+    display: inline-block;
+    transition: opacity 0.3s;
+  }
+
+  .footer-address-link:hover {
+    opacity: 0.6;
+  }
+
+  .footer-address-link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .footer-address-link .footer-address {
+    color: inherit;
+  }
+
+  .footer-address-link .footer-address,
+  .footer-address-link .line-reveal-line {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+  }
+
   .footer-bottom {
     display: grid;
     row-gap: var(--footer-group-gap);

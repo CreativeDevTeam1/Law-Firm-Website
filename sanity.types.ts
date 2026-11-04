@@ -453,6 +453,7 @@ export type SiteSettings = {
     } & Link
   >;
   address?: Array<string>;
+  addressUrl?: string;
   legal?: Array<
     {
       _key: string;
@@ -594,7 +595,7 @@ export type AllSanitySchemaTypes =
 
 // Source: ../Law-Firm-Website/src/sanity/queries.ts
 // Variable: SITE_SETTINGS_QUERY
-// Query: *[_id == "siteSettings"][0]{  firmName,  description,  "mainNav": mainNav[]{ href, label },  "footerNav": footerNav[]{ href, label },  "cta": cta{ href, label },  footerTitle,  "social": social[]{ href, label },  "contact": contact[]{ href, label },  address,  "legal": legal[]{ href, label }}
+// Query: *[_id == "siteSettings"][0]{  firmName,  description,  "mainNav": mainNav[]{ href, label },  "footerNav": footerNav[]{ href, label },  "cta": cta{ href, label },  footerTitle,  "social": social[]{ href, label },  "contact": contact[]{ href, label },  address,  addressUrl,  "legal": coalesce(legal[]{ href, label }, [])}
 export type SITE_SETTINGS_QUERY_RESULT =
   | {
       firmName: null;
@@ -606,7 +607,8 @@ export type SITE_SETTINGS_QUERY_RESULT =
       social: null;
       contact: null;
       address: null;
-      legal: null;
+      addressUrl: null;
+      legal: Array<never>;
     }
   | {
       firmName: null;
@@ -618,7 +620,8 @@ export type SITE_SETTINGS_QUERY_RESULT =
       social: null;
       contact: null;
       address: null;
-      legal: null;
+      addressUrl: null;
+      legal: Array<never>;
     }
   | {
       firmName: string;
@@ -645,10 +648,13 @@ export type SITE_SETTINGS_QUERY_RESULT =
         label: string;
       }> | null;
       address: Array<string> | null;
-      legal: Array<{
-        href: string;
-        label: string;
-      }> | null;
+      addressUrl: string | null;
+      legal:
+        | Array<{
+            href: string;
+            label: string;
+          }>
+        | Array<never>;
     }
   | null;
 

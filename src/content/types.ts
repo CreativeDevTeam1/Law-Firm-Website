@@ -63,6 +63,8 @@ export type SiteSettings = {
   contact: Link[];
   /** One line per entry. */
   address: string[];
+  /** Where the address links to, e.g. its Google Maps page. */
+  addressUrl?: string | null;
   legal: Link[];
 };
 
