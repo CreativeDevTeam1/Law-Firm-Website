@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useIndexReservedHeight } from "@/hooks/use-index-reserved-height";
 import { useIndexReveal } from "@/hooks/use-index-reveal";
 import LineReveal from "@/components/ui/line-reveal";
 import SectionHeading from "@/components/ui/section-heading";
@@ -17,12 +18,14 @@ type WhoWeAreSectionProps = { whoWeAre: AboutPage["whoWeAre"] };
 // the (+) rise out of their masks with the title's line reveal. The first
 // opens as part of its reveal, once its title is in, so its description and
 // number animate in too. (Not on hover: opening changes the rows' heights,
-// so the list would shift under the pointer.)
+// so the list would shift under the pointer.) The index keeps room for an
+// open row, so opening or closing one never moves the image below it.
 export default function WhoWeAreSection({ whoWeAre }: WhoWeAreSectionProps) {
   const indexRef = useRef<HTMLDivElement>(null);
   const [openIndex, setOpenIndex] = useState(-1);
 
   useIndexReveal(indexRef, setOpenIndex);
+  useIndexReservedHeight(indexRef);
 
   return (
     <section className="who-we-are" aria-labelledby="who-we-are-title">
