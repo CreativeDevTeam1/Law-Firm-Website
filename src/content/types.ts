@@ -76,6 +76,13 @@ export type Testimonial = {
   photo: ImageAsset;
 };
 
+/** A position a team member held before. */
+export type PastPosition = {
+  title: string;
+  organization: string;
+  period?: string | null;
+};
+
 export type TeamMember = {
   /** The member's page: /team/{slug}. */
   slug: string;
@@ -84,9 +91,13 @@ export type TeamMember = {
   photo: ImageAsset;
   /** The heading next to their name on their page. */
   statement: string;
-  bio: RichText;
-  linkedin?: string;
-  instagram?: string;
+  /** One string per paragraph. */
+  bio: string[];
+  /** Empty unless the member's "Show past positions" switch is on. */
+  pastPositions: PastPosition[];
+  /** Only set when the URL is filled in and the member's switch is on. */
+  linkedin?: string | null;
+  instagram?: string | null;
 };
 
 export type Article = {

@@ -428,6 +428,8 @@
     --persona-bio-gap: var(--number-40); /* 40px */
     --persona-social-size: var(--number-40); /* 40px */
     --persona-social-gap: var(--number-24); /* 24px */
+    --persona-positions-top: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px */
+    --persona-position-padding: clamp(var(--number-20), 0.9714rem + 1.1429vw, var(--number-32)); /* 20px → 32px */
     --related-list-top: clamp(var(--number-32), 1.4857rem + 1.5238vw, var(--number-48)); /* 32px → 48px */
     --related-controls-top: var(--number-48); /* 48px */
 
@@ -4337,6 +4339,11 @@
    the name, role and social links sit in columns 2–4 beside the statement
    (columns 6–10), with the bio under the statement.
 
+   Past positions, for the members who show them, sit between the two: a
+   ledger as wide as the photo, its rows between hairlines like the
+   values-index, and its columns on the page's own grid so the organization
+   lines up with the statement and bio.
+
    Related (members here, articles on an article's page): a divider, the
    label and a carousel of cards running to the screen edges, with the
    arrows below on the right. Cards
@@ -4492,6 +4499,54 @@
     mask-image: url("/images/icons/instagram.svg");
   }
 
+  .persona-positions-list {
+    margin-top: var(--persona-positions-top);
+    list-style: none;
+  }
+
+  .persona-position {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--number-8);
+    padding-block: var(--persona-position-padding);
+  }
+
+  .persona-position-rule {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: var(--color-neutral-250);
+    transform-origin: left center;
+  }
+
+  .persona-position-rule-end {
+    top: auto;
+    bottom: 0;
+  }
+
+  .persona-position-organization,
+  .persona-position-period {
+    color: var(--color-neutral-700);
+  }
+
+  .persona-position > .line-reveal {
+    transition: color 0.6s cubic-bezier(0.19, 1, 0.22, 1); /* as the values-index */
+  }
+
+  @media (hover: hover) {
+    .persona-positions-list:hover .persona-position:not(:hover) > .line-reveal {
+      color: var(--color-neutral-500);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .persona-position > .line-reveal {
+      transition: none;
+    }
+  }
+
   .persona-bio {
     display: grid;
     row-gap: var(--persona-bio-gap);
@@ -4564,6 +4619,44 @@
     .persona-statement {
       grid-column: 6 / span 5;
       grid-row: 3;
+    }
+
+    /* Ten columns, as the photo. Inside them: the position in the page's
+       columns 2–5, the organization from 6, in line with the statement and
+       bio, and the period at the end. */
+    .persona-positions {
+      display: grid;
+      grid-column: 2 / span 10;
+      grid-template-columns: subgrid;
+    }
+
+    .persona-positions-label,
+    .persona-positions-list,
+    .persona-position {
+      grid-column: 1 / -1;
+    }
+
+    .persona-positions-list,
+    .persona-position {
+      display: grid;
+      grid-template-columns: subgrid;
+    }
+
+    .persona-position {
+      align-items: baseline;
+    }
+
+    .persona-position-title {
+      grid-column: 1 / span 4;
+    }
+
+    .persona-position-organization {
+      grid-column: 5 / span 4;
+    }
+
+    .persona-position-period {
+      grid-column: 9 / span 2;
+      text-align: end;
     }
 
     .persona-bio {

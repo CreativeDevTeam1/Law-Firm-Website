@@ -63,6 +63,13 @@ export type Heading = {
   title: string;
 };
 
+export type PastPosition = {
+  _type: "pastPosition";
+  title: string;
+  organization: string;
+  period?: string;
+};
+
 export type Link = {
   _type: "link";
   label: string;
@@ -199,7 +206,14 @@ export type TeamMember = {
     _type: "image";
   };
   statement: string;
-  bio: Array<{
+  showPastPositions?: boolean;
+  pastPositions?: Array<
+    {
+      _key: string;
+    } & PastPosition
+  >;
+  paragraphs: Array<string>;
+  bio?: Array<{
     children?: Array<{
       marks?: Array<string>;
       text?: string;
@@ -217,7 +231,9 @@ export type TeamMember = {
     _type: "block";
     _key: string;
   }>;
+  showLinkedin?: boolean;
   linkedin?: string;
+  showInstagram?: boolean;
   instagram?: string;
 };
 
@@ -547,6 +563,7 @@ export type AllSanitySchemaTypes =
   | IndexItem
   | Hero
   | Heading
+  | PastPosition
   | Link
   | Testimonial
   | SanityImageCrop
@@ -637,7 +654,7 @@ export type SITE_SETTINGS_QUERY_RESULT =
 
 // Source: ../Law-Firm-Website/src/sanity/queries.ts
 // Variable: HOME_PAGE_QUERY
-// Query: *[_id == "homePage"][0]{  "hero": hero{ "image": image{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")}, title, quote, description },  "about": about{ "heading": heading{ label, title }, subtitle, paragraphs, "link": link{ href, label } },  "clients": clients{ "heading": heading{ label, title }, "link": link{ href, label }, "clients": clients[]->{ name, "logo": logo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")} } },  "partners": partners{ titleLines, "link": link{ href, label }, "members": members[]->{  "slug": slug.current,  name,  role,  "photo": photo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")},  statement,  bio,  linkedin,  instagram} },  "news": news{ "heading": heading{ label, title }, "link": link{ href, label }, "articles": *[_type == "article" && defined(slug.current)] | order(publishedAt desc, _id asc)[0...4]{  "slug": slug.current,  publishedAt,  title,  headline,  "image": image{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")},  body} },  "testimonials": testimonials{ "heading": heading{ label, title }, "testimonials": testimonials[]->{ name, role, quote, "photo": photo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")} } }}
+// Query: *[_id == "homePage"][0]{  "hero": hero{ "image": image{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")}, title, quote, description },  "about": about{ "heading": heading{ label, title }, subtitle, paragraphs, "link": link{ href, label } },  "clients": clients{ "heading": heading{ label, title }, "link": link{ href, label }, "clients": clients[]->{ name, "logo": logo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")} } },  "partners": partners{ titleLines, "link": link{ href, label }, "members": members[]->{  "slug": slug.current,  name,  role,  "photo": photo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")},  statement,  "bio": paragraphs,  "pastPositions": select(showPastPositions == true => coalesce(pastPositions[]{ title, organization, period }, []), []),  "linkedin": select(coalesce(showLinkedin, true) => linkedin),  "instagram": select(coalesce(showInstagram, true) => instagram)} },  "news": news{ "heading": heading{ label, title }, "link": link{ href, label }, "articles": *[_type == "article" && defined(slug.current)] | order(publishedAt desc, _id asc)[0...4]{  "slug": slug.current,  publishedAt,  title,  headline,  "image": image{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")},  body} },  "testimonials": testimonials{ "heading": heading{ label, title }, "testimonials": testimonials[]->{ name, role, quote, "photo": photo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")} } }}
 export type HOME_PAGE_QUERY_RESULT =
   | {
       hero: null;
@@ -721,24 +738,14 @@ export type HOME_PAGE_QUERY_RESULT =
             position: string;
           };
           statement: string;
-          bio: Array<{
-            children?: Array<{
-              marks?: Array<string>;
-              text?: string;
-              _type: "span";
-              _key: string;
-            }>;
-            style?: "normal";
-            listItem?: never;
-            markDefs?: Array<{
-              href?: string;
-              _type: "link";
-              _key: string;
-            }>;
-            level?: number;
-            _type: "block";
-            _key: string;
-          }>;
+          bio: Array<string>;
+          pastPositions:
+            | Array<{
+                title: string;
+                organization: string;
+                period: string | null;
+              }>
+            | Array<never>;
           linkedin: string | null;
           instagram: string | null;
         }> | null;
@@ -886,7 +893,7 @@ export type ABOUT_PAGE_QUERY_RESULT =
 
 // Source: ../Law-Firm-Website/src/sanity/queries.ts
 // Variable: TEAM_PAGE_QUERY
-// Query: *[_id == "teamPage"][0]{  "hero": hero{ "image": image{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")}, title, quote, description }, "heading": heading{ label, title }, intro,  "groups": groups[]{ title, "members": members[]->{  "slug": slug.current,  name,  role,  "photo": photo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")},  statement,  bio,  linkedin,  instagram} }}
+// Query: *[_id == "teamPage"][0]{  "hero": hero{ "image": image{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")}, title, quote, description }, "heading": heading{ label, title }, intro,  "groups": groups[]{ title, "members": members[]->{  "slug": slug.current,  name,  role,  "photo": photo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")},  statement,  "bio": paragraphs,  "pastPositions": select(showPastPositions == true => coalesce(pastPositions[]{ title, organization, period }, []), []),  "linkedin": select(coalesce(showLinkedin, true) => linkedin),  "instagram": select(coalesce(showInstagram, true) => instagram)} }}
 export type TEAM_PAGE_QUERY_RESULT =
   | {
       hero: null;
@@ -973,24 +980,14 @@ export type TEAM_PAGE_QUERY_RESULT =
             position: string;
           };
           statement: string;
-          bio: Array<{
-            children?: Array<{
-              marks?: Array<string>;
-              text?: string;
-              _type: "span";
-              _key: string;
-            }>;
-            style?: "normal";
-            listItem?: never;
-            markDefs?: Array<{
-              href?: string;
-              _type: "link";
-              _key: string;
-            }>;
-            level?: number;
-            _type: "block";
-            _key: string;
-          }>;
+          bio: Array<string>;
+          pastPositions:
+            | Array<{
+                title: string;
+                organization: string;
+                period: string | null;
+              }>
+            | Array<never>;
           linkedin: string | null;
           instagram: string | null;
         }> | null;
@@ -1288,7 +1285,7 @@ export type ROLE_SLUGS_QUERY_RESULT = Array<string>;
 
 // Source: ../Law-Firm-Website/src/sanity/queries.ts
 // Variable: TEAM_MEMBER_PAGE_QUERY
-// Query: {  "member": *[_type == "teamMember" && slug.current == $slug][0]{  "slug": slug.current,  name,  role,  "photo": photo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")},  statement,  bio,  linkedin,  instagram},  "groups": *[_id == "teamPage"][0].groups[]{ "members": members[]->{  "slug": slug.current,  name,  role,  "photo": photo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")},  statement,  bio,  linkedin,  instagram} }}
+// Query: {  "member": *[_type == "teamMember" && slug.current == $slug][0]{  "slug": slug.current,  name,  role,  "photo": photo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")},  statement,  "bio": paragraphs,  "pastPositions": select(showPastPositions == true => coalesce(pastPositions[]{ title, organization, period }, []), []),  "linkedin": select(coalesce(showLinkedin, true) => linkedin),  "instagram": select(coalesce(showInstagram, true) => instagram)},  "groups": *[_id == "teamPage"][0].groups[]{ "members": members[]->{  "slug": slug.current,  name,  role,  "photo": photo{  "src": asset->url,  "alt": coalesce(alt, ""),  "position": select(defined(hotspot) => string(round(hotspot.x * 100)) + "% " + string(round(hotspot.y * 100)) + "%")},  statement,  "bio": paragraphs,  "pastPositions": select(showPastPositions == true => coalesce(pastPositions[]{ title, organization, period }, []), []),  "linkedin": select(coalesce(showLinkedin, true) => linkedin),  "instagram": select(coalesce(showInstagram, true) => instagram)} }}
 export type TEAM_MEMBER_PAGE_QUERY_RESULT = {
   member: {
     slug: string;
@@ -1300,24 +1297,14 @@ export type TEAM_MEMBER_PAGE_QUERY_RESULT = {
       position: string;
     };
     statement: string;
-    bio: Array<{
-      children?: Array<{
-        marks?: Array<string>;
-        text?: string;
-        _type: "span";
-        _key: string;
-      }>;
-      style?: "normal";
-      listItem?: never;
-      markDefs?: Array<{
-        href?: string;
-        _type: "link";
-        _key: string;
-      }>;
-      level?: number;
-      _type: "block";
-      _key: string;
-    }>;
+    bio: Array<string>;
+    pastPositions:
+      | Array<{
+          title: string;
+          organization: string;
+          period: string | null;
+        }>
+      | Array<never>;
     linkedin: string | null;
     instagram: string | null;
   } | null;
@@ -1332,24 +1319,14 @@ export type TEAM_MEMBER_PAGE_QUERY_RESULT = {
         position: string;
       };
       statement: string;
-      bio: Array<{
-        children?: Array<{
-          marks?: Array<string>;
-          text?: string;
-          _type: "span";
-          _key: string;
-        }>;
-        style?: "normal";
-        listItem?: never;
-        markDefs?: Array<{
-          href?: string;
-          _type: "link";
-          _key: string;
-        }>;
-        level?: number;
-        _type: "block";
-        _key: string;
-      }>;
+      bio: Array<string>;
+      pastPositions:
+        | Array<{
+            title: string;
+            organization: string;
+            period: string | null;
+          }>
+        | Array<never>;
       linkedin: string | null;
       instagram: string | null;
     }> | null;

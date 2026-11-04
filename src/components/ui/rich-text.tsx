@@ -8,7 +8,7 @@ type RichTextProps = {
   paragraphClassName?: string;
 };
 
-// Rich text from the CMS (an article's body, a member's bio): each
+// Rich text from the CMS (an article's body): each
 // paragraph reveals line by line as it scrolls in, with bold, italics and
 // links kept inside it.
 //

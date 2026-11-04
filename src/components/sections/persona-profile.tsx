@@ -1,7 +1,7 @@
 import Image from "next/image";
+import PersonaPositions from "@/components/sections/persona-positions";
 import LineReveal from "@/components/ui/line-reveal";
 import PersonaMarquee from "@/components/ui/persona-marquee";
-import RichText from "@/components/ui/rich-text";
 import type { TeamMember } from "@/content/types";
 
 type PersonaProfileProps = { member: TeamMember };
@@ -10,12 +10,14 @@ type PersonaProfileProps = { member: TeamMember };
 // opened like wearemotto.com's founder pages with the firm's logo looping
 // across the screen (persona-marquee.tsx) and the photo rising over it.
 // Then their name, role and social links (columns 2–4 from 1024px), and the
-// statement and bio beside them (columns 6–10); on phones it all stacks.
+// statement beside them (columns 6–10). Their past positions, when switched
+// on, come next across the photo's width, then the bio under the statement;
+// on phones it all stacks.
 export default function PersonaProfile({ member }: PersonaProfileProps) {
   const socials = [
     { href: member.linkedin, label: "LinkedIn", icon: "linkedin" },
     { href: member.instagram, label: "Instagram", icon: "instagram" },
-  ].filter((social) => social.href);
+  ].flatMap(({ href, ...social }) => (href ? [{ ...social, href }] : []));
 
   return (
     <section className="persona" aria-labelledby="persona-name">
@@ -62,8 +64,14 @@ export default function PersonaProfile({ member }: PersonaProfileProps) {
         {member.statement}
       </LineReveal>
 
+      {member.pastPositions.length > 0 && <PersonaPositions positions={member.pastPositions} />}
+
       <div className="persona-bio">
-        <RichText value={member.bio} />
+        {member.bio.map((paragraph, i) => (
+          <LineReveal className="body-big" key={i}>
+            {paragraph}
+          </LineReveal>
+        ))}
       </div>
     </section>
   );

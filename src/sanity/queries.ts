@@ -26,9 +26,10 @@ const teamMember = /* groq */ `{
   role,
   "photo": photo${image},
   statement,
-  bio,
-  linkedin,
-  instagram
+  "bio": paragraphs,
+  "pastPositions": select(showPastPositions == true => coalesce(pastPositions[]{ title, organization, period }, []), []),
+  "linkedin": select(coalesce(showLinkedin, true) => linkedin),
+  "instagram": select(coalesce(showInstagram, true) => instagram)
 }`;
 
 const article = /* groq */ `{
