@@ -3737,6 +3737,22 @@
     display: none;
   }
 
+  .intake-fields {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .intake-fields:disabled {
+    opacity: 0.35;
+  }
+
+  .intake-fields:disabled input {
+    cursor: not-allowed;
+  }
+
   .intake-step {
     display: grid;
     grid-template-columns: minmax(0, 1fr);

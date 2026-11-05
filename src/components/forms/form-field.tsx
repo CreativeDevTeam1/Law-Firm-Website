@@ -183,10 +183,12 @@ const fieldClasses = (wide: boolean, className: string) =>
   ["form-field", wide && "form-field-wide", className].filter(Boolean).join(" ");
 
 // The submit button, in the text link's look (see Text link).
-export function FormSubmit({ children, className = "" }: { children: string; className?: string }) {
+export function FormSubmit({ children, className = "", disabled = false }: { children: string; className?: string; disabled?: boolean }) {
   return (
     <button
       type="submit"
+      disabled={disabled}
+      aria-busy={disabled}
       className={`form-submit text-link text-link-with-icon link-underline-swap cta-medium ${className}`.trim()}
     >
       {children}

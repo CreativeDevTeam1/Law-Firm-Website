@@ -2,7 +2,7 @@ import { GLOSSARY, type Glossary } from "@/lib/glossary";
 
 // The Client intake form's sections, in order (client-intake-form.tsx). Its
 // wording, choices included, is in src/glossary under "intake"; a choice's
-// key there is the value the form sends. Nothing is sent yet.
+// key there is the value the form sends. The server route maps these choices to the CMS intake contract.
 
 export type IntakeText = Glossary["intake"];
 

@@ -27,8 +27,8 @@ type Sent = { name: string; reference: string };
 // designed from the old intake form's fields and the site's patterns. The
 // Page header, then one form in numbered sections, each under a divider
 // that draws in (as How we hire). It opens with the client type. Company
-// information is always there; choosing "Individual" makes its fields
-// optional (they're required otherwise). From 1024px an index of the
+// and personal fields stay visible; only the chosen type can be edited.
+// Contact details stay enabled for both. From 1024px an index of the
 // sections sticks in columns 1–3 while the form scrolls in columns 6–12: it
 // marks the section you're in and ticks off each one once its required
 // fields are filled. On phones the index is left out and the sections
@@ -51,14 +51,17 @@ export default function ClientIntakeForm({ initialLang }: { initialLang: Lang })
   const [lang, setLang] = useState(initialLang);
   const [active, setActive] = useState<IntakeSectionId>(INTAKE_SECTION_IDS[0]);
   const [done, setDone] = useState<IntakeSectionId[]>([]);
-  const [isIndividual, setIsIndividual] = useState(false);
+  const [clientType, setClientType] = useState("");
+  const isIndividual = clientType === "individual";
+  const isCompany = clientType === "company";
   const [sent, setSent] = useState<Sent | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const t = GLOSSARY[lang].intake;
   const isArabic = lang === "ar";
 
-  // Company details are needed unless the client said they're an individual.
-  const companyRequired = !isIndividual;
+  const companyRequired = isCompany;
   const number = (id: IntakeSectionId) => String(INTAKE_SECTION_IDS.indexOf(id) + 1).padStart(2, "0");
 
   useDividerReveal(stepsRef, ".intake-step-divider");
@@ -81,6 +84,7 @@ export default function ClientIntakeForm({ initialLang }: { initialLang: Lang })
   const updateDone = useCallback(() => {
     const form = formRef.current;
     if (!form) return;
+    if (!clientType) { setDone([]); return; }
 
     form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea").forEach((field) => {
       field.setCustomValidity("");
@@ -94,11 +98,11 @@ export default function ClientIntakeForm({ initialLang }: { initialLang: Lang })
         return [...fields].every((field) => field.validity.valid);
       }),
     );
-  }, [t]);
+  }, [t, clientType]);
 
   // Company information's fields stop or start being required with the
   // client type, and the English name with the language.
-  useEffect(updateDone, [updateDone, isIndividual]);
+  useEffect(updateDone, [updateDone]);
 
   // The browser writes its messages in its own language, not the page's, so
   // each field that fails gets the page's own, as the browser asks for them.
@@ -156,17 +160,29 @@ export default function ClientIntakeForm({ initialLang }: { initialLang: Lang })
     }
   };
 
-  // TODO: nothing is sent yet. Post the form data (documents included, and
-  // the "lang" field, so the firm replies in the client's language) to the
-  // firm once there's somewhere to send it — and keep the ID numbers out of
-  // plain email.
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (submitting) return;
     const data = new FormData(event.currentTarget);
-    const name = String(data.get(isArabic ? "name-ar" : "name-en")).trim().split(/\s+/)[0];
-    const reference = `SE-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    setSent({ name, reference });
-    lenis?.scrollTo(0, { immediate: true });
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const response = await fetch("/api/client-intake", { method: "POST", body: data });
+      const result = await response.json();
+      if (!response.ok) {
+        setSubmitError(t.submissionErrors[result.error as keyof typeof t.submissionErrors] ?? t.submissionErrors.unavailable);
+        return;
+      }
+      if (typeof result.reference !== "string" || !result.reference) throw new Error("Missing reference");
+      const nameField = isIndividual ? (isArabic ? "name-ar" : "name-en") : (isArabic ? "company-ar" : "company-en");
+      const name = String(data.get(nameField) || data.get(isIndividual ? "name-ar" : "company-en") || "").trim().split(/\s+/)[0];
+      setSent({ name, reference: result.reference });
+      lenis?.scrollTo(0, { immediate: true });
+    } catch {
+      setSubmitError(t.submissionErrors.unavailable);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const fieldText = { idPrefix: "intake", optionalText: t.optional };
@@ -224,6 +240,9 @@ export default function ClientIntakeForm({ initialLang }: { initialLang: Lang })
           onBlur={westernDigits}
         >
           <input type="hidden" name="lang" value={lang} />
+          <div hidden aria-hidden="true">
+            <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
+          </div>
 
           <nav className="intake-index" ref={indexRef} aria-label={t.indexLabel}>
             <p className="intake-index-label cta-small">{t.index}</p>
@@ -267,14 +286,20 @@ export default function ClientIntakeForm({ initialLang }: { initialLang: Lang })
                 name="client-type"
                 labelledBy="intake-client-title"
                 options={t.clientTypes}
-                onChange={(value) => setIsIndividual(value === "individual")}
+                onChange={setClientType}
               />
             </IntakeStep>
 
             <IntakeStep id="intake-personal" number={number("intake-personal")} t={t}>
-              <div className="form-fields">
+              <fieldset className="form-fields intake-fields" disabled={!isIndividual} aria-labelledby="intake-personal-title">
                 {/* The name in the page's language comes first. */}
                 {isArabic ? [nameAr, nameEn] : [nameEn, nameAr]}
+                <FormField {...fieldText} {...latin} label={t.fields.idNumber} name="id-number" data-digits required />
+                <FormField {...fieldText} dir="auto" label={t.fields.nationality} name="nationality" required />
+                <FormField {...fieldText} {...latin} label={t.fields.birthDate} name="birth-date" type="date" optional />
+                <FormField {...fieldText} dir="auto" label={t.fields.occupation} name="occupation" optional />
+              </fieldset>
+              <div className="form-fields">
                 <FormField {...fieldText} {...latin} label={t.fields.email} name="email" type="email" autoComplete="email" required />
                 <FormField
                   {...fieldText}
@@ -286,15 +311,11 @@ export default function ClientIntakeForm({ initialLang }: { initialLang: Lang })
                   data-digits
                   required
                 />
-                <FormField {...fieldText} {...latin} label={t.fields.idNumber} name="id-number" data-digits required />
-                <FormField {...fieldText} dir="auto" label={t.fields.nationality} name="nationality" required />
-                <FormField {...fieldText} {...latin} label={t.fields.birthDate} name="birth-date" type="date" optional />
-                <FormField {...fieldText} dir="auto" label={t.fields.occupation} name="occupation" optional />
               </div>
             </IntakeStep>
 
             <IntakeStep id="intake-company" number={number("intake-company")} t={t}>
-              <div className="form-fields">
+              <fieldset className="form-fields intake-fields" disabled={!isCompany} aria-labelledby="intake-company-title">
                 <FormField
                   {...fieldText}
                   {...latin}
@@ -347,7 +368,7 @@ export default function ClientIntakeForm({ initialLang }: { initialLang: Lang })
                   optional
                   wide
                 />
-              </div>
+              </fieldset>
             </IntakeStep>
 
             <IntakeStep id="intake-engagement" number={number("intake-engagement")} t={t}>
@@ -400,7 +421,8 @@ export default function ClientIntakeForm({ initialLang }: { initialLang: Lang })
                 <span className="intake-consent-box" aria-hidden="true" />
                 <span className="intake-consent-text body">{t.consent}</span>
               </label>
-              <FormSubmit>{t.submit}</FormSubmit>
+              {submitError ? <p role="alert" className="body">{submitError}</p> : null}
+              <FormSubmit disabled={submitting}>{submitting ? t.submitting : t.submit}</FormSubmit>
             </div>
           </div>
         </form>

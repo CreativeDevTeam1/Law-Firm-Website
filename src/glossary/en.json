@@ -20,7 +20,7 @@
       },
       "intake-company": {
         "title": "Company information",
-        "text": "The business you represent, as on its commercial registry. Optional if you’re coming to us yourself."
+        "text": "The business you represent, as on its commercial registry. This section is inactive for individual clients."
       },
       "intake-engagement": {
         "title": "Type of engagement",
@@ -89,6 +89,14 @@
       "replace": "Replace"
     },
     "consent": "I confirm the details above are accurate. I understand the firm keeps them confidential, and that sending this form doesn’t by itself make the firm my lawyers.",
+    "submitting": "Sending…",
+    "submissionErrors": {
+      "invalid": "Please check the form details and try again.",
+      "unavailable": "We could not confirm receipt. Your answers are still here; please try again later.",
+      "rate_limited": "Too many requests. Please wait a minute before trying again.",
+      "too_large": "This request is too large. Please remove attachments and try again.",
+      "documents_unavailable": "Online attachments are not connected yet. Remove the files to submit; our team will request them separately."
+    },
     "submit": "Send consultation request",
     "errors": {
       "practice": "Choose at least one practice area.",
