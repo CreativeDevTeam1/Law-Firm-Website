@@ -886,7 +886,10 @@
     min-height: calc(var(--navbar-logo-height) + 2 * var(--navbar-padding-y));
     padding: var(--navbar-padding-y) var(--navbar-padding-x);
     color: var(--color-neutral-100);
-    transition: color 0.3s ease;
+    transition:
+      color 0.3s ease,
+      background-color 0.3s ease,
+      box-shadow 0.3s ease;
   }
 
   .navbar-logo {
@@ -905,11 +908,25 @@
     color: var(--color-neutral-950);
   }
 
-  /* Over sections that are half light and half photo (data-navbar-blend):
-     the light colour, inverted against whatever is behind it, comes out
-     dark on the light background and light on the photo. */
-  .navbar-blend {
-    mix-blend-mode: difference;
+  /* Once the page has scrolled at all (navbar.tsx), the bar gets its own
+     background, so no photo or text ever sits right behind the links: dark
+     with light links over the hero, full-screen photos and the footer, and
+     light with dark links over everything else, with a hairline to edge it.
+     It also tightens up (16px → 24px padding instead of 24px → 48px), so a
+     solid bar doesn't take up a seventh of the screen. The logo gets the
+     class too, to move up with it. */
+  .navbar-solid {
+    --navbar-padding-y: clamp(var(--number-16), 0.8239rem + 0.7512vw, var(--number-24)); /* 16px → 24px */
+  }
+
+  .navbar.navbar-solid {
+    background-color: var(--color-neutral-950);
+    box-shadow: inset 0 -1px 0 rgb(240 240 240 / 0.1); /* neutral-100 at 10% */
+  }
+
+  .navbar.navbar-solid.navbar-dark {
+    background-color: var(--color-neutral-100);
+    box-shadow: inset 0 -1px 0 var(--color-neutral-250);
   }
 
   /* Slid up off the screen while scrolling down (navbar.tsx). Uses the
@@ -928,10 +945,19 @@
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .navbar,
+    .navbar {
+      transition:
+        color 0.3s ease,
+        background-color 0.3s ease,
+        box-shadow 0.3s ease,
+        padding 0.6s cubic-bezier(0.62, 0.05, 0.01, 0.99),
+        translate 0.6s cubic-bezier(0.62, 0.05, 0.01, 0.99);
+    }
+
     .navbar-logo {
       transition:
         color 0.3s ease,
+        top 0.6s cubic-bezier(0.62, 0.05, 0.01, 0.99),
         translate 0.6s cubic-bezier(0.62, 0.05, 0.01, 0.99);
     }
   }
@@ -1043,11 +1069,16 @@
     }
   }
 
-  /* Over the open mobile menu: light, whatever is underneath. */
+  /* Over the open mobile menu: light, whatever is underneath, and no bar of
+     its own (the menu is already dark behind it). */
   .navbar.navbar-open,
   .navbar-logo.navbar-open {
     color: var(--color-neutral-100);
-    mix-blend-mode: normal;
+  }
+
+  .navbar.navbar-solid.navbar-open {
+    background-color: transparent;
+    box-shadow: none;
   }
 
   /* Menu / Close, stacked in a one-line window; as on sunnybonnell.com. */
@@ -1336,9 +1367,31 @@
     object-position: center;
   }
 
+  /* A soft shade across the top of the photo, so the light navbar at the
+     top of the page reads over its brightest parts (lit walls, shelves):
+     4.5:1 or better for the links. Two and a half navbar heights tall,
+     darkest behind the bar and easing out to nothing. The text is lifted
+     above it. */
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: calc(2.5 * (var(--navbar-logo-height) + 2 * var(--navbar-padding-y)));
+    background: linear-gradient(
+      rgb(0 0 0 / 0.6) 0%,
+      rgb(0 0 0 / 0.55) 30%,
+      rgb(0 0 0 / 0.4) 50%,
+      rgb(0 0 0 / 0.22) 68%,
+      rgb(0 0 0 / 0.09) 85%,
+      rgb(0 0 0 / 0) 100%
+    );
+    pointer-events: none;
+  }
+
   .hero-screen,
   .hero-intro {
     position: relative;
+    z-index: 1; /* above the shade */
     display: flex;
     flex-direction: column;
     padding-inline: var(--layout-padding-x);

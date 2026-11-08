@@ -136,7 +136,7 @@ export default function PracticeAreasSection({ practiceAreas: { heading, areas }
         {heading.title}
       </SectionHeading>
 
-      <div className="practice-areas-split" data-navbar-blend>
+      <div className="practice-areas-split">
         <div className="practice-frame" aria-hidden="true">
           <div className="practice-frame-media" ref={frameRef}>
             <div className="practice-frame-photos">

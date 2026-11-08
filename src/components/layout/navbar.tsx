@@ -32,10 +32,10 @@ const isCurrentSection = (href: string, pathname: string) =>
 // Over the hero's photo the logo and links are light. Once the hero has
 // scrolled up past them they turn dark, for the light sections below, and
 // light again over the dark footer and over any section marked
-// data-navbar-light (e.g. a full-screen photo). Over sections marked
-// data-navbar-blend (half light, half photo) they're light and inverted
-// against what's behind them. Pages without a hero are dark until the
-// footer.
+// data-navbar-light (e.g. a full-screen photo). Pages without a hero are
+// dark until the footer. At the very top of the page the bar is see-through;
+// once the page has scrolled at all it's a solid bar in the matching colour
+// (navbar-solid), so photos and text never sit right behind the links.
 export default function Navbar({ firmName, links, cta }: NavbarProps) {
   const navbarRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLAnchorElement>(null);
@@ -95,29 +95,38 @@ export default function Navbar({ firmName, links, cta }: NavbarProps) {
 
   // Out of the way while reading: scrolling down slides the bar and logo up
   // off the screen, and scrolling back up (or reaching the top) brings them
-  // back, so they never sit on top of a heading or photo for long. Small
-  // scroll jitters are ignored. Keyboard focus inside them shows them too
-  // (CSS :focus-within).
+  // back. Small scroll jitters are ignored. Keyboard focus inside them shows
+  // them too (CSS :focus-within). Away from the very top the bar is solid.
   useEffect(() => {
     const navbar = navbarRef.current;
     const logo = logoRef.current;
     if (!navbar || !logo) return;
 
     const TOLERANCE = 8;
+    const SOLID_AFTER = 4; // px scrolled; any less still counts as the top
     let anchor = window.scrollY;
     let hidden = false;
+    let solid = false;
     const setHidden = (next: boolean) => {
       if (next === hidden) return;
       hidden = next;
       navbar.classList.toggle("navbar-hidden", next);
       logo.classList.toggle("navbar-hidden", next);
     };
+    const setSolid = (next: boolean) => {
+      if (next === solid) return;
+      solid = next;
+      navbar.classList.toggle("navbar-solid", next);
+      logo.classList.toggle("navbar-solid", next);
+    };
+    setSolid(window.scrollY > SOLID_AFTER);
 
     const trigger = ScrollTrigger.create({
       start: 0,
       end: "max",
       onUpdate: (self) => {
         const scroll = self.scroll();
+        setSolid(scroll > SOLID_AFTER);
         // Always shown while the bar still overlaps where it started.
         if (scroll <= navbar.offsetHeight) {
           anchor = scroll;
@@ -132,8 +141,8 @@ export default function Navbar({ firmName, links, cta }: NavbarProps) {
 
     return () => {
       trigger.kill();
-      navbar.classList.remove("navbar-hidden");
-      logo.classList.remove("navbar-hidden");
+      navbar.classList.remove("navbar-hidden", "navbar-solid");
+      logo.classList.remove("navbar-hidden", "navbar-solid");
     };
   }, [pathname]);
 
@@ -147,14 +156,10 @@ export default function Navbar({ firmName, links, cta }: NavbarProps) {
     let pastHero = false;
     let overFooter = false;
     const overLight = new Set<Element>();
-    const overBlend = new Set<Element>();
     const update = () => {
-      const blend = overBlend.size > 0;
-      const dark = pastHero && !overFooter && overLight.size === 0 && !blend;
+      const dark = pastHero && !overFooter && overLight.size === 0;
       navbar.classList.toggle("navbar-dark", dark);
       logo.classList.toggle("navbar-dark", dark);
-      navbar.classList.toggle("navbar-blend", blend);
-      logo.classList.toggle("navbar-blend", blend);
     };
 
     // Each switches when the element's edge reaches the middle of the bar,
@@ -208,37 +213,29 @@ export default function Navbar({ firmName, links, cta }: NavbarProps) {
       overFooter = footerTrigger.scroll() > footerTrigger.start;
     }
 
-    // Light (or blended) while the bar's middle is anywhere over a marked
-    // section. These sit mid-page, so unlike the footer they can be
-    // scrolled past.
-    const sectionTriggers = (
-      [
-        ["[data-navbar-light]", overLight],
-        ["[data-navbar-blend]", overBlend],
-      ] as const
-    ).flatMap(([selector, over]) =>
-      Array.from(document.querySelectorAll(selector), (section) => {
-        const trigger = ScrollTrigger.create({
-          trigger: section,
-          start: () => `top ${middle()}`,
-          end: () => `bottom ${middle()}`,
-          onToggle: (self) => {
-            if (self.isActive) over.add(section);
-            else over.delete(section);
-            update();
-          },
-        });
-        if (trigger.isActive) over.add(section);
-        return trigger;
-      }),
-    );
+    // Light while the bar's middle is anywhere over a marked section. These
+    // sit mid-page, so unlike the footer they can be scrolled past.
+    const sectionTriggers = Array.from(document.querySelectorAll("[data-navbar-light]"), (section) => {
+      const trigger = ScrollTrigger.create({
+        trigger: section,
+        start: () => `top ${middle()}`,
+        end: () => `bottom ${middle()}`,
+        onToggle: (self) => {
+          if (self.isActive) overLight.add(section);
+          else overLight.delete(section);
+          update();
+        },
+      });
+      if (trigger.isActive) overLight.add(section);
+      return trigger;
+    });
     update();
 
     return () => {
       triggers.forEach((trigger) => trigger.kill());
       sectionTriggers.forEach((trigger) => trigger.kill());
-      navbar.classList.remove("navbar-dark", "navbar-blend");
-      logo.classList.remove("navbar-dark", "navbar-blend");
+      navbar.classList.remove("navbar-dark");
+      logo.classList.remove("navbar-dark");
     };
   }, [pathname]);
 
