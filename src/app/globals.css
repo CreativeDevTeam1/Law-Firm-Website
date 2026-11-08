@@ -883,8 +883,8 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    min-height: calc(var(--navbar-logo-height) + 2 * var(--navbar-padding-y));
-    padding: var(--navbar-padding-y) var(--navbar-padding-x);
+    min-height: calc(var(--navbar-logo-height) + 2 * var(--navbar-bar-padding-y));
+    padding: var(--navbar-bar-padding-y) var(--navbar-padding-x);
     color: var(--color-neutral-100);
     transition:
       color 0.3s ease,
@@ -894,7 +894,7 @@
 
   .navbar-logo {
     position: fixed;
-    top: var(--navbar-padding-y);
+    top: var(--navbar-bar-padding-y);
     left: var(--navbar-padding-x);
     z-index: 11;
     display: block;
@@ -911,22 +911,28 @@
   /* Once the page has scrolled at all (navbar.tsx), the bar gets its own
      background, so no photo or text ever sits right behind the links: dark
      with light links over the hero, full-screen photos and the footer, and
-     light with dark links over everything else, with a hairline to edge it.
-     It also tightens up (16px → 24px padding instead of 24px → 48px), so a
-     solid bar doesn't take up a seventh of the screen. The logo gets the
-     class too, to move up with it. */
-  .navbar-solid {
-    --navbar-padding-y: clamp(var(--number-16), 0.8239rem + 0.7512vw, var(--number-24)); /* 16px → 24px */
+     light with dark links over everything else. It also tightens up (12px →
+     16px padding instead of 24px → 48px), so a solid bar doesn't take up a
+     seventh of the screen; the logo moves up with it. */
+  /* The tightening follows the scroll itself (navbar.tsx sets
+     --navbar-compact from 0 at the top to 1 after 120px), rather than
+     animating once the class changes, so the logo glides with the page
+     instead of jumping after the scroll has stopped. */
+  .navbar,
+  .navbar-logo {
+    --navbar-bar-padding-y: calc(
+      var(--navbar-padding-y)
+      + (clamp(var(--number-12), 0.662rem + 0.3756vw, var(--number-16)) - var(--navbar-padding-y))
+      * var(--navbar-compact, 0)
+    ); /* 24px → 48px at the top, 12px → 16px once scrolled */
   }
 
   .navbar.navbar-solid {
     background-color: var(--color-neutral-950);
-    box-shadow: inset 0 -1px 0 rgb(240 240 240 / 0.1); /* neutral-100 at 10% */
   }
 
   .navbar.navbar-solid.navbar-dark {
     background-color: var(--color-neutral-100);
-    box-shadow: inset 0 -1px 0 var(--color-neutral-250);
   }
 
   /* Slid up off the screen while scrolling down (navbar.tsx). Uses the
@@ -936,7 +942,7 @@
      only): that would keep it pinned after using it to change page. */
   .navbar,
   .navbar-logo {
-    --navbar-hide-y: calc(-1 * (var(--navbar-logo-height) + 2 * var(--navbar-padding-y)));
+    --navbar-hide-y: calc(-1 * (var(--navbar-logo-height) + 2 * var(--navbar-bar-padding-y)));
   }
 
   .navbar.navbar-hidden:not(:has(:focus-visible)),
@@ -950,14 +956,12 @@
         color 0.3s ease,
         background-color 0.3s ease,
         box-shadow 0.3s ease,
-        padding 0.6s cubic-bezier(0.62, 0.05, 0.01, 0.99),
         translate 0.6s cubic-bezier(0.62, 0.05, 0.01, 0.99);
     }
 
     .navbar-logo {
       transition:
         color 0.3s ease,
-        top 0.6s cubic-bezier(0.62, 0.05, 0.01, 0.99),
         translate 0.6s cubic-bezier(0.62, 0.05, 0.01, 0.99);
     }
   }
@@ -1395,6 +1399,23 @@
     display: flex;
     flex-direction: column;
     padding-inline: var(--layout-padding-x);
+  }
+
+  /* A shade rising from the H1 down through the quote, so the light text
+     reads over the bright parts of the photo (lamps, the lit planter). The
+     first screen fades into it; below the H1 it holds steady, so there's
+     no seam between the two parts. */
+  .hero-screen {
+    background: linear-gradient(
+      rgb(0 0 0 / 0) 40%,
+      rgb(0 0 0 / 0.15) 60%,
+      rgb(0 0 0 / 0.4) 80%,
+      rgb(0 0 0 / 0.5) 100%
+    );
+  }
+
+  .hero-intro {
+    background: rgb(0 0 0 / 0.5);
   }
 
   .hero-screen {

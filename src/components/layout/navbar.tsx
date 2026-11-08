@@ -119,7 +119,16 @@ export default function Navbar({ firmName, links, cta }: NavbarProps) {
       navbar.classList.toggle("navbar-solid", next);
       logo.classList.toggle("navbar-solid", next);
     };
+    // How far the bar has tightened, following the scroll over its first
+    // COMPACT_OVER px (see --navbar-compact in globals.css).
+    const COMPACT_OVER = 120;
+    const setCompact = (scroll: number) => {
+      const value = String(Math.min(1, Math.max(0, scroll / COMPACT_OVER)));
+      navbar.style.setProperty("--navbar-compact", value);
+      logo.style.setProperty("--navbar-compact", value);
+    };
     setSolid(window.scrollY > SOLID_AFTER);
+    setCompact(window.scrollY);
 
     const trigger = ScrollTrigger.create({
       start: 0,
@@ -127,6 +136,7 @@ export default function Navbar({ firmName, links, cta }: NavbarProps) {
       onUpdate: (self) => {
         const scroll = self.scroll();
         setSolid(scroll > SOLID_AFTER);
+        setCompact(scroll);
         // Always shown while the bar still overlaps where it started.
         if (scroll <= navbar.offsetHeight) {
           anchor = scroll;
@@ -143,6 +153,8 @@ export default function Navbar({ firmName, links, cta }: NavbarProps) {
       trigger.kill();
       navbar.classList.remove("navbar-hidden", "navbar-solid");
       logo.classList.remove("navbar-hidden", "navbar-solid");
+      navbar.style.removeProperty("--navbar-compact");
+      logo.style.removeProperty("--navbar-compact");
     };
   }, [pathname]);
 
